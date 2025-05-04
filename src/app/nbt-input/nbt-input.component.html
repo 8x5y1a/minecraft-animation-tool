@@ -1,0 +1,12 @@
+<button mat-fab extended (click)="fileInputRef.nativeElement.click()">
+  <mat-icon>upload_file</mat-icon>
+  Insert file
+</button>
+
+<input
+  type="file"
+  #fileInput
+  (change)="onFileInput($event)"
+  accept=".nbt"
+  style="display: none"
+/>
