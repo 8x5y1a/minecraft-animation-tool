@@ -1,3 +1,13 @@
+# Angular
+/.angular/
+/dist/
+
+# Node modules
+/node_modules/
+
+/.nx/
+/node_modules/.cache/nx/
+
 # Logs
 logs
 *.log
