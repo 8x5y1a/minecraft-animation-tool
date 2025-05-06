@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
+import { BlockCount, BlockData } from 'src/app/type';
 
 @Component({
   selector: 'app-nbt-input',
@@ -16,7 +17,6 @@ export class NbtInputComponent {
 
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
-  private filteredBlockList: any[] = []; //TODO: Add typing
 
   protected async onFileInput(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -31,11 +31,14 @@ export class NbtInputComponent {
     console.log(data);
 
     const blockData = data.parsed.value['blocks'];
-    const palette: any = data.parsed.value['palette'];
-    console.log(palette?.value.value);
-    const blockNameList = palette?.value.value.map((id: any) => id.Name.value);
+
+
+    const palette: any = data.parsed.value['palette']?.value;
+    console.log(palette?.value);
+    const blockNameList: string[] = palette?.value.map((id: any) => id.Name.value);
     console.log(blockNameList);
-    this.nbtDataService.setBlockList(blockNameList);
+
+
 
     // Verifying data is correctly parsed // Valid nbt for
     if (
@@ -47,12 +50,33 @@ export class NbtInputComponent {
       return;
     }
 
-    const blockList = blockData.value.value;
-    //Filter all air block
-    this.filteredBlockList = blockList.filter((block: any) => {
-      //TODO: Add type for block
-      return block.state.value !== 0;
+    const nbtPosData = blockData.value.value;
+    console.log(nbtPosData)
+
+    const blockCountDict: Record<string, number> = {};
+    const blockDataList: BlockData[] = []
+    nbtPosData.forEach((data: any) => {
+      const block = blockNameList[data.state.value];
+      blockDataList.push({
+        block: block,
+        property: palette.value[data.state.value].Properties ?? undefined,
+        position: {
+          x: data.pos.value.value[0],
+          y: data.pos.value.value[1],
+          z: data.pos.value.value[2]
+        }
+      });
+      blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
     });
-    console.log(this.filteredBlockList);
+
+  const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(([block, count]) => ({ block, count }));
+
+  console.log(blockDataList)
+  console.log(blockCountList);
+
+  this.nbtDataService.setBlockList(blockCountList);
+
+
+    //TODO: Make some better naming 
   }
 }

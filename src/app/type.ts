@@ -1,19 +1,17 @@
-export interface block {
-  pos: number[];
-  state: {
-    type: string; // Could specify the strings (e.g 'int', 'string', ...)
-    value: number; // This could be potentially different? Need to verify
-  };
-}
-
 //TODO: Find better name for this
-export interface data {
+export interface BlockData {
   block: string;
   property: unknown; //Make interface for this?
-  count: number;
   position: {
     x: number;
     y: number;
     z: number;
   };
+}
+
+export interface BlockCount {
+  block: string;
+  count: number;
+  //icon: string; //TODO: could add the image of the block?
+  //category: catergory; Could add a category for filtering? 
 }
