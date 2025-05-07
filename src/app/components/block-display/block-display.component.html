@@ -1,12 +1,21 @@
 <button mat-flat-button (click)="createCommands()">Create commands</button>
 <button mat-flat-button>Create files</button>
+<mat-form-field>
+  <input
+    matInput
+    type="text"
+    [formControl]="scaleInput"
+    placeholder="Enter something"
+  />
+  <mat-label>Scaling</mat-label>
+</mat-form-field>
+
 <textarea
   #commandTextArea
   readonly
-  style="width: 100%; height: 30%;"
+  style="width: 100%; height: 30%"
   [style.display]="commandTextArea.value === '' ? 'none' : ''"
->
-</textarea>
+></textarea>
 
 <mat-selection-list #shoes>
   @for (block of blockList; track block) {
