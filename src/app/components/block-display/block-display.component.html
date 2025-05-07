@@ -1,14 +1,23 @@
+<div>
+  <h1>Settings</h1>
+  <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+    <mat-button-toggle value="bold">Set blocks</mat-button-toggle>
+    <mat-button-toggle value="italic">Display blocks</mat-button-toggle>
+    <mat-button-toggle value="underline">Remove blocks</mat-button-toggle>
+  </mat-button-toggle-group>
+  <mat-form-field>
+    <input
+      matInput
+      type="text"
+      [formControl]="scaleInput"
+      placeholder="Enter something"
+    />
+    <mat-label>Scaling</mat-label>
+  </mat-form-field>
+</div>
+
 <button mat-flat-button (click)="createCommands()">Create commands</button>
 <button mat-flat-button>Create files</button>
-<mat-form-field>
-  <input
-    matInput
-    type="text"
-    [formControl]="scaleInput"
-    placeholder="Enter something"
-  />
-  <mat-label>Scaling</mat-label>
-</mat-form-field>
 
 <textarea
   #commandTextArea
@@ -18,7 +27,56 @@
 ></textarea>
 
 <mat-selection-list #shoes>
-  @for (block of blockList; track block) {
-  <mat-list-option>{{ block.block }} ({{ block.count }})</mat-list-option>
-  }
+  <mat-paginator
+    [length]="100"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    aria-label="Select page"
+  >
+    @for (block of blockList; track block) {
+    <mat-list-option>{{ block.block }} ({{ block.count }})</mat-list-option>
+    }
+  </mat-paginator>
 </mat-selection-list>
+
+<mat-form-field>
+  <mat-label>Filter blocks</mat-label>
+  <input
+    matInput
+    (keyup)="applyFilter($any($event.target).value)"
+    placeholder="e.g. stone"
+    #filterInput
+  />
+</mat-form-field>
+
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" matSort>
+    <!-- Block Column -->
+    <ng-container matColumnDef="block">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Block</th>
+      <td mat-cell *matCellDef="let element">{{ element.block }}</td>
+    </ng-container>
+
+    <!-- Count Column -->
+    <ng-container matColumnDef="count">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
+      <td mat-cell *matCellDef="let element">{{ element.count }}</td>
+    </ng-container>
+
+    <!-- Header and Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+    <!-- No-Data Row -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+        No blocks matching “{{ filterInput.value }}”
+      </td>
+    </tr>
+  </table>
+
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 25]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

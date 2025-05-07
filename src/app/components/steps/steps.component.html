@@ -1,0 +1,13 @@
+<mat-stepper orientation="vertical" linear class="two-col-stepper">
+  <mat-step label="Block list">
+    <div>
+      <app-block-display></app-block-display>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+    </div>
+  </mat-step>
+  <mat-step label="Animation" [optional]="true"> Put settings there </mat-step>
+  <mat-step label="Generate commands">
+    Move the button to add another nbt here instead
+  </mat-step>
+</mat-stepper>

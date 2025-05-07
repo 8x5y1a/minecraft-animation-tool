@@ -2,13 +2,14 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { parse } from 'prismarine-nbt';
+import { NBT, parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { BlockCount, BlockData } from 'src/app/type';
+import { StepsComponent } from '../steps/steps.component';
 
 @Component({
   selector: 'app-nbt-input',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, StepsComponent],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
 })
@@ -17,6 +18,8 @@ export class NbtInputComponent {
 
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
+
+  protected nbtList: NBT[] = [];
 
   protected async onFileInput(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -28,17 +31,20 @@ export class NbtInputComponent {
     const bufferArray = await file.arrayBuffer();
     const buffer = Buffer.from(bufferArray);
     const data = await parse(buffer);
-    console.log(data);
+
+    if (!data.parsed) {
+      return;
+    }
+    this.nbtList.push(data.parsed);
 
     const blockData = data.parsed.value['blocks'];
 
-
     const palette: any = data.parsed.value['palette']?.value;
     console.log(palette?.value);
-    const blockNameList: string[] = palette?.value.map((id: any) => id.Name.value);
+    const blockNameList: string[] = palette?.value.map(
+      (id: any) => id.Name.value
+    );
     console.log(blockNameList);
-
-
 
     // Verifying data is correctly parsed // Valid nbt for
     if (
@@ -51,46 +57,51 @@ export class NbtInputComponent {
     }
 
     const nbtPosData = blockData.value.value;
-    console.log(nbtPosData)
+    console.log(nbtPosData);
 
     const blockCountDict: Record<string, number> = {};
-    const blockDataList: BlockData[] = []
+    const blockDataList: BlockData[] = [];
     nbtPosData.forEach((data: any) => {
       const block = blockNameList[data.state.value];
       blockDataList.push({
         block: block,
-        property: this.transformProperty(palette.value[data.state.value].Properties),
+        property: this.transformProperty(
+          palette.value[data.state.value].Properties
+        ),
         position: {
           x: data.pos.value.value[0],
           y: data.pos.value.value[1],
-          z: data.pos.value.value[2]
-        }
+          z: data.pos.value.value[2],
+        },
       });
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
     });
 
-  const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(([block, count]) => ({ block, count }));
+    const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
+      ([block, count]) => ({ block, count })
+    );
 
-  console.log(blockDataList)
-  console.log(blockCountList);
+    console.log(blockDataList);
+    console.log(blockCountList);
 
-  this.nbtDataService.setBlockList(blockCountList);
-  this.nbtDataService.setBlockDataList(blockDataList)
+    this.nbtDataService.setBlockList(blockCountList);
+    this.nbtDataService.setBlockDataList(blockDataList);
 
-
-    //TODO: Make some better naming 
+    //TODO: Make some better naming
   }
 
-  private transformProperty(propertyNbt: any): Record<string, string> | undefined {
-    if(!propertyNbt){
-      return undefined
+  private transformProperty(
+    propertyNbt: any
+  ): Record<string, string> | undefined {
+    if (!propertyNbt) {
+      return undefined;
     }
-    const propertyTransformed:  Record<string, string> = {};
+    const propertyTransformed: Record<string, string> = {};
     Object.keys(propertyNbt.value).map((key) => {
       propertyTransformed[key] = propertyNbt.value[key].value;
-    })
+    });
 
-    console.log(propertyTransformed)
+    console.log(propertyTransformed);
     return propertyTransformed;
   }
 }

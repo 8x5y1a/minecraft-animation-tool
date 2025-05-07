@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
@@ -8,6 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
 @Component({
   selector: 'app-block-display',
@@ -18,11 +22,16 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    MatButtonToggleModule,
+    MatPaginatorModule,
+    MatTableModule,
+    MatSortModule,
   ],
   templateUrl: './block-display.component.html',
   styleUrl: './block-display.component.css',
+  standalone: true,
 })
-export class BlockDisplayComponent {
+export class BlockDisplayComponent implements AfterViewInit {
   protected blockList: BlockCount[] = [];
   protected blockDataList: BlockData[] = [];
   private command = 'scale';
@@ -33,6 +42,12 @@ export class BlockDisplayComponent {
 
   @ViewChild('commandTextArea')
   commandTextArea!: ElementRef<HTMLTextAreaElement>;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  displayedColumns: string[] = ['block', 'count'];
+  dataSource = new MatTableDataSource<BlockCount>([]);
 
   constructor(private nbtDataService: NbtDataService) {
     this.nbtDataService.blockListObs
@@ -46,6 +61,16 @@ export class BlockDisplayComponent {
       .subscribe((newBlockDataList: BlockData[]) => {
         this.blockDataList = newBlockDataList;
       });
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.data = this.blockList;
+  }
+
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   //TODO: Create a strong builder that will don't require switch case what's over
