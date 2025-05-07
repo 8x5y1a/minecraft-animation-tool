@@ -1,7 +1,7 @@
 //TODO: Find better name for this
 export interface BlockData {
   block: string;
-  property: unknown; //Make interface for this?
+  property: Record<string, string> | undefined;
   position: {
     x: number;
     y: number;

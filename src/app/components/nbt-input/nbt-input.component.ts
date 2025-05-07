@@ -59,7 +59,7 @@ export class NbtInputComponent {
       const block = blockNameList[data.state.value];
       blockDataList.push({
         block: block,
-        property: palette.value[data.state.value].Properties ?? undefined,
+        property: this.transformProperty(palette.value[data.state.value].Properties),
         position: {
           x: data.pos.value.value[0],
           y: data.pos.value.value[1],
@@ -75,8 +75,22 @@ export class NbtInputComponent {
   console.log(blockCountList);
 
   this.nbtDataService.setBlockList(blockCountList);
+  this.nbtDataService.setBlockDataList(blockDataList)
 
 
     //TODO: Make some better naming 
+  }
+
+  private transformProperty(propertyNbt: any): Record<string, string> | undefined {
+    if(!propertyNbt){
+      return undefined
+    }
+    const propertyTransformed:  Record<string, string> = {};
+    Object.keys(propertyNbt.value).map((key) => {
+      propertyTransformed[key] = propertyNbt.value[key].value;
+    })
+
+    console.log(propertyTransformed)
+    return propertyTransformed;
   }
 }

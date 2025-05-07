@@ -1,5 +1,13 @@
 <button mat-flat-button (click)="createCommands()">Create commands</button>
 <button mat-flat-button>Create files</button>
+<textarea
+  #commandTextArea
+  readonly
+  style="width: 100%; height: 30%;"
+  [style.display]="commandTextArea.value === '' ? 'none' : ''"
+>
+</textarea>
+
 <mat-selection-list #shoes>
   @for (block of blockList; track block) {
   <mat-list-option>{{ block.block }} ({{ block.count }})</mat-list-option>
