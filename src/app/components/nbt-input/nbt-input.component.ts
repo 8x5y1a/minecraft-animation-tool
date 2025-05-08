@@ -101,7 +101,6 @@ export class NbtInputComponent {
       propertyTransformed[key] = propertyNbt.value[key].value;
     });
 
-    console.log(propertyTransformed);
     return propertyTransformed;
   }
 }

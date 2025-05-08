@@ -2,11 +2,13 @@
 <app-steps />
 }
 
-<!-- TODO: Add a if has a file then change title to : Import another file -->
-<button mat-fab extended (click)="fileInputRef.nativeElement.click()">
-  <mat-icon>upload_file</mat-icon>
-  {{ nbtList.length ? 'Import another NBT file' : 'Import NBT file' }}
-</button>
+<div class="center">
+  <!-- TODO: Add a if has a file then change title to : Import another file -->
+  <button mat-fab extended (click)="fileInputRef.nativeElement.click()">
+    <mat-icon>upload_file</mat-icon>
+    {{ nbtList.length ? 'Import another NBT file' : 'Import NBT file' }}
+  </button>
+</div>
 
 <input
   type="file"

@@ -2,12 +2,30 @@
   <mat-step label="Block list">
     <div>
       <app-block-display></app-block-display>
-      <button mat-button matStepperPrevious>Back</button>
+      <div style="margin: 10px">
+        <button mat-button matStepperPrevious style="margin-right: 5px">
+          Back
+        </button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </div>
+  </mat-step>
+  <mat-step label="Animation" [optional]="true">
+    <app-animation-settings />
+    <div style="margin: 10px">
+      <button mat-button matStepperPrevious style="margin-right: 5px">
+        Back
+      </button>
       <button mat-button matStepperNext>Next</button>
     </div>
   </mat-step>
-  <mat-step label="Animation" [optional]="true"> Put settings there </mat-step>
   <mat-step label="Generate commands">
     Move the button to add another nbt here instead
+    <div style="margin: 10px">
+      <button mat-button matStepperPrevious style="margin-right: 5px">
+        Back
+      </button>
+      <button mat-button matStepperNext>Next</button>
+    </div>
   </mat-step>
 </mat-stepper>
