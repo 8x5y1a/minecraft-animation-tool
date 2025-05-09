@@ -1,4 +1,21 @@
 .table-container {
-    max-height: 400px;
-    overflow: auto;
-  }
+  max-height: 400px;
+  overflow: auto;
+}
+
+mat-icon {
+  color: #c70000;
+}
+
+.table-container .mat-mdc-row:hover {
+  background-color: #810081;
+}
+
+.table-container .mat-mdc-row:hover mat-icon {
+  color: #18ffff;
+}
+
+.table-container .mat-mdc-header-row {
+  background-color: #7d00fa;
+  font-size: 110%
+}

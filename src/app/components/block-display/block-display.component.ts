@@ -76,9 +76,19 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
     this.dialogSub?.unsubscribe();
   }
 
-  applyFilter(filterValue: string) {
+  protected applyFilter(filterValue: string) {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
+
+  protected formatMinecraftName(input: string): string {
+    if (!input) {
+      return ''
+    };
+    const key = input.includes(':') ? input.split(':').pop() : input;
+    const spaced = key?.replace(/_/g, ' ');
+    return spaced?.replace(/\b\w/g, char => char.toUpperCase()) ?? '';
+  }
+
 
   @ViewChild('dialogRemove') dialogRemove!: TemplateRef<any>;
   readonly dialog = inject(MatDialog);

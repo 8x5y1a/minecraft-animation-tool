@@ -15,3 +15,12 @@ export interface BlockCount {
   //icon: string; //TODO: could add the image of the block?
   //category: catergory; Could add a category for filtering? 
 }
+
+export interface AnimationProperties {
+  command: 'set' | 'display' | 'destroy',
+  scale: number,
+  translation: any, //TODO: Figure out what the types will be for these properties
+  timing: boolean,
+  tagList: string[],
+  interlopation: any,
+}

@@ -86,6 +86,8 @@ export class NbtInputComponent {
 
     this.nbtDataService.setBlockList(blockCountList);
     this.nbtDataService.setBlockDataList(blockDataList);
+    //TODO: add a scrolling event => to center the block list
+
 
     //TODO: Make some better naming
   }
