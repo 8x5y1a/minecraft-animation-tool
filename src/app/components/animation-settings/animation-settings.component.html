@@ -23,12 +23,13 @@
         @if(properties.timing.value){
         <mat-card-content>
           <mat-form-field>
-            <mat-label>Speed</mat-label>
+            <mat-label>Block per tick</mat-label>
             <input
               matInput
+              matTooltip="Higher value is slower"
               type="number"
-              [min]="0.01"
-              [max]="300"
+              [min]="1"
+              [max]="500"
               [formControl]="properties.speed"
             />
           </mat-form-field>
