@@ -1,24 +1,71 @@
-<mat-tab-group>
-  TODO: Add more animation creates new tab
-  <mat-tab label="First">
+<div class="animation-tabs-wrapper">
+  <mat-tab-group [selectedIndex]="tabIndex()">
+    @for (properties of animationPropertiesList; track properties; let index =
+    $index){
+    <mat-tab [label]="'Animation ' + (index + 1)">
+      <mat-radio-group
+        class=""
+        [formControl]="properties.command"
+        (onchange)="commandChange()"
+        aria-label="Select an option"
+      >
+        <mat-radio-button value="set">Set block</mat-radio-button>
+        <mat-radio-button value="display">Display block</mat-radio-button>
+        <mat-radio-button value="destroy">Destroy block</mat-radio-button>
+      </mat-radio-group>
+      <div class="content">
+        <p>
+          <mat-slide-toggle [formControl]="properties.timing">
+            Timing
+          </mat-slide-toggle>
+        </p>
 
-    <mat-radio-group [formControl]="commandSetDisplayToggle" (onchange)="commandChange()" aria-label="Select an option">
-      <mat-radio-button value="set">Set block</mat-radio-button>
-      <mat-radio-button value="display">Display block</mat-radio-button>
-      <mat-radio-button value="destroy">Destroy block</mat-radio-button>
-    </mat-radio-group>
-  
-    @if(commandSetDisplayToggle.value === 'display'){
-      <mat-form-field>
-        <input
-          matInput
-          type="text"
-          [formControl]="scaleInput"
-          placeholder="Enter something"
-        />
-        <mat-label>Scaling</mat-label>
-      </mat-form-field>
+        @if(properties.timing.value){
+        <mat-card-content>
+          <mat-form-field>
+            <mat-label>Speed</mat-label>
+            <input
+              matInput
+              type="number"
+              [min]="0.01"
+              [max]="300"
+              [formControl]="properties.speed"
+            />
+          </mat-form-field>
+        </mat-card-content>
+        } @if(properties.command.value === 'display'){
+        <mat-form-field>
+          <input
+            matInput
+            type="text"
+            [formControl]="properties.scale"
+            placeholder="Enter something"
+          />
+          <mat-label>Scaling</mat-label>
+        </mat-form-field>
+        }
+      </div>
+      <!-- TODO: Footer style -->
+      <div class="footer">
+        @if(animationPropertiesList.length > 1){
+        <button
+          mat-button
+          matTooltip="Remove this animation"
+          (click)="removeAnimation(index)"
+        >
+          Remove
+        </button>
+        }
+      </div>
+    </mat-tab>
     }
-  </mat-tab>
-  <mat-tab label="Second"> Add animation </mat-tab>
-</mat-tab-group>
+  </mat-tab-group>
+  <button
+    mat-stroked-button
+    matTooltip="Add another animation"
+    class="add-animation-btn"
+    (click)="addAnimation()"
+  >
+    <mat-icon style="margin: 0">add</mat-icon>
+  </button>
+</div>

@@ -1,9 +1,8 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BlockData } from 'src/app/type';
+import { AnimationProperties, BlockData } from 'src/app/type';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -16,8 +15,7 @@ export class GenerateCommandComponent {
   @ViewChild('commandTextArea')
   private commandTextArea!: ElementRef<HTMLTextAreaElement>;
   protected blockDataList: BlockData[] = [];
-  //TODO: Temporary input to make code work:
-  private scaleInput = new FormControl(1, {nonNullable: true})
+  private propertiesList: AnimationProperties[] = [];
 
   constructor(private nbtDataService: NbtDataService) {
     this.nbtDataService.blockDataListObs
@@ -25,21 +23,30 @@ export class GenerateCommandComponent {
       .subscribe((newBlockDataList: BlockData[]) => {
         this.blockDataList = newBlockDataList;
       });
-    
-   // this.nbtDataService.animationSettings.pipe(takeUntilDestroyed) //TODO:
+
+    this.nbtDataService.propertiesListObs
+      .pipe(takeUntilDestroyed())
+      .subscribe((propertiesList: AnimationProperties[]) => {
+        this.propertiesList = propertiesList;
+      });
   }
 
   //TODO: Create a strong builder that will don't require switch case what's over
   protected createCommands() {
-    let command = 'set' //TODO: Temporary
+    const properties: AnimationProperties = this.propertiesList[0];
+    if (!properties) {
+      return;
+    }
+
+    console.log(properties);
     let commandGenerated = '';
-    switch (command) {
+    switch (properties.command.value) {
       case 'set': {
-        commandGenerated = this.setBlock();
+        commandGenerated = this.setBlock(properties);
         break;
       }
       case 'display': {
-        commandGenerated = this.scaleCommand();
+        commandGenerated = this.scaleCommand(properties);
         break;
       }
       default: {
@@ -49,7 +56,8 @@ export class GenerateCommandComponent {
     this.commandTextArea.nativeElement.value = commandGenerated;
   }
 
-  private setBlock(): string {
+  private setBlock(properties: AnimationProperties): string {
+    console.log(properties);
     const commandGenerated: string[] = this.blockDataList.map(
       ({ block, position: { x, y, z }, property }) => {
         const entries = Object.entries(property ?? {})
@@ -67,30 +75,30 @@ export class GenerateCommandComponent {
     return commandGenerated.join('\n');
   }
 
-  private scaleCommand(): string {
+  private scaleCommand(properties: AnimationProperties): string {
     const commandGenerated: string[] = this.blockDataList.map(
       ({ block, position: { x, y, z }, property }) => {
         const entries = Object.entries(property ?? {})
           .map(([k, v]) => `${k}:"${v}"`)
           .join(', ');
 
-        let properties = '';
+        let propertieString = '';
         if (entries) {
-          properties = `,Properties:{${entries}}`;
+          propertieString = `,Properties:{${entries}}`;
         }
 
         let scale = '';
-        if (this.scaleInput.value !== 1) {
-          scale = `,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[${this.scaleInput.value}f,${this.scaleInput.value}f,${this.scaleInput.value}f]}`;
+        if (properties.scale.value !== 1) {
+          scale = `,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[${properties.scale.value}f,${properties.scale.value}f,${properties.scale.value}f]}`;
 
-          x = parseFloat((x * this.scaleInput.value).toFixed(4));
-          y = parseFloat((y * this.scaleInput.value).toFixed(4));
-          z = parseFloat((z * this.scaleInput.value).toFixed(4));
+          x = parseFloat((x * properties.scale.value).toFixed(4));
+          y = parseFloat((y * properties.scale.value).toFixed(4));
+          z = parseFloat((z * properties.scale.value).toFixed(4));
         }
 
         return (
           `summon block_display ~${x} ~${y} ~${z} {block_state:{Name:"${
-            block + '"' + properties
+            block + '"' + propertieString
           }}` +
           scale +
           `}`

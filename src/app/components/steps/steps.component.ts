@@ -4,10 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { BlockDisplayComponent } from '../block-display/block-display.component';
 import { AnimationSettingsComponent } from '../animation-settings/animation-settings.component';
-import { GenerateCommandComponent } from "../generate-command/generate-command.component";
-import {MatExpansionModule} from '@angular/material/expansion';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
+import { GenerateCommandComponent } from '../generate-command/generate-command.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-steps',
@@ -21,13 +21,12 @@ import {MatIconModule} from '@angular/material/icon';
     MatExpansionModule,
     MatIconModule,
     MatFormFieldModule,
-],
+  ],
   templateUrl: './steps.component.html',
   styleUrl: './steps.component.css',
   standalone: true,
 })
 export class StepsComponent {
-
   step = signal(0);
 
   protected setStep(index: number) {
@@ -35,10 +34,10 @@ export class StepsComponent {
   }
 
   protected nextStep() {
-    this.step.update(i => i + 1);
+    this.step.update((i) => i + 1);
   }
 
   protected prevStep() {
-    this.step.update(i => i - 1);
+    this.step.update((i) => i - 1);
   }
 }

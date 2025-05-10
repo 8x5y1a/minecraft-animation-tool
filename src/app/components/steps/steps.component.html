@@ -9,7 +9,7 @@
       <mat-panel-title> Block list </mat-panel-title>
       <mat-panel-description>
         Filter the blocks
-        <mat-icon>list</mat-icon>
+        <mat-icon>format_list_bulleted</mat-icon>
       </mat-panel-description>
     </mat-expansion-panel-header>
     <app-block-display></app-block-display>
@@ -25,13 +25,13 @@
     hideToggle
   >
     <mat-expansion-panel-header>
-      <mat-panel-title> Add animations </mat-panel-title>
+      <mat-panel-title> Animations </mat-panel-title>
       <mat-panel-description>
         Add animations and properties
-        <mat-icon>settings_timelapse</mat-icon>
+        <mat-icon>tune</mat-icon>
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <app-animation-settings />
+    <app-animation-settings [commandsSelected]="step() === 2" />
 
     <mat-action-row>
       <button mat-button (click)="prevStep()">Previous</button>
@@ -51,7 +51,7 @@
         <mat-icon>file_copy</mat-icon>
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <div style="height: 300px;">
+    <div style="height: 300px">
       <app-generate-command></app-generate-command>
     </div>
     <mat-action-row>
