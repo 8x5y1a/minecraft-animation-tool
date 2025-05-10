@@ -14,6 +14,24 @@
         <mat-radio-button value="destroy">Destroy block</mat-radio-button>
       </mat-radio-group>
       <div class="content">
+        @if(properties.command.value !== 'destroy'){
+        <h4>Coordinates</h4>
+        <div class="coordinates">
+          <mat-form-field>
+            <mat-label>X</mat-label>
+            <input type="number" matInput [formControl]="properties.x" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Y</mat-label>
+            <input type="number" matInput [formControl]="properties.y" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Z</mat-label>
+            <input type="number" matInput [formControl]="properties.z" />
+          </mat-form-field>
+        </div>
+        }
+
         <p>
           <mat-slide-toggle [formControl]="properties.timing">
             Timing
@@ -35,15 +53,17 @@
           </mat-form-field>
         </mat-card-content>
         } @if(properties.command.value === 'display'){
-        <mat-form-field>
-          <input
-            matInput
-            type="text"
-            [formControl]="properties.scale"
-            placeholder="Enter something"
-          />
-          <mat-label>Scaling</mat-label>
-        </mat-form-field>
+        <div>
+          <mat-form-field>
+            <input
+              matInput
+              type="text"
+              [formControl]="properties.scale"
+              placeholder="Enter something"
+            />
+            <mat-label>Scaling</mat-label>
+          </mat-form-field>
+        </div>
         }
       </div>
       <!-- TODO: Footer style -->

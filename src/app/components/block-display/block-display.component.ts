@@ -1,7 +1,9 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   inject,
+  input,
   OnDestroy,
   TemplateRef,
   ViewChild,
@@ -53,6 +55,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
 })
 export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
+  public blocListSelected = input(false);
   protected blockList: BlockCount[] = [];
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -65,6 +68,12 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
       .subscribe((newBlockList: BlockCount[]) => {
         this.blockList = newBlockList;
       });
+
+    effect(() => {
+      if (this.blocListSelected()) {
+        this.nbtDataService.filterBlocDataList(this.dataSource.data);
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -82,13 +91,12 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
 
   protected formatMinecraftName(input: string): string {
     if (!input) {
-      return ''
-    };
+      return '';
+    }
     const key = input.includes(':') ? input.split(':').pop() : input;
     const spaced = key?.replace(/_/g, ' ');
-    return spaced?.replace(/\b\w/g, char => char.toUpperCase()) ?? '';
+    return spaced?.replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
   }
-
 
   @ViewChild('dialogRemove') dialogRemove!: TemplateRef<any>;
   readonly dialog = inject(MatDialog);

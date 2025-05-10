@@ -26,4 +26,7 @@ export interface AnimationProperties {
   speed: FormControl<number>;
   tagList: FormControl<string[]>;
   interlopation: FormControl<any>;
+  x: FormControl<number>;
+  y: FormControl<number>;
+  z: FormControl<number>;
 }

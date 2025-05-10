@@ -66,6 +66,9 @@ export class AnimationSettingsComponent {
       tagList: new FormControl([], { nonNullable: true }),
       interlopation: new FormControl(0, { nonNullable: true }),
       speed: new FormControl(1, { nonNullable: true }),
+      x: new FormControl(0, { nonNullable: true }),
+      y: new FormControl(0, { nonNullable: true }),
+      z: new FormControl(0, { nonNullable: true }),
     };
     this.animationPropertiesList.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);

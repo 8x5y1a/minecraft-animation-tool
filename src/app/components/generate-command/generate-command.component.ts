@@ -80,7 +80,7 @@ export class GenerateCommandComponent {
     scaleValue: number,
     isDisplay: boolean
   ): string {
-    if (!isDisplay || scaleValue === 1) {
+    if (!isDisplay) {
       return '';
     }
     const [x, y, z] = coords;
@@ -93,6 +93,25 @@ export class GenerateCommandComponent {
       `scale:[${scaleValue}f,${scaleValue}f,${scaleValue}f]}`
     );
   }
+
+  private transformCoordinates(
+    blockCoordinate: number,
+    coordinate: number,
+    scale: number
+  ): number {
+    return parseFloat(((blockCoordinate + coordinate) * scale).toFixed(4));
+  }
+
+  /**
+   * TODO: When timing is on, we need 2 mcfunction.
+   * 1 That does execute:
+   *       positioned x y z function ...
+   * A second that does:
+   *       call the builder function
+   *
+   * So maybe implement this when we start writing the files for the datapack
+   * Could call this application Data pack generator.. but that might not be very accurate since it's only building animation
+   */
 
   /**
    * Command builder that will transform the settings into the commands
@@ -111,12 +130,14 @@ export class GenerateCommandComponent {
           property ?? {},
           isSet
         );
-        x = parseFloat((x * properties.scale.value).toFixed(4));
-        y = parseFloat((y * properties.scale.value).toFixed(4));
-        z = parseFloat((z * properties.scale.value).toFixed(4));
+        x = this.transformCoordinates(x, properties.x.value, scaleValue);
+        y = this.transformCoordinates(y, properties.y.value, scaleValue);
+        z = this.transformCoordinates(z, properties.z.value, scaleValue);
 
         const timing = isTiming
-          ? `execute if score $Dataman count matches ${Math.round(y)} run`
+          ? `execute if score $Dataman count matches ${Math.abs(
+              Math.round(y)
+            )} run`
           : '';
         const coordinates = isTiming ? `0 0 0` : `~${x} ~${y} ~${z}`;
         const transform = this.buildTransformation(
@@ -127,7 +148,7 @@ export class GenerateCommandComponent {
         );
 
         if (isSet) {
-          return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} replace`;
+          return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
         }
 
         return (
@@ -140,7 +161,7 @@ export class GenerateCommandComponent {
     );
 
     if (properties.timing.value) {
-      const maxAnimationWay = 4; //TODO: Keep track of the max
+      const maxAnimationWay = 100; //TODO: Keep track of the max
       const dataPackName = 'jeff:test';
       commandGenerated.unshift(
         'scoreboard objectives add count trigger',

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, take } from 'rxjs';
 import { AnimationProperties, BlockCount, BlockData } from '../type';
 
 @Injectable({ providedIn: 'root' })
@@ -28,5 +28,14 @@ export class NbtDataService {
     this.propertiesListSubject.asObservable();
   setPropertiesList(newPropertiesList: AnimationProperties[]) {
     this.propertiesListSubject.next(newPropertiesList);
+  }
+
+  public filterBlocDataList(blockList: BlockCount[]) {
+    const blockListSet = new Set(blockList.map((block) => block.block));
+    const filtered = this.blockDataListSubject
+      .getValue()
+      .filter((blockData) => blockListSet.has(blockData.block));
+
+    this.blockDataListSubject.next(filtered);
   }
 }
