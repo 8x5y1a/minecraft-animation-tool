@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NBT, parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
-import { BlockCount, BlockData } from 'src/app/type';
+import { BlockCount, BlockData } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 
 @Component({

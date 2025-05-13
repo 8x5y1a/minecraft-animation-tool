@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, take } from 'rxjs';
-import { AnimationProperties, BlockCount, BlockData } from '../type';
+import { AnimationProperties, BlockCount, BlockData } from '../types/type';
 
 @Injectable({ providedIn: 'root' })
 export class NbtDataService {

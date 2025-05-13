@@ -1,9 +1,11 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AnimationProperties, BlockData } from 'src/app/type';
+import { AnimationProperties, BlockData } from 'src/app/types/type';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { ZipService } from 'src/app/services/zip.service';
+import { pack } from 'src/app/types/datapack-format';
 
 @Component({
   selector: 'app-generate-command',
@@ -17,7 +19,10 @@ export class GenerateCommandComponent {
   protected blockDataList: BlockData[] = [];
   private propertiesList: AnimationProperties[] = [];
 
-  constructor(private nbtDataService: NbtDataService) {
+  constructor(
+    private nbtDataService: NbtDataService,
+    private zipService: ZipService
+  ) {
     this.nbtDataService.blockDataListObs
       .pipe(takeUntilDestroyed())
       .subscribe((newBlockDataList: BlockData[]) => {
@@ -162,7 +167,7 @@ export class GenerateCommandComponent {
 
     if (properties.timing.value) {
       const maxAnimationWay = 100; //TODO: Keep track of the max
-      const dataPackName = 'jeff:test';
+      const dataPackName = 'animation:animation';
       commandGenerated.unshift(
         'scoreboard objectives add count trigger',
         'scoreboard players add $Dataman count 0'
@@ -181,5 +186,20 @@ export class GenerateCommandComponent {
     }
     console.log(commandGenerated);
     return commandResult;
+  }
+
+  protected async generateFiles(): Promise<void> {
+    //TEMP
+    const properties: AnimationProperties = this.propertiesList[0];
+
+    this.zipService.addFile('pack.mcmeta', pack);
+    this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
+    this.zipService.addFile(
+      'data/animation/function/animation.mcfunction',
+      this.buildCommands(properties)
+    );
+    await this.zipService.download('datapack.zip').catch((error) => {
+      console.error(error);
+    });
   }
 }

@@ -5,7 +5,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AnimationProperties, BlockData } from 'src/app/type';
+import { AnimationProperties, BlockData } from 'src/app/types/type';
 import { MatInput } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIcon } from '@angular/material/icon';

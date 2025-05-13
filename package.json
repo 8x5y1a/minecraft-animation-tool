@@ -21,6 +21,8 @@
     "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
     "path-browserify": "^1.0.1",
     "prismarine-nbt": "^2.7.0",
     "process": "^0.11.10",
@@ -49,17 +51,16 @@
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
+    "@types/file-saver": "^2.0.7",
     "@typescript-eslint/utils": "^8.19.0",
     "angular-eslint": "^19.2.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
-    "nx": "20.8.1",
+    "nx": "21.0.3",
     "prettier": "^2.6.2",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.19.0"
   },
-  "nx": {
-    "includedScripts": []
-  }
+  "nx": {}
 }
