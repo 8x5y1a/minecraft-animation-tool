@@ -14,6 +14,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-animation-settings',
@@ -31,6 +32,7 @@ import { MatCardModule } from '@angular/material/card';
     MatSlideToggleModule,
     MatSliderModule,
     MatCardModule,
+    MatSelectModule,
   ],
   templateUrl: './animation-settings.component.html',
   styleUrl: './animation-settings.component.css',
@@ -59,6 +61,7 @@ export class AnimationSettingsComponent {
 
   protected addAnimation() {
     const newAnimation: AnimationProperties = {
+      name: 'Animation ' + this.animationPropertiesList.length,
       command: new FormControl('set', { nonNullable: true }),
       scale: new FormControl(1, { nonNullable: true }),
       translation: new FormControl(0, { nonNullable: true }),
@@ -69,17 +72,11 @@ export class AnimationSettingsComponent {
       x: new FormControl(0, { nonNullable: true }),
       y: new FormControl(0, { nonNullable: true }),
       z: new FormControl(0, { nonNullable: true }),
+      removeAnimation: new FormControl(undefined, { nonNullable: true }),
     };
     this.animationPropertiesList.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);
   }
-
-  //TODO: remove for tab change
-  protected commandChange() {
-    console.log();
-  }
-
-  //TODO: ON Mat-accordion change, update the properties (all inputs)
 
   protected removeAnimation(index: number) {
     this.animationPropertiesList.splice(index, 1);

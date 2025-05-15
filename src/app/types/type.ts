@@ -19,14 +19,16 @@ export interface BlockCount {
 }
 
 export interface AnimationProperties {
+  name: string;
   command: FormControl<'set' | 'display' | 'destroy'>;
   scale: FormControl<number>;
   translation: FormControl<any>; //TODO: Figure out what the types will be for these properties
   timing: FormControl<boolean>;
   speed: FormControl<number>;
-  tagList: FormControl<string[]>;
-  interlopation: FormControl<any>;
+  tagList: FormControl<string[]>; //Keep track of
+  interlopation: FormControl<any>; //??
   x: FormControl<number>;
   y: FormControl<number>;
   z: FormControl<number>;
+  removeAnimation: FormControl<undefined | AnimationProperties>;
 }

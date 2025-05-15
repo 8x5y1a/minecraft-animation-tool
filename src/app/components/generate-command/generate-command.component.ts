@@ -41,9 +41,6 @@ export class GenerateCommandComponent {
     if (!properties) {
       return;
     }
-    if (properties.command.value === 'destroy') {
-      console.log('TODO:');
-    }
 
     const commandGenerated = this.buildCommands(properties);
 
@@ -152,16 +149,28 @@ export class GenerateCommandComponent {
           isDisplay
         );
 
-        if (isSet) {
-          return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
-        }
+        switch (properties.command.value) {
+          case 'set': {
+            return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
+          }
+          case 'display': {
+            const tags = `,Tags:["${x}-${y}-${z}","${properties.removeAnimation}"]`;
 
-        return (
-          `${timing} summon block_display ${coordinates} {` +
-          `block_state:{Name:"${block}"${propertiesString}}` +
-          `${transform}` +
-          `}`
-        );
+            return (
+              `${timing} summon block_display ${coordinates} {` +
+              `block_state:{Name:"${block}"${propertiesString}}` +
+              `${transform}${tags}` +
+              `}`
+            );
+          }
+          case 'destroy': {
+            //Remove set:
+            return `${timing} setblock ${x} ${y} ${z} minecraft:air`;
+
+            //Remove display:
+            return `${timing} kill @e[tag=${x}-${y}-${z}]`;
+          }
+        }
       }
     );
 
@@ -184,7 +193,6 @@ export class GenerateCommandComponent {
     if (commandGenerated.length) {
       this.commandTextArea.nativeElement.value = commandResult;
     }
-    console.log(commandGenerated);
     return commandResult;
   }
 

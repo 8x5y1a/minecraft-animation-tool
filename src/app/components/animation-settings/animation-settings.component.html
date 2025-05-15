@@ -6,7 +6,6 @@
       <mat-radio-group
         class=""
         [formControl]="properties.command"
-        (onchange)="commandChange()"
         aria-label="Select an option"
       >
         <mat-radio-button value="set">Set block</mat-radio-button>
@@ -14,7 +13,17 @@
         <mat-radio-button value="destroy">Destroy block</mat-radio-button>
       </mat-radio-group>
       <div class="content">
-        @if(properties.command.value !== 'destroy'){
+        @if(properties.command.value === 'destroy'){
+        <mat-form-field>
+          <mat-label>Animation to destroy</mat-label>
+          <mat-select [formControl]="properties.removeAnimation">
+            @for (animation of animationPropertiesList; track animation) {
+            @if(animation.command.value !== 'destroy'){
+            <mat-option [value]="animation">{{ animation.name }}</mat-option>
+            } }
+          </mat-select>
+        </mat-form-field>
+        } @else{
         <h4>Coordinates</h4>
         <div class="coordinates">
           <mat-form-field>
