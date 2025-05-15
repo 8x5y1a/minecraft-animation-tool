@@ -126,8 +126,9 @@ export class GenerateCommandComponent {
     const isTiming = properties.timing.value;
     const scaleValue = properties.scale.value;
 
+    let maxAnimationWay = -1000;
     const commandGenerated: string[] = this.blockDataList.map(
-      ({ block, position: { x, y, z }, property }) => {
+      ({ block, position: { x, y, z }, property }, index) => {
         const propertiesString = this.buildPropertiesString(
           property ?? {},
           isSet
@@ -135,10 +136,19 @@ export class GenerateCommandComponent {
         x = this.transformCoordinates(x, properties.x.value, scaleValue);
         y = this.transformCoordinates(y, properties.y.value, scaleValue);
         z = this.transformCoordinates(z, properties.z.value, scaleValue);
+        if (properties.command.value !== 'destroy') {
+          properties.coordinateList.push({ x: x, y: y, z: z });
+        }
+
+        //TODO: Probably make a function for max animation way
+        const relativeY = y - properties.y.value;
+        if (relativeY > maxAnimationWay) {
+          maxAnimationWay = relativeY;
+        }
 
         const timing = isTiming
           ? `execute if score $Dataman count matches ${Math.abs(
-              Math.round(y)
+              Math.round(relativeY)
             )} run`
           : '';
         const coordinates = isTiming ? `0 0 0` : `~${x} ~${y} ~${z}`;
@@ -154,7 +164,7 @@ export class GenerateCommandComponent {
             return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
           }
           case 'display': {
-            const tags = `,Tags:["${x}-${y}-${z}","${properties.removeAnimation}"]`;
+            const tags = `,Tags:["${x}-${y}-${z}"]`;
 
             return (
               `${timing} summon block_display ${coordinates} {` +
@@ -164,26 +174,30 @@ export class GenerateCommandComponent {
             );
           }
           case 'destroy': {
-            //Remove set:
-            return `${timing} setblock ${x} ${y} ${z} minecraft:air`;
+            const animToDel = this.propertiesList.filter(
+              (anim) => anim.name === properties.removeAnimation.value?.name
+            )[0];
 
-            //Remove display:
-            return `${timing} kill @e[tag=${x}-${y}-${z}]`;
+            const coordinatesToDel = animToDel?.coordinateList[index];
+
+            if (animToDel.command.value === 'set') {
+              return `${timing} setblock ${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z} minecraft:air`;
+            }
+
+            return `${timing} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`;
           }
         }
       }
     );
 
     if (properties.timing.value) {
-      const maxAnimationWay = 100; //TODO: Keep track of the max
-      const dataPackName = 'animation:animation';
       commandGenerated.unshift(
         'scoreboard objectives add count trigger',
         'scoreboard players add $Dataman count 0'
       );
       commandGenerated.push(
         `execute if score $Dataman count matches ..${maxAnimationWay} run scoreboard players add $Dataman count 1`,
-        `execute if score $Dataman count matches ..${maxAnimationWay} run schedule function ${dataPackName} ${properties.speed.value}`,
+        `execute if score $Dataman count matches ..${maxAnimationWay} run schedule function animation:${properties.name} ${properties.speed.value}`,
         `execute if score $Dataman count matches ${
           maxAnimationWay + 1
         } run scoreboard players set $Dataman count 0`
@@ -197,15 +211,16 @@ export class GenerateCommandComponent {
   }
 
   protected async generateFiles(): Promise<void> {
-    //TEMP
-    const properties: AnimationProperties = this.propertiesList[0];
-
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
-    this.zipService.addFile(
-      'data/animation/function/animation.mcfunction',
-      this.buildCommands(properties)
-    );
+    //TODO: Make the destroy command run last
+    this.propertiesList.forEach((properties) => {
+      this.zipService.addFile(
+        `data/animation/function/${properties.name}.mcfunction`,
+        this.buildCommands(properties)
+      );
+    });
+
     await this.zipService.download('datapack.zip').catch((error) => {
       console.error(error);
     });

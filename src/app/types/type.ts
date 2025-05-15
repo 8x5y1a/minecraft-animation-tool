@@ -31,4 +31,5 @@ export interface AnimationProperties {
   y: FormControl<number>;
   z: FormControl<number>;
   removeAnimation: FormControl<undefined | AnimationProperties>;
+  coordinateList: { x: number; y: number; z: number }[];
 }

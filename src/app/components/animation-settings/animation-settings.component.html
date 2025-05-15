@@ -25,7 +25,10 @@
         </mat-form-field>
         } @else{
         <h4>Coordinates</h4>
-        <div class="coordinates" matTooltip="Coordinates which the building will be built">
+        <div
+          class="coordinates"
+          matTooltip="Coordinates which the building will be built"
+        >
           <mat-form-field>
             <mat-label>X</mat-label>
             <input type="number" matInput [formControl]="properties.x" />
@@ -42,7 +45,10 @@
         }
 
         <p>
-          <mat-slide-toggle [formControl]="properties.timing" matTooltip="When on: the build will animate in gradually | When off: it appears instantly">
+          <mat-slide-toggle
+            [formControl]="properties.timing"
+            matTooltip="When on: the build will animate in gradually | When off: it appears instantly"
+          >
             Timing
           </mat-slide-toggle>
         </p>
@@ -73,6 +79,15 @@
             <mat-label>Scaling</mat-label>
           </mat-form-field>
         </div>
+        } @if(properties.command.value !== 'destroy'){
+        <br />
+        <button
+          mat-button
+          matTooltip="Add a destroy animation for this animation"
+          (click)="addDestroyAnimation(properties)"
+        >
+          Add destroy for this animation
+        </button>
         }
       </div>
       <!-- TODO: Footer style -->
@@ -91,7 +106,7 @@
     }
   </mat-tab-group>
   <button
-    mat-stroked-button
+    mat-flat-button
     matTooltip="Add another animation"
     class="add-animation-btn"
     (click)="addAnimation()"

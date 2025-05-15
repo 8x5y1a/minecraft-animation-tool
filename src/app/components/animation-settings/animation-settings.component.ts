@@ -61,7 +61,7 @@ export class AnimationSettingsComponent {
 
   protected addAnimation() {
     const newAnimation: AnimationProperties = {
-      name: 'Animation ' + this.animationPropertiesList.length,
+      name: 'animation_' + this.animationPropertiesList.length,
       command: new FormControl('set', { nonNullable: true }),
       scale: new FormControl(1, { nonNullable: true }),
       translation: new FormControl(0, { nonNullable: true }),
@@ -70,9 +70,10 @@ export class AnimationSettingsComponent {
       interlopation: new FormControl(0, { nonNullable: true }),
       speed: new FormControl(1, { nonNullable: true }),
       x: new FormControl(0, { nonNullable: true }),
-      y: new FormControl(0, { nonNullable: true }),
+      y: new FormControl(56, { nonNullable: true }), //TODO: Reset to 0
       z: new FormControl(0, { nonNullable: true }),
       removeAnimation: new FormControl(undefined, { nonNullable: true }),
+      coordinateList: [],
     };
     this.animationPropertiesList.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);
@@ -84,5 +85,29 @@ export class AnimationSettingsComponent {
 
   protected formatSpeedSlider(value: number): string {
     return value + '';
+  }
+
+  protected addDestroyAnimation(properties: AnimationProperties) {
+    const newAnimation: AnimationProperties = {
+      name: 'destroy_' + properties.name,
+      command: new FormControl('destroy', { nonNullable: true }),
+      scale: new FormControl(properties.scale.value, { nonNullable: true }),
+      translation: new FormControl(properties.translation.value, {
+        nonNullable: true,
+      }),
+      timing: new FormControl(properties.timing.value, { nonNullable: true }),
+      tagList: new FormControl(properties.tagList.value, { nonNullable: true }),
+      interlopation: new FormControl(properties.interlopation.value, {
+        nonNullable: true,
+      }),
+      speed: new FormControl(properties.speed.value, { nonNullable: true }),
+      x: new FormControl(properties.x.value, { nonNullable: true }),
+      y: new FormControl(properties.y.value, { nonNullable: true }),
+      z: new FormControl(properties.z.value, { nonNullable: true }),
+      removeAnimation: new FormControl(properties, { nonNullable: true }),
+      coordinateList: [],
+    };
+    this.animationPropertiesList.push(newAnimation);
+    this.tabIndex.set(this.animationPropertiesList.length - 1);
   }
 }
