@@ -1,4 +1,11 @@
-import { Component, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -26,8 +33,14 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './steps.component.css',
   standalone: true,
 })
-export class StepsComponent {
+export class StepsComponent implements AfterViewInit {
   step = signal(0);
+
+  @ViewChild('blockList', { read: ElementRef }) blockList?: ElementRef<HTMLElement>;
+
+  ngAfterViewInit() {
+    this.blockList?.nativeElement.scrollIntoView({behavior: 'smooth', inline: 'start', block:'start'})
+  }
 
   protected setStep(index: number) {
     this.step.set(index);

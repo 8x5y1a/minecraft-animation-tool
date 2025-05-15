@@ -25,7 +25,7 @@
         </mat-form-field>
         } @else{
         <h4>Coordinates</h4>
-        <div class="coordinates">
+        <div class="coordinates" matTooltip="Coordinates which the building will be built">
           <mat-form-field>
             <mat-label>X</mat-label>
             <input type="number" matInput [formControl]="properties.x" />
@@ -42,7 +42,7 @@
         }
 
         <p>
-          <mat-slide-toggle [formControl]="properties.timing">
+          <mat-slide-toggle [formControl]="properties.timing" matTooltip="When on: the build will animate in gradually | When off: it appears instantly">
             Timing
           </mat-slide-toggle>
         </p>
@@ -50,7 +50,7 @@
         @if(properties.timing.value){
         <mat-card-content>
           <mat-form-field>
-            <mat-label>Block per tick</mat-label>
+            <mat-label>Animation speed</mat-label>
             <input
               matInput
               matTooltip="Higher value is slower"

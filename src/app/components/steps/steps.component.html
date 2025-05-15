@@ -5,14 +5,14 @@
     (opened)="setStep(0)"
     hideToggle
   >
-    <mat-expansion-panel-header>
+    <mat-expansion-panel-header #blockList>
       <mat-panel-title> Block list </mat-panel-title>
       <mat-panel-description>
         Filter the blocks
         <mat-icon>format_list_bulleted</mat-icon>
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <app-block-display [blocListSelected]="step() === 1" />
+    <app-block-display #appBlockDisplay [blocListSelected]="step() === 1" />
 
     <mat-action-row>
       <button mat-button (click)="nextStep()">Next</button>
