@@ -104,6 +104,7 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   protected dialogRemoveRow(row: BlockCount) {
     const dialogRef = this.dialog.open(this.dialogRemove, {
       width: '250px',
+      data: row.block,
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
