@@ -101,7 +101,7 @@ export class GenerateCommandComponent {
     coordinate: number,
     scale: number
   ): number {
-    return parseFloat(((blockCoordinate + coordinate) * scale).toFixed(4));
+    return parseFloat((blockCoordinate * scale + coordinate).toFixed(4));
   }
 
   /**
@@ -126,8 +126,8 @@ export class GenerateCommandComponent {
     const isTiming = properties.timing.value;
     const scaleValue = properties.scale.value;
 
-    let maxAnimationWay = -1000;
-    const commandGenerated: string[] = this.blockDataList.map(
+    let maxAnimationWay = 0;
+    const commandGenerated: string[] = this.blockDataList.flatMap(
       ({ block, position: { x, y, z }, property }, index) => {
         const propertiesString = this.buildPropertiesString(
           property ?? {},
@@ -141,16 +141,19 @@ export class GenerateCommandComponent {
         }
 
         //TODO: Probably make a function for max animation way
-        const relativeY = y - properties.y.value;
+        const relativeY = Math.abs(
+          Math.round(isSet ? y - properties.y.value : y)
+        );
         if (relativeY > maxAnimationWay) {
           maxAnimationWay = relativeY;
         }
 
         const timing = isTiming
-          ? `execute if score $Dataman count matches ${Math.abs(
-              Math.round(relativeY)
-            )} run`
+          ? `execute if score $Dataman count matches ${relativeY} run`
           : '';
+        //TODO: Fix with multiple files (run function positionned ~ ~ ~)
+        //Can call file: helper:animation? or animation:helper_animation_0
+        //Could add Comments in each mcfunction to also indicate why/what it does
         const coordinates = isTiming ? `0 0 0` : `~${x} ~${y} ~${z}`;
         const transform = this.buildTransformation(
           [x, y, z],
@@ -161,17 +164,19 @@ export class GenerateCommandComponent {
 
         switch (properties.command.value) {
           case 'set': {
-            return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
+            return [
+              `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`,
+            ];
           }
           case 'display': {
-            const tags = `,Tags:["${x}-${y}-${z}"]`;
+            const tags = `,Tags:["${x}-${y}-${z}", "${properties.name}"]`;
 
-            return (
+            return [
               `${timing} summon block_display ${coordinates} {` +
-              `block_state:{Name:"${block}"${propertiesString}}` +
-              `${transform}${tags}` +
-              `}`
-            );
+                `block_state:{Name:"${block}"${propertiesString}}` +
+                `${transform}${tags}` +
+                `}`,
+            ];
           }
           case 'destroy': {
             const animToDel = this.propertiesList.filter(
@@ -181,10 +186,19 @@ export class GenerateCommandComponent {
             const coordinatesToDel = animToDel?.coordinateList[index];
 
             if (animToDel.command.value === 'set') {
-              return `${timing} setblock ${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z} minecraft:air`;
+              return [
+                `${timing} setblock ${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z} minecraft:air`,
+              ];
             }
 
-            return `${timing} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`;
+            //Faster delete if there is no timing
+            if (!properties.timing.value) {
+              return index === 0 ? [`kill @e[tag=${animToDel.name}]`] : [];
+            }
+
+            return [
+              `${timing} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`,
+            ];
           }
         }
       }

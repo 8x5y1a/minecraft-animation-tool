@@ -72,15 +72,19 @@
           <mat-form-field>
             <input
               matInput
-              type="text"
+              type="number"
               [formControl]="properties.scale"
               placeholder="Enter something"
+              min="0.001"
             />
             <mat-label>Scaling</mat-label>
           </mat-form-field>
         </div>
-        } @if(properties.command.value !== 'destroy'){
-        <br />
+        }
+      </div>
+      <!-- TODO: Footer style -->
+      <div class="footer">
+        @if(properties.command.value !== 'destroy'){
         <button
           mat-button
           matTooltip="Add a destroy animation for this animation"
@@ -88,11 +92,7 @@
         >
           Add destroy for this animation
         </button>
-        }
-      </div>
-      <!-- TODO: Footer style -->
-      <div class="footer">
-        @if(animationPropertiesList.length > 1){
+        } @if(animationPropertiesList.length > 1){
         <button
           mat-button
           matTooltip="Remove this animation"
