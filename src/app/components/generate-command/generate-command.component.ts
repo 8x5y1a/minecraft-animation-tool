@@ -231,11 +231,11 @@ export class GenerateCommandComponent {
         this.maxAxis.y,
         this.maxAxis.z
       );
-      //TODO: MaxAxis + relativity
+
       const maxAxis =
-        properties.animationOrder.value !== 'random'
+        (properties.animationOrder.value !== 'random'
           ? this.maxAxis[properties.animationOrder.value]
-          : randomMax;
+          : randomMax) + properties.randomness.value;
 
       commandGenerated.push(
         `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,
@@ -267,12 +267,26 @@ export class GenerateCommandComponent {
     const axis = properties.animationOrder.value;
     const coordAxis = coords[axis];
 
-    const count =
-      properties.command.value !== 'display' && axis !== 'random'
+    if (axis === 'random') {
+      return `execute if score $Dataman count matches ${coordAxis} run`;
+    }
+
+    let count =
+      properties.command.value !== 'display'
         ? coordAxis - properties[axis].value
         : coordAxis;
 
-    const roundedCount = Math.abs(Math.round(count));
+    if (!properties.isAscending.value) {
+      count = this.maxAxis[axis] - count;
+    }
+
+    let roundedCount = Math.abs(Math.round(count));
+
+    const randomness = properties.randomness.value;
+    if (randomness > 0) {
+      const offset = Math.floor(Math.random() * randomness) + 1;
+      roundedCount += offset;
+    }
 
     return `execute if score $Dataman count matches ${roundedCount} run`;
   }
