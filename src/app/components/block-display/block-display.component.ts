@@ -111,6 +111,7 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
       if (result && row) {
         const newData = this.dataSource.data.filter((data) => data !== row);
         this.dataSource.data = newData;
+        this.nbtDataService.filterBlocDataList(newData);
       }
     });
   }
