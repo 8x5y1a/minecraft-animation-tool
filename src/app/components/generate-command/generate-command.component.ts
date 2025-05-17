@@ -200,7 +200,6 @@ export class GenerateCommandComponent {
             const animToDel = this.propertiesList.filter(
               (anim) => anim.name === properties.removeAnimation.value?.name
             )[0];
-            //FIXME: IF A CHANGE IS MADE AFTER THE COMMAND THE ANIMATION COORDINATES ARE NOT UPDATE
             const coordinatesToDel = animToDel?.coordinateList[index];
 
             if (animToDel.command.value === 'set') {
