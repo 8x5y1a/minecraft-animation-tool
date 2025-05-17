@@ -81,8 +81,8 @@ export class NbtInputComponent {
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
 
       this.maxAxis.x = Math.max(this.maxAxis.x, x);
-      this.maxAxis.y = Math.max(this.maxAxis.y, z);
-      this.maxAxis.z = Math.max(this.maxAxis.y, z);
+      this.maxAxis.y = Math.max(this.maxAxis.y, y);
+      this.maxAxis.z = Math.max(this.maxAxis.z, z);
     });
 
     this.nbtDataService.setMaxAxis(this.maxAxis);

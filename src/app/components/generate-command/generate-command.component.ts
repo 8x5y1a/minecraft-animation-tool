@@ -138,6 +138,7 @@ export class GenerateCommandComponent {
     const isDisplay = properties.command.value === 'display';
     const isTiming = properties.timing.value;
     const scaleValue = properties.scale.value;
+    properties.coordinateList = [];
 
     const commandGenerated: string[] = this.blockDataList.flatMap(
       ({ block, position: { x, y, z }, property }, index) => {
@@ -145,21 +146,35 @@ export class GenerateCommandComponent {
           property ?? {},
           isSet
         );
-        x = this.transformCoordinates(x, properties.x.value, scaleValue);
-        y = this.transformCoordinates(y, properties.y.value, scaleValue);
-        z = this.transformCoordinates(z, properties.z.value, scaleValue);
+        const newX = this.transformCoordinates(
+          x,
+          properties.x.value,
+          scaleValue
+        );
+        const newY = this.transformCoordinates(
+          y,
+          properties.y.value,
+          scaleValue
+        );
+        const newZ = this.transformCoordinates(
+          z,
+          properties.z.value,
+          scaleValue
+        );
         if (properties.command.value !== 'destroy') {
-          properties.coordinateList.push({ x: x, y: y, z: z });
+          properties.coordinateList.push({ x: newX, y: newY, z: newZ });
         }
 
-        const timing = isTiming ? this.getTiming(x, y, z, properties) : '';
+        const timing = isTiming
+          ? this.getTiming(newX, newY, newZ, properties)
+          : '';
 
         //TODO: Fix with multiple files (run function positionned ~ ~ ~)
         //Can call file: helper:animation? or animation:helper_animation_0
         //Could add Comments in each mcfunction to also indicate why/what it does
-        const coordinates = isTiming ? `0 0 0` : `~${x} ~${y} ~${z}`;
+        const coordinates = isTiming ? `0 0 0` : `~${newX} ~${newY} ~${newZ}`;
         const transform = this.buildTransformation(
-          [x, y, z],
+          [newX, newY, newZ],
           isTiming,
           scaleValue,
           isDisplay
@@ -168,11 +183,11 @@ export class GenerateCommandComponent {
         switch (properties.command.value) {
           case 'set': {
             return [
-              `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`,
+              `${timing} setblock ${newX} ${newY} ${newZ} ${block}${propertiesString} keep`,
             ];
           }
           case 'display': {
-            const tags = `,Tags:["${x}-${y}-${z}", "${properties.name}"]`;
+            const tags = `,Tags:["${newX}-${newY}-${newZ}", "${properties.name}"]`;
 
             return [
               `${timing} summon block_display ${coordinates} {` +
@@ -217,10 +232,11 @@ export class GenerateCommandComponent {
         this.maxAxis.y,
         this.maxAxis.z
       );
+      //TODO: MaxAxis + relativity
       const maxAxis =
-        (properties.animationOrder.value !== 'random'
+        properties.animationOrder.value !== 'random'
           ? this.maxAxis[properties.animationOrder.value]
-          : randomMax) + 1;
+          : randomMax;
 
       commandGenerated.push(
         `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,

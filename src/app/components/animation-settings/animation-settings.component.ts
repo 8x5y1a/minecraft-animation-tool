@@ -61,7 +61,7 @@ export class AnimationSettingsComponent {
 
   protected addAnimation() {
     const newAnimation: AnimationProperties = {
-      name: 'animation_' + this.animationPropertiesList.length+1,
+      name: 'animation_' + (this.animationPropertiesList.length + 1),
       command: new FormControl('set', { nonNullable: true }),
       scale: new FormControl(1, { nonNullable: true }),
       translation: new FormControl(0, { nonNullable: true }),
@@ -75,7 +75,7 @@ export class AnimationSettingsComponent {
       coordinateList: [],
       animationOrder: new FormControl('y', { nonNullable: true }),
       isAscending: new FormControl(true, { nonNullable: true }),
-      randomness: new FormControl(0, {nonNullable: true}),
+      randomness: new FormControl(0, { nonNullable: true }),
     };
     this.animationPropertiesList.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);
@@ -107,9 +107,15 @@ export class AnimationSettingsComponent {
       z: new FormControl(properties.z.value, { nonNullable: true }),
       removeAnimation: new FormControl(properties, { nonNullable: true }),
       coordinateList: [],
-      animationOrder: new FormControl(properties.animationOrder.value ?? 'y', { nonNullable: true }),
-      isAscending: new FormControl(properties.isAscending.value ?? true, { nonNullable: true }),
-      randomness: new FormControl(properties.randomness.value ?? 0, {nonNullable: true}),
+      animationOrder: new FormControl(properties.animationOrder.value ?? 'y', {
+        nonNullable: true,
+      }),
+      isAscending: new FormControl(properties.isAscending.value ?? true, {
+        nonNullable: true,
+      }),
+      randomness: new FormControl(properties.randomness.value ?? 0, {
+        nonNullable: true,
+      }),
     };
     this.animationPropertiesList.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);
