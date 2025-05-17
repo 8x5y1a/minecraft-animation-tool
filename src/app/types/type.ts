@@ -4,11 +4,7 @@ import { FormControl } from '@angular/forms';
 export interface BlockData {
   block: string;
   property: Record<string, string> | undefined;
-  position: {
-    x: number;
-    y: number;
-    z: number;
-  };
+  position: Coordinates
 }
 
 export interface BlockCount {
@@ -34,5 +30,11 @@ export interface AnimationProperties {
   coordinateList: { x: number; y: number; z: number }[];
   animationOrder: FormControl<'x' | 'y' | 'z' | 'random'>;
   isAscending: FormControl<boolean>;
-  randomness: FormControl<number>
+  randomness: FormControl<number>;
+}
+
+export interface Coordinates {
+  x: number;
+  y: number;
+  z: number;
 }

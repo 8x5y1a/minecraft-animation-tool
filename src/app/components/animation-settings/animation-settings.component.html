@@ -87,7 +87,10 @@
             Ascending order
           </mat-slide-toggle>
 
-          <div matTooltip="Add a level of randomness to the current animation order. (0: No randomness)">
+          @if(properties.animationOrder.value !== 'random'){
+          <div
+            matTooltip="Add a level of randomness to the current animation order. (0: No randomness)"
+          >
             <div class="randomness-label-container">
               <label for="slider">Randomness: </label>
               <label for="slider"> {{ properties.randomness.value }}</label>
@@ -100,6 +103,7 @@
               />
             </mat-slider>
           </div>
+          }
         </div>
         } @if(properties.command.value === 'display'){
         <div>

@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NBT, parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
-import { BlockCount, BlockData } from 'src/app/types/type';
+import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
-
+//TODO: Cleanup this file, it's still really messy
 @Component({
   selector: 'app-nbt-input',
   imports: [CommonModule, MatButtonModule, MatIconModule, StepsComponent],
@@ -20,6 +20,12 @@ export class NbtInputComponent {
   protected fileInputRef!: ElementRef<HTMLInputElement>;
 
   protected nbtList: NBT[] = [];
+
+  private maxAxis: Coordinates = {
+    x: -200,
+    y: -200,
+    z: -200,
+  };
 
   protected async onFileInput(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -61,21 +67,25 @@ export class NbtInputComponent {
 
     const blockCountDict: Record<string, number> = {};
     const blockDataList: BlockData[] = [];
+
     nbtPosData.forEach((data: any) => {
       const block = blockNameList[data.state.value];
+      const [x, y, z] = data.pos.value.value;
       blockDataList.push({
         block: block,
         property: this.transformProperty(
           palette.value[data.state.value].Properties
         ),
-        position: {
-          x: data.pos.value.value[0],
-          y: data.pos.value.value[1],
-          z: data.pos.value.value[2],
-        },
+        position: { x: x, y: y, z: z },
       });
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
+
+      this.maxAxis.x = Math.max(this.maxAxis.x, x);
+      this.maxAxis.y = Math.max(this.maxAxis.y, z);
+      this.maxAxis.z = Math.max(this.maxAxis.y, z);
     });
+
+    this.nbtDataService.setMaxAxis(this.maxAxis);
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
       ([block, count]) => ({ block, count })
@@ -86,8 +96,6 @@ export class NbtInputComponent {
 
     this.nbtDataService.setBlockList(blockCountList);
     this.nbtDataService.setBlockDataList(blockDataList);
-    //TODO: add a scrolling event => to center the block list
-
 
     //TODO: Make some better naming
   }

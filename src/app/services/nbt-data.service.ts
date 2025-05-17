@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, take } from 'rxjs';
-import { AnimationProperties, BlockCount, BlockData } from '../types/type';
+import { BehaviorSubject, Observable } from 'rxjs';
+import {
+  AnimationProperties,
+  BlockCount,
+  BlockData,
+  Coordinates,
+} from '../types/type';
 
 @Injectable({ providedIn: 'root' })
 export class NbtDataService {
@@ -37,5 +42,15 @@ export class NbtDataService {
       .filter((blockData) => blockListSet.has(blockData.block));
 
     this.blockDataListSubject.next(filtered);
+  }
+
+  //Max Axis
+  private maxAxisSubject = new BehaviorSubject<Coordinates>(
+    {x: 0, y: 0, z:0}
+  );
+  readonly maxAxistObs: Observable<Coordinates> =
+    this.maxAxisSubject.asObservable();
+  setMaxAxis(newMaxAxis: Coordinates) {
+    this.maxAxisSubject.next(newMaxAxis);
   }
 }

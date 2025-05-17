@@ -1,6 +1,10 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AnimationProperties, BlockData } from 'src/app/types/type';
+import {
+  AnimationProperties,
+  BlockData,
+  Coordinates,
+} from 'src/app/types/type';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +22,7 @@ export class GenerateCommandComponent {
   private commandTextArea!: ElementRef<HTMLTextAreaElement>;
   protected blockDataList: BlockData[] = [];
   private propertiesList: AnimationProperties[] = [];
+  private maxAxis: Coordinates = { x: 0, y: 0, z: 0 };
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -34,17 +39,25 @@ export class GenerateCommandComponent {
       .subscribe((propertiesList: AnimationProperties[]) => {
         this.propertiesList = propertiesList;
       });
+
+    this.nbtDataService.maxAxistObs
+      .pipe(takeUntilDestroyed())
+      .subscribe((newMaxAxis) => {
+        this.maxAxis = newMaxAxis;
+      });
   }
 
   protected createCommands() {
-    const properties: AnimationProperties = this.propertiesList[0];
-    if (!properties) {
-      return;
-    }
+    this.propertiesList.forEach((properties) => {
+      if (!properties) {
+        return;
+      }
 
-    const commandGenerated = this.buildCommands(properties);
+      const commandGenerated = this.buildCommands(properties);
 
-    this.commandTextArea.nativeElement.value = commandGenerated;
+      //Instead we can add a new textArea with the command as value (and have some kind of dropdown to choose which to display)
+      this.commandTextArea.nativeElement.value = commandGenerated;
+    });
   }
 
   /**
@@ -126,7 +139,6 @@ export class GenerateCommandComponent {
     const isTiming = properties.timing.value;
     const scaleValue = properties.scale.value;
 
-    let maxAnimationWay = 0;
     const commandGenerated: string[] = this.blockDataList.flatMap(
       ({ block, position: { x, y, z }, property }, index) => {
         const propertiesString = this.buildPropertiesString(
@@ -140,17 +152,8 @@ export class GenerateCommandComponent {
           properties.coordinateList.push({ x: x, y: y, z: z });
         }
 
-        //TODO: Probably make a function for max animation way
-        const relativeY = Math.abs(
-          Math.round(isSet ? y - properties.y.value : y)
-        );
-        if (relativeY > maxAnimationWay) {
-          maxAnimationWay = relativeY;
-        }
+        const timing = isTiming ? this.getTiming(x, y, z, properties) : '';
 
-        const timing = isTiming
-          ? `execute if score $Dataman count matches ${relativeY} run`
-          : '';
         //TODO: Fix with multiple files (run function positionned ~ ~ ~)
         //Can call file: helper:animation? or animation:helper_animation_0
         //Could add Comments in each mcfunction to also indicate why/what it does
@@ -209,19 +212,54 @@ export class GenerateCommandComponent {
         'scoreboard objectives add count trigger',
         'scoreboard players add $Dataman count 0'
       );
+      const randomMax = Math.max(
+        this.maxAxis.x,
+        this.maxAxis.y,
+        this.maxAxis.z
+      );
+      const maxAxis =
+        (properties.animationOrder.value !== 'random'
+          ? this.maxAxis[properties.animationOrder.value]
+          : randomMax) + 1;
+
       commandGenerated.push(
-        `execute if score $Dataman count matches ..${maxAnimationWay} run scoreboard players add $Dataman count 1`,
-        `execute if score $Dataman count matches ..${maxAnimationWay} run schedule function animation:${properties.name} ${properties.speed.value}`,
+        `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,
+        `execute if score $Dataman count matches ..${maxAxis} run schedule function animation:${properties.name} ${properties.speed.value}`,
         `execute if score $Dataman count matches ${
-          maxAnimationWay + 1
+          maxAxis + 1
         } run scoreboard players set $Dataman count 0`
       );
     }
+    console.log(commandGenerated);
     const commandResult = commandGenerated.join('\n');
     if (commandGenerated.length) {
       this.commandTextArea.nativeElement.value = commandResult;
     }
     return commandResult;
+  }
+
+  private getTiming(
+    x: number,
+    y: number,
+    z: number,
+    properties: AnimationProperties
+  ): string {
+    const maxAxisList = [this.maxAxis.x, this.maxAxis.y, this.maxAxis.z];
+    const randomMaxAxis = maxAxisList[Math.floor(Math.random() * 3)];
+    const random = Math.floor(Math.random() * randomMaxAxis) + 1;
+
+    const coords = { x, y, z, random };
+    const axis = properties.animationOrder.value;
+    const coordAxis = coords[axis];
+
+    const count =
+      properties.command.value !== 'display' && axis !== 'random'
+        ? coordAxis - properties[axis].value
+        : coordAxis;
+
+    const roundedCount = Math.abs(Math.round(count));
+
+    return `execute if score $Dataman count matches ${roundedCount} run`;
   }
 
   protected async generateFiles(): Promise<void> {

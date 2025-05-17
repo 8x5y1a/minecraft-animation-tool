@@ -61,7 +61,7 @@ export class AnimationSettingsComponent {
 
   protected addAnimation() {
     const newAnimation: AnimationProperties = {
-      name: 'animation_' + this.animationPropertiesList.length,
+      name: 'animation_' + this.animationPropertiesList.length+1,
       command: new FormControl('set', { nonNullable: true }),
       scale: new FormControl(1, { nonNullable: true }),
       translation: new FormControl(0, { nonNullable: true }),
