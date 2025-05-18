@@ -1,9 +1,24 @@
-<button mat-flat-button (click)="createCommands()">Create commands</button>
-<button mat-flat-button (click)="generateFiles()">Download Datapack</button>
+<div class="button-container mb-1">
+  <button mat-flat-button (click)="createCommands()">Create commands</button>
+  <button mat-flat-button (click)="generateFiles()">Download Datapack</button>
+</div>
 
 <textarea
+  matInput
   #commandTextArea
   readonly
-  style="width: 100%; height: 80%; margin-top: 10px"
+  style="width: 100%; height: 80%"
   [style.display]="commandTextArea.value === '' ? 'none' : ''"
 ></textarea>
+
+
+<!-- <mat-form-field>
+  <mat-label>Command (Animation X)</mat-label>
+  <textarea
+    matInput
+    #commandTextArea
+    readonly
+    style="width: 100%; height: 80%"
+    [style.display]="commandTextArea.value === '' ? 'none' : ''"
+  ></textarea>
+</mat-form-field> -->

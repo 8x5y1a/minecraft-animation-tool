@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 export interface BlockData {
   block: string;
   property: Record<string, string> | undefined;
-  position: Coordinates
+  position: Coordinates;
 }
 
 export interface BlockCount {
@@ -14,23 +14,39 @@ export interface BlockCount {
   //category: catergory; Could add a category for filtering?
 }
 
-export interface AnimationProperties {
+type FC<T> = FormControl<T>;
+
+//Could potentially move this to a Class to have a constructor. To determine
+export interface AnimationProperties extends Position, Scaling, Animation {
   name: string;
-  command: FormControl<'set' | 'display' | 'destroy'>;
-  scale: FormControl<number>;
-  translation: FormControl<any>; //TODO: Figure out what the types will be for these properties
-  timing: FormControl<boolean>;
-  speed: FormControl<number>;
-  //tagList: FormControl<string[]>; //Might not be needed afterall
-  interlopation: FormControl<any>; //??
-  x: FormControl<number>; //Could encapsulate x,y,z in a coordinates or position type (to call use in different types?)
-  y: FormControl<number>;
-  z: FormControl<number>;
-  removeAnimation: FormControl<undefined | AnimationProperties>;
-  coordinateList: { x: number; y: number; z: number }[];
-  animationOrder: FormControl<'x' | 'y' | 'z' | 'random'>;
-  isAscending: FormControl<boolean>;
-  randomness: FormControl<number>;
+  command: FC<'set' | 'display' | 'destroy'>;
+  removeAnimation: FC<undefined | AnimationProperties>;
+}
+
+export interface Position {
+  x: FC<number>;
+  y: FC<number>;
+  z: FC<number>;
+  coordinateList: Coordinates[];
+  coordinateOption: FC<'static' | 'gradual'>
+  endX: FC<number>;
+  endY: FC<number>;
+  endZ: FC<number>;
+}
+
+export interface Scaling {
+  scaleOption: FC<'static' | 'gradual'>;
+  staticScale: FC<number>;
+  gradualScaleStart: FC<number>;
+  gradualScaleEnd: FC<number>;
+}
+
+export interface Animation {
+  timing: FC<boolean>;
+  speed: FC<number>;
+  animationOrder: FC<'x' | 'y' | 'z' | 'random'>;
+  isAscending: FC<boolean>;
+  randomness: FC<number>;
 }
 
 export interface Coordinates {

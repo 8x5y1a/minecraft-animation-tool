@@ -3,15 +3,15 @@
     @for (properties of animationPropertiesList; track properties; let index =
     $index){
     <mat-tab [label]="'Animation ' + (index + 1)">
-      <mat-radio-group
-        class=""
-        [formControl]="properties.command"
-        aria-label="Select an option"
-      >
-        <mat-radio-button value="set">Set block</mat-radio-button>
-        <mat-radio-button value="display">Display block</mat-radio-button>
-        <mat-radio-button value="destroy">Destroy block</mat-radio-button>
-      </mat-radio-group>
+      <h3>Command</h3>
+      <mat-chip-listbox [formControl]="properties.command" class="mb-1">
+        <mat-chip-option value="set" selected>Set block</mat-chip-option>
+        <mat-chip-option value="display">Display block</mat-chip-option>
+        <mat-chip-option value="destroy">Destroy block</mat-chip-option>
+      </mat-chip-listbox>
+
+      <mat-divider />
+
       <div class="content">
         @if(properties.command.value === 'destroy'){
         <mat-form-field>
@@ -24,9 +24,26 @@
           </mat-select>
         </mat-form-field>
         } @else{
-        <h4>Coordinates</h4>
+        <mat-divider />
+        <h3>Coordinates</h3>
+        @if(properties.command.value ==='display'){
+        <div class="mb-1">
+          <mat-button-toggle-group>
+            <mat-button-toggle
+              matTooltip="Building will stay at the same coordinates"
+              value="static"
+              >Static Coordinates</mat-button-toggle
+            >
+            <mat-button-toggle
+              matTooltip="Building will translate to new coordinates"
+              value="gradual"
+              >Gradual Coordinates</mat-button-toggle
+            >
+          </mat-button-toggle-group>
+        </div>
+        }
         <div
-          class="coordinates"
+          class="coordinates mb-1"
           matTooltip="Coordinates which the building will be built"
         >
           <mat-form-field>
@@ -44,17 +61,20 @@
         </div>
         }
 
-        <p>
+        <mat-divider />
+        <div class="center">
+          <h3 [className]="properties.timing.value ? 'disabled' : ''">
+            Animation settings
+          </h3>
           <mat-slide-toggle
             [formControl]="properties.timing"
             matTooltip="When on: the build will animate in gradually | When off: it appears instantly"
           >
-            Animation
+            Enable Animation
           </mat-slide-toggle>
-        </p>
+        </div>
 
         @if(properties.timing.value){
-        <h4>Animation settings</h4>
         <div class="center" style="display: flex">
           <mat-card-content>
             <mat-form-field>
@@ -106,17 +126,55 @@
           }
         </div>
         } @if(properties.command.value === 'display'){
+        <mat-divider />
+        <h3>Scaling</h3>
+        <div class="mb-1">
+          <mat-button-toggle-group [formControl]="properties.scaleOption">
+            <mat-button-toggle
+              matTooltip="Scale will stay the same size"
+              value="static"
+              >Static Scale</mat-button-toggle
+            >
+            <mat-button-toggle
+              matTooltip="Scale will gradually change during the animation"
+              value="gradual"
+              >Gradual Scale</mat-button-toggle
+            >
+          </mat-button-toggle-group>
+        </div>
         <div>
+          @if(properties.scaleOption.value === 'static'){
           <mat-form-field>
             <input
               matInput
               type="number"
-              [formControl]="properties.scale"
-              placeholder="Enter something"
+              [formControl]="properties.staticScale"
               min="0.001"
             />
             <mat-label>Scaling</mat-label>
           </mat-form-field>
+          } @else {
+          <div class="center">
+            <mat-form-field>
+              <input
+                matInput
+                type="number"
+                [formControl]="properties.gradualScaleStart"
+                min="0.001"
+              />
+              <mat-label>Start</mat-label>
+            </mat-form-field>
+            <mat-form-field>
+              <input
+                matInput
+                type="number"
+                [formControl]="properties.gradualScaleEnd"
+                min="0.001"
+              />
+              <mat-label>End</mat-label>
+            </mat-form-field>
+          </div>
+          }
         </div>
         }
       </div>

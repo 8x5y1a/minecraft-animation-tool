@@ -137,7 +137,10 @@ export class GenerateCommandComponent {
     const isSet = properties.command.value === 'set';
     const isDisplay = properties.command.value === 'display';
     const isTiming = properties.timing.value;
-    const scaleValue = properties.scale.value;
+    const scaleValue =
+      properties.scaleOption.value === 'static'
+        ? properties.staticScale.value
+        : properties.gradualScaleEnd.value;
     properties.coordinateList = [];
 
     const commandGenerated: string[] = this.blockDataList.flatMap(
