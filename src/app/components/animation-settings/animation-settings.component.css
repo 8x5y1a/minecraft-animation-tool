@@ -14,6 +14,7 @@
 
 .coordinates mat-form-field {
   margin-right: 5px;
+  width: 6rem;
 }
 
 .center{
@@ -27,4 +28,9 @@
   justify-content: space-between;
   margin: 20px 10px 0;
   max-width: 284px;
+}
+
+.coordinates {
+  grid-template-columns: auto auto;
+  display: grid;
 }

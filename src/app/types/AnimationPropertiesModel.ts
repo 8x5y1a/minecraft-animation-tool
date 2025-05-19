@@ -5,6 +5,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   name: string;
   command: FormControl<'set' | 'display' | 'destroy'>;
   removeAnimation: FormControl<undefined | AnimationProperties>;
+  nextAnimation: FormControl<undefined | AnimationProperties>;
 
   // Position
   x: FormControl<number>;
@@ -50,6 +51,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleEnd: number;
       coordinateOption: 'static' | 'gradual';
       removeAnimation?: AnimationProperties;
+      nextAnimation?: AnimationProperties;
     }
   ) {
     this.name = name;
@@ -90,6 +92,10 @@ export class AnimationPropertiesModel implements AnimationProperties {
     });
 
     this.coordinateOption = new FormControl(params.coordinateOption, {
+      nonNullable: true,
+    });
+
+    this.nextAnimation = new FormControl(params.nextAnimation, {
       nonNullable: true,
     });
   }

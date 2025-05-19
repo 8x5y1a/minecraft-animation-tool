@@ -21,6 +21,7 @@ export interface AnimationProperties extends Position, Scaling, Animation {
   name: string;
   command: FC<'set' | 'display' | 'destroy'>;
   removeAnimation: FC<undefined | AnimationProperties>;
+  nextAnimation: FC<undefined | AnimationProperties>;
 }
 
 export interface Position {

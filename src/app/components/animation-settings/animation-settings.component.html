@@ -14,7 +14,8 @@
 
       <div class="content">
         @if(properties.command.value === 'destroy'){
-        <mat-form-field>
+        <h3>Destroy</h3>
+        <mat-form-field class="mb-1">
           <mat-label>Animation to destroy</mat-label>
           <mat-select [formControl]="properties.removeAnimation">
             @for (animation of animationPropertiesList; track animation) {
@@ -28,7 +29,7 @@
         <h3>Coordinates</h3>
         @if(properties.command.value ==='display'){
         <div class="mb-1">
-          <mat-button-toggle-group>
+          <mat-button-toggle-group [formControl]="properties.coordinateOption">
             <mat-button-toggle
               matTooltip="Building will stay at the same coordinates"
               value="static"
@@ -42,22 +43,42 @@
           </mat-button-toggle-group>
         </div>
         }
-        <div
-          class="coordinates mb-1"
-          matTooltip="Coordinates which the building will be built"
-        >
-          <mat-form-field>
-            <mat-label>X</mat-label>
-            <input type="number" matInput [formControl]="properties.x" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Y</mat-label>
-            <input type="number" matInput [formControl]="properties.y" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Z</mat-label>
-            <input type="number" matInput [formControl]="properties.z" />
-          </mat-form-field>
+        <div class="coordinates mb-1">
+          <div matTooltip="Coordinates which the building will be built">
+            @if(properties.coordinateOption.value === 'gradual'){
+            <b>Initial: </b>
+            }
+            <mat-form-field>
+              <mat-label>X</mat-label>
+              <input type="number" matInput [formControl]="properties.x" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Y</mat-label>
+              <input type="number" matInput [formControl]="properties.y" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Z</mat-label>
+              <input type="number" matInput [formControl]="properties.z" />
+            </mat-form-field>
+          </div>
+
+          @if(properties.coordinateOption.value === 'gradual'){
+          <div matTooltip="Coordinates which the building will be moved to">
+            <b>Final: </b>
+            <mat-form-field>
+              <mat-label>X</mat-label>
+              <input type="number" matInput [formControl]="properties.endX" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Y</mat-label>
+              <input type="number" matInput [formControl]="properties.endY" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Z</mat-label>
+              <input type="number" matInput [formControl]="properties.endZ" />
+            </mat-form-field>
+          </div>
+          }
         </div>
         }
 
@@ -100,14 +121,13 @@
             </mat-select>
           </mat-form-field>
 
+          @if(properties.animationOrder.value !== 'random'){
           <mat-slide-toggle
             [formControl]="properties.isAscending"
             matTooltip="Should it Start from the smallest value and end with the highest value"
           >
             Ascending order
           </mat-slide-toggle>
-
-          @if(properties.animationOrder.value !== 'random'){
           <div
             matTooltip="Add a level of randomness to the current animation order. (0: No randomness)"
           >
@@ -142,7 +162,7 @@
             >
           </mat-button-toggle-group>
         </div>
-        <div>
+        <div class="mb-1">
           @if(properties.scaleOption.value === 'static'){
           <mat-form-field>
             <input
@@ -176,6 +196,21 @@
           </div>
           }
         </div>
+        } @if(animationPropertiesList.length > 1){
+        <mat-divider />
+        <h3>Transition</h3>
+
+        <mat-form-field
+          class="mb-1"
+          matTooltip="Animation that will start after this one ends. Leave empty if you don't want any animation to play after."
+        >
+          <mat-label>Animation to play after</mat-label>
+          <mat-select [formControl]="properties.nextAnimation">
+            @for (animation of animationPropertiesList; track animation) {
+            <mat-option [value]="animation">{{ animation.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         }
       </div>
       <!-- TODO: Footer style -->

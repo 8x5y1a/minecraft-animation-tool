@@ -1,0 +1,11 @@
+.nav {
+    display: flex;
+    padding: .25rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

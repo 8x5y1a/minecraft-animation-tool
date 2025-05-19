@@ -12,15 +12,15 @@ mat-panel-title {
 }
 
 mat-expansion-panel {
-  margin: 15px;
-    border: solid 3px var(--mat-sys-on-primary);
+  margin-inline: 3rem;
+  margin-bottom: 15px;
+  border: solid 3px var(--mat-sys-on-primary);
 }
-
 
 mat-expansion-panel-header {
   border-bottom: 1px var(--mat-sys-on-primary) solid;
 }
 
-mat-expansion-panel-header.mat-expanded  {
- margin-bottom: 10px
+mat-expansion-panel-header.mat-expanded {
+  margin-bottom: 10px;
 }
