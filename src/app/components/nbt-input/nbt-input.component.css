@@ -1,6 +1,30 @@
 .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.center-video {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}
+.iframe-container {
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto;
+  aspect-ratio: 16/9;
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+h1 {
+  color: var(--mat-sys-on-surface);
 }

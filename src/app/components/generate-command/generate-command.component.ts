@@ -16,6 +16,7 @@ import { pack } from 'src/app/types/datapack-format';
   imports: [CommonModule, MatButtonModule],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
+  standalone: true,
 })
 export class GenerateCommandComponent {
   @ViewChild('commandTextArea')

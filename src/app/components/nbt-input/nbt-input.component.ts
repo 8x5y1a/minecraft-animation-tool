@@ -12,6 +12,7 @@ import { StepsComponent } from '../steps/steps.component';
   imports: [CommonModule, MatButtonModule, MatIconModule, StepsComponent],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
+  standalone: true,
 })
 export class NbtInputComponent {
   constructor(private nbtDataService: NbtDataService) {}

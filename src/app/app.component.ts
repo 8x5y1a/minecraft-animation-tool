@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NbtInputComponent } from './components/nbt-input/nbt-input.component';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
 @Component({
-  imports: [RouterModule, NbtInputComponent, NavBarComponent],
+  imports: [RouterModule, NavBarComponent, RouterOutlet],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
+  standalone: true,
 })
 export class AppComponent {
   title = 'minecraft-animation-tool';
