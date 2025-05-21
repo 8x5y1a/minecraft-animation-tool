@@ -1,13 +1,27 @@
 .nav {
   display: flex;
-  padding: 0.25rem 1rem;
+  padding: 0.5rem 2rem;
   align-items: center;
   justify-content: space-between;
+  box-shadow: var(--mat-sys-level5);
+  /* position: sticky; */
+  z-index: 100;
+  top: 0;
+  background-color: var(--mat-sys-surface-dim);
 }
 
 a {
   text-decoration: none;
   color: inherit;
+  overflow: visible;
+  padding: 0.5em 1em;
+}
+
+a:hover {
+  background-color: var(--mat-sys-tertiary);
+  border-radius: 9999px;
+  box-shadow: 0 0 20px var(--mat-sys-tertiary);
+  color: var(--mat-sys-on-tertiary);
 }
 
 .aldrich-regular {
@@ -15,4 +29,14 @@ a {
   font-weight: 400;
   font-style: normal;
   font-size: xx-large;
+}
+
+.nav-group {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.settings {
+  cursor: pointer;
 }
