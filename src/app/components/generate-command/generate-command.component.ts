@@ -94,7 +94,7 @@ export class GenerateCommandComponent {
     coords: [number, number, number],
     isTiming: boolean,
     scaleValue: number,
-    isDisplay: boolean
+    isDisplay = true
   ): string {
     if (!isDisplay) {
       return '';
@@ -141,7 +141,7 @@ export class GenerateCommandComponent {
     const scaleValue =
       properties.scaleOption.value === 'static'
         ? properties.staticScale.value
-        : properties.gradualScaleEnd.value;
+        : properties.gradualScaleStart.value;
     properties.coordinateList = [];
 
     const commandGenerated: string[] = this.blockDataList.flatMap(
@@ -169,6 +169,7 @@ export class GenerateCommandComponent {
           properties.coordinateList.push({ x: newX, y: newY, z: newZ });
         }
 
+        //TODO: Bug with timing and block display with scale
         const timing = isTiming
           ? this.getTiming(newX, newY, newZ, properties)
           : '';
@@ -191,14 +192,33 @@ export class GenerateCommandComponent {
             ];
           }
           case 'display': {
-            const tags = `,Tags:["${newX}-${newY}-${newZ}", "${properties.name}"]`;
+            const coordinateTag = `${newX}-${newY}-${newZ}`;
+            const tags = `,Tags:["${coordinateTag}", "${properties.name}"]`;
 
-            return [
+            const command: string[] = [];
+            command.push(
               `${timing} summon block_display ${coordinates} {` +
                 `block_state:{Name:"${block}"${propertiesString}}` +
                 `${transform}${tags}` +
-                `}`,
-            ];
+                `}`
+            );
+
+            if (
+              properties.scaleOption.value === 'gradual' ||
+              properties.coordinateOption.value === 'gradual'
+            ) {
+              const interlopation = this.getInterlopation(
+                properties,
+                x,
+                y,
+                z,
+                coordinateTag,
+                timing
+              );
+              command.push(interlopation);
+            }
+
+            return command;
           }
           case 'destroy': {
             const animToDel = this.propertiesList.filter(
@@ -236,10 +256,13 @@ export class GenerateCommandComponent {
         this.maxAxis.z
       );
 
-      const maxAxis =
+      let maxAxis =
         (properties.animationOrder.value !== 'random'
           ? this.maxAxis[properties.animationOrder.value]
           : randomMax) + properties.randomness.value;
+
+      //TODO: remove hardcoded maxAxis
+      maxAxis = 100;
 
       commandGenerated.push(
         `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,
@@ -309,5 +332,37 @@ export class GenerateCommandComponent {
     await this.zipService.download('datapack.zip').catch((error) => {
       console.error(error);
     });
+  }
+
+  private getInterlopation(
+    properties: AnimationProperties,
+    x: number,
+    y: number,
+    z: number,
+    coordinateTag: string,
+    timing: string
+  ): string {
+    const transformX = this.transformCoordinates(
+      x,
+      properties.x.value,
+      properties.gradualScaleEnd.value
+    );
+    const transformY = this.transformCoordinates(
+      y,
+      properties.y.value,
+      properties.gradualScaleEnd.value
+    );
+    const transformZ = this.transformCoordinates(
+      z,
+      properties.z.value,
+      properties.gradualScaleEnd.value
+    );
+    const newTransform = this.buildTransformation(
+      [transformX, transformY, transformZ],
+      properties.timing.value,
+      properties.gradualScaleEnd.value
+    );
+    const interlopation = `${timing} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:100${newTransform}}`;
+    return interlopation;
   }
 }
