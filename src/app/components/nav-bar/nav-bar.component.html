@@ -11,7 +11,7 @@
   <div class="nav-group">
     <a routerLink="/about">About</a>
     <!-- About: Report an issue, Contribution, About the project-->
-    <mat-icon class="settings">settings</mat-icon>
+    <mat-icon (click)="openSettings()" class="settings">settings</mat-icon>
     <!-- Themes, Preferences that can be store in cookie (since static site) -->
   </div>
 </nav>

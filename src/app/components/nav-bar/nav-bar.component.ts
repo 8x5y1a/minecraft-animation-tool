@@ -1,14 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDivider } from '@angular/material/divider';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { SettingPageComponent } from '../setting-page/setting-page.component';
 
 @Component({
   selector: 'app-nav-bar',
-  imports: [CommonModule, MatDivider, RouterLink, MatIcon],
+  imports: [CommonModule, RouterLink, MatIcon],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.css',
   standalone: true,
 })
-export class NavBarComponent {}
+export class NavBarComponent {
+  readonly dialog = inject(MatDialog);
+
+  protected openSettings() {
+    const dialogRef = this.dialog.open(SettingPageComponent, {
+      width: '70%',
+      height: '80%',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+}
