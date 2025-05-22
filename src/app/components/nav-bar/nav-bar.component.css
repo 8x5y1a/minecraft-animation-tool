@@ -40,3 +40,8 @@ a:hover {
 .settings {
   cursor: pointer;
 }
+
+mat-icon:hover {
+  color: var(--mat-sys-tertiary);
+  transform: scale(1.1);
+}
