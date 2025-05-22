@@ -11,6 +11,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { ZipService } from 'src/app/services/zip.service';
 import { pack } from 'src/app/types/datapack-format';
 
+//Not exactly sure if I should still do this, to determine
+//TODO: Fix with multiple files (run function positionned ~ ~ ~)
+//Can call file: helper:animation? or animation:helper_animation_0
+//Could add Comments in each mcfunction to also indicate why/what it does
+
 @Component({
   selector: 'app-generate-command',
   imports: [CommonModule, MatButtonModule],
@@ -115,7 +120,9 @@ export class GenerateCommandComponent {
     coordinate: number,
     scale: number
   ): number {
-    return parseFloat((blockCoordinate * scale + coordinate).toFixed(4));
+    return parseFloat(
+      (blockCoordinate * (scale === 0 ? 1 : scale) + coordinate).toFixed(4)
+    );
   }
 
   /**
@@ -174,24 +181,22 @@ export class GenerateCommandComponent {
           ? this.getTiming(newX, newY, newZ, properties)
           : '';
 
-        //TODO: Fix with multiple files (run function positionned ~ ~ ~)
-        //Can call file: helper:animation? or animation:helper_animation_0
-        //Could add Comments in each mcfunction to also indicate why/what it does
-        const coordinates = isTiming ? `0 0 0` : `~${newX} ~${newY} ~${newZ}`;
-        const transform = this.buildTransformation(
-          [newX, newY, newZ],
-          isTiming,
-          scaleValue,
-          isDisplay
-        );
-
         switch (properties.command.value) {
           case 'set': {
             return [
               `${timing} setblock ${newX} ${newY} ${newZ} ${block}${propertiesString} keep`,
             ];
           }
+
           case 'display': {
+            const coordinates = `${newX} ${newY} ${newZ}`;
+            const transform = this.buildTransformation(
+              [newX, newY, newZ],
+              false,
+              scaleValue,
+              isDisplay
+            );
+
             const coordinateTag = `${newX}-${newY}-${newZ}`;
             const tags = `,Tags:["${coordinateTag}", "${properties.name}"]`;
 
@@ -203,23 +208,33 @@ export class GenerateCommandComponent {
                 `}`
             );
 
+            //TODO:
+            // SO I Definitely need to make 2 files for this.
+            // Can create an AnimationProperties with no timing setblock with init scale? Not sure (since if its not 0 -> 1 scale that doesnt work)
             if (
               properties.scaleOption.value === 'gradual' ||
               properties.coordinateOption.value === 'gradual'
             ) {
-              const interlopation = this.getInterlopation(
-                properties,
-                x,
-                y,
-                z,
-                coordinateTag,
-                timing
+              const timingV2 = isTiming
+                ? this.getTiming(newX, newY, newZ, properties, 1)
+                : '';
+
+              const transformNoScale = transform.substring(
+                0,
+                transform.indexOf('scale')
               );
+              const endScale = properties.gradualScaleEnd.value;
+              const newTransform =
+                transformNoScale +
+                `scale:[${endScale}f,${endScale}f,${endScale}f]}`;
+              const interlopation = `${timingV2} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:100${newTransform}}`;
+
               command.push(interlopation);
             }
 
             return command;
           }
+
           case 'destroy': {
             const animToDel = this.propertiesList.filter(
               (anim) => anim.name === properties.removeAnimation.value?.name
@@ -284,7 +299,8 @@ export class GenerateCommandComponent {
     x: number,
     y: number,
     z: number,
-    properties: AnimationProperties
+    properties: AnimationProperties,
+    increment = 0
   ): string {
     const maxAxisList = [this.maxAxis.x, this.maxAxis.y, this.maxAxis.z];
     const randomMaxAxis = maxAxisList[Math.floor(Math.random() * 3)];
@@ -295,7 +311,9 @@ export class GenerateCommandComponent {
     const coordAxis = coords[axis];
 
     if (axis === 'random') {
-      return `execute if score $Dataman count matches ${coordAxis} run`;
+      return `execute if score $Dataman count matches ${
+        coordAxis + increment
+      } run`;
     }
 
     let count =
