@@ -8,6 +8,8 @@
   />
 </mat-form-field>
 
+<button mat-button (click)="filterAirBlock()">Remove Air blocks</button>
+
 <div class="mat-elevation-z8 table-container">
   <table mat-table [dataSource]="dataSource" matSort>
     <ng-container sticky="block" matColumnDef="block" sticky>

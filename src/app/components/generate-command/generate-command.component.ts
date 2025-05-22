@@ -16,6 +16,17 @@ import { pack } from 'src/app/types/datapack-format';
 //Can call file: helper:animation? or animation:helper_animation_0
 //Could add Comments in each mcfunction to also indicate why/what it does
 
+/**
+ * TODO: When timing is on, we need 2 mcfunction.
+ * 1 That does execute:
+ *       positioned x y z function ...
+ * A second that does:
+ *       call the builder function
+ *
+ * So maybe implement this when we start writing the files for the datapack
+ * Could call this application Data pack generator.. but that might not be very accurate since it's only building animation
+ */
+
 @Component({
   selector: 'app-generate-command',
   imports: [CommonModule, MatButtonModule],
@@ -126,17 +137,6 @@ export class GenerateCommandComponent {
   }
 
   /**
-   * TODO: When timing is on, we need 2 mcfunction.
-   * 1 That does execute:
-   *       positioned x y z function ...
-   * A second that does:
-   *       call the builder function
-   *
-   * So maybe implement this when we start writing the files for the datapack
-   * Could call this application Data pack generator.. but that might not be very accurate since it's only building animation
-   */
-
-  /**
    * Command builder that will transform the settings into the commands
    * @param properties
    * @returns
@@ -148,7 +148,7 @@ export class GenerateCommandComponent {
     const scaleValue =
       properties.scaleOption.value === 'static'
         ? properties.staticScale.value
-        : properties.gradualScaleStart.value;
+        : properties.gradualScaleEnd.value;
     properties.coordinateList = [];
 
     const commandGenerated: string[] = this.blockDataList.flatMap(
@@ -189,11 +189,15 @@ export class GenerateCommandComponent {
           }
 
           case 'display': {
-            const coordinates = `${newX} ${newY} ${newZ}`;
+            const startScale = properties.gradualScaleStart.value;
+            const coordinates = `${this.calculateScaleOffset(
+              newX,
+              startScale
+            )} ${newY} ${this.calculateScaleOffset(newZ, startScale)}`;
             const transform = this.buildTransformation(
-              [newX, newY, newZ],
+              [0, 0, 0],
               false,
-              scaleValue,
+              properties.gradualScaleStart.value,
               isDisplay
             );
 
@@ -208,26 +212,26 @@ export class GenerateCommandComponent {
                 `}`
             );
 
-            //TODO:
-            // SO I Definitely need to make 2 files for this.
-            // Can create an AnimationProperties with no timing setblock with init scale? Not sure (since if its not 0 -> 1 scale that doesnt work)
             if (
               properties.scaleOption.value === 'gradual' ||
               properties.coordinateOption.value === 'gradual'
             ) {
-              const timingV2 = isTiming
+              const timingWithLatency = isTiming
                 ? this.getTiming(newX, newY, newZ, properties, 1)
                 : '';
 
               const transformNoScale = transform.substring(
                 0,
-                transform.indexOf('scale')
+                transform.indexOf('translation')
               );
+
               const endScale = properties.gradualScaleEnd.value;
+              const translation = this.calculateScaleOffset(0, startScale);
+              const negative = startScale > 1 ? '' : '-';
               const newTransform =
                 transformNoScale +
-                `scale:[${endScale}f,${endScale}f,${endScale}f]}`;
-              const interlopation = `${timingV2} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:100${newTransform}}`;
+                `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
+              const interlopation = `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:10${newTransform}}`;
 
               command.push(interlopation);
             }
@@ -274,7 +278,9 @@ export class GenerateCommandComponent {
       let maxAxis =
         (properties.animationOrder.value !== 'random'
           ? this.maxAxis[properties.animationOrder.value]
-          : randomMax) + properties.randomness.value;
+          : randomMax) +
+        properties.randomness.value +
+        1;
 
       //TODO: remove hardcoded maxAxis
       maxAxis = 100;
@@ -333,7 +339,9 @@ export class GenerateCommandComponent {
       roundedCount += offset;
     }
 
-    return `execute if score $Dataman count matches ${roundedCount} run`;
+    return `execute if score $Dataman count matches ${
+      roundedCount + increment
+    } run`;
   }
 
   protected async generateFiles(): Promise<void> {
@@ -382,5 +390,9 @@ export class GenerateCommandComponent {
     );
     const interlopation = `${timing} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:100${newTransform}}`;
     return interlopation;
+  }
+
+  private calculateScaleOffset(x: number, scale: number): number {
+    return Math.abs(x + 0.5 - scale / 2);
   }
 }

@@ -115,4 +115,12 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
       }
     });
   }
+
+  protected filterAirBlock() {
+    const newData = this.dataSource.data.filter(
+      (data) => data.block !== 'minecraft:air'
+    );
+    this.dataSource.data = newData;
+    this.nbtDataService.filterBlocDataList(newData);
+  }
 }
