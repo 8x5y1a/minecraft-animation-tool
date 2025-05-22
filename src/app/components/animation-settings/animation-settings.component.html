@@ -62,7 +62,8 @@
             </mat-form-field>
           </div>
 
-          @if(properties.coordinateOption.value === 'gradual'){
+          @if(properties.coordinateOption.value === 'gradual' &&
+          properties.command.value === 'display'){
           <div matTooltip="Coordinates which the building will be moved to">
             <b>Final: </b>
             <mat-form-field>
