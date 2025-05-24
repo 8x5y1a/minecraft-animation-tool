@@ -13,6 +13,7 @@ import { ZipService } from 'src/app/services/zip.service';
 import { pack } from 'src/app/types/datapack-format';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatIcon } from '@angular/material/icon';
 
 //Not exactly sure if I should still do this, to determine
 //TODO: Fix with multiple files (run function positionned ~ ~ ~)
@@ -31,7 +32,13 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
  */
 @Component({
   selector: 'app-generate-command',
-  imports: [CommonModule, MatButtonModule, MatTabsModule, ClipboardModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatTabsModule,
+    ClipboardModule,
+    MatIcon,
+  ],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
   standalone: true,

@@ -8,7 +8,7 @@
   @for(command of commandGeneratedList; track command){
   <mat-tab [label]="command.name">
     <button mat-flat-button class="my-1" [cdkCopyToClipboard]="command.command">
-      COPY
+      <mat-icon>content_copy</mat-icon>Copy
     </button>
     <div>
       <textarea matInput readonly class="command-container">{{
@@ -24,7 +24,8 @@
   mat-flat-button
   [cdkCopyToClipboard]="commandGeneratedList[0].command"
 >
-  COPY
+  <mat-icon>content_copy</mat-icon>
+  Copy
 </button>
 <textarea matInput readonly class="command-container">{{
   commandGeneratedList[0].command
