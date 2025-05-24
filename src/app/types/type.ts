@@ -62,3 +62,8 @@ export interface Template {
   animationList: AnimationProperties[];
   tooltip?: string;
 }
+
+export interface CommandGenerated {
+  name: string;
+  command: string;
+}

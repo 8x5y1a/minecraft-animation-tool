@@ -5,7 +5,7 @@ const defaultAnimation = AnimationPropertiesModel.createDefault(0);
 
 export const templates: Template[] = [
   {
-    name: 'Template 1',
+    name: 'Scale Consctuction Animation',
     gif: 'template-images/template.jpg',
     animationList: getAnimationScale(),
     tooltip: 'A description for the template',

@@ -3,22 +3,39 @@
   <button mat-flat-button (click)="generateFiles()">Download Datapack</button>
 </div>
 
-<textarea
-  matInput
-  #commandTextArea
-  readonly
-  style="width: 100%; height: 80%"
-  [style.display]="commandTextArea.value === '' ? 'none' : ''"
-></textarea>
-
+@if(commandGeneratedList.length > 1){
+<mat-tab-group dynamicHeight>
+  @for(command of commandGeneratedList; track command){
+  <mat-tab [label]="command.name">
+    <button mat-flat-button class="my-1" [cdkCopyToClipboard]="command.command">
+      COPY
+    </button>
+    <div>
+      <textarea matInput readonly class="command-container">{{
+        command.command
+      }}</textarea>
+    </div>
+  </mat-tab>
+  }
+</mat-tab-group>
+} @else if (commandGeneratedList.length){
+<button
+  class="mb-1"
+  mat-flat-button
+  [cdkCopyToClipboard]="commandGeneratedList[0].command"
+>
+  COPY
+</button>
+<textarea matInput readonly class="command-container">{{
+  commandGeneratedList[0].command
+}}</textarea>
+}
 
 <!-- <mat-form-field>
   <mat-label>Command (Animation X)</mat-label>
   <textarea
     matInput
-    #commandTextArea
     readonly
     style="width: 100%; height: 80%"
-    [style.display]="commandTextArea.value === '' ? 'none' : ''"
   ></textarea>
 </mat-form-field> -->

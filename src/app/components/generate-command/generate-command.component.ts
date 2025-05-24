@@ -1,8 +1,9 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AnimationProperties,
   BlockData,
+  CommandGenerated,
   Coordinates,
 } from 'src/app/types/type';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
@@ -10,6 +11,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { ZipService } from 'src/app/services/zip.service';
 import { pack } from 'src/app/types/datapack-format';
+import { MatTabsModule } from '@angular/material/tabs';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 //Not exactly sure if I should still do this, to determine
 //TODO: Fix with multiple files (run function positionned ~ ~ ~)
@@ -28,17 +31,16 @@ import { pack } from 'src/app/types/datapack-format';
  */
 @Component({
   selector: 'app-generate-command',
-  imports: [CommonModule, MatButtonModule],
+  imports: [CommonModule, MatButtonModule, MatTabsModule, ClipboardModule],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
   standalone: true,
 })
 export class GenerateCommandComponent {
-  @ViewChild('commandTextArea')
-  private commandTextArea!: ElementRef<HTMLTextAreaElement>;
   protected blockDataList: BlockData[] = [];
   private propertiesList: AnimationProperties[] = [];
   private maxAxis: Coordinates = { x: 0, y: 0, z: 0 };
+  protected commandGeneratedList: CommandGenerated[] = [];
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -64,10 +66,10 @@ export class GenerateCommandComponent {
   }
 
   protected createCommands() {
+    this.commandGeneratedList = [];
     this.propertiesList.forEach((properties) => {
       if (!properties) return;
-      const commandString = this.buildCommands(properties);
-      this.commandTextArea.nativeElement.value = commandString;
+      this.buildCommands(properties);
     });
   }
 
@@ -101,7 +103,10 @@ export class GenerateCommandComponent {
 
     const commandResult = commandList.join('\n');
     if (commandList.length) {
-      this.commandTextArea.nativeElement.value = commandResult;
+      this.commandGeneratedList.push({
+        name: properties.name,
+        command: commandResult,
+      });
     }
     return commandResult;
   }

@@ -2,18 +2,33 @@
 
 html {
   color-scheme: light dark;
-  @include mat.theme((
-    color: mat.$violet-palette,
-    typography: Roboto,
-    density: 0
-  ));
+  @include mat.theme(
+    (
+      color: mat.$violet-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
 
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
 
 .mb-1 {
   margin-bottom: 15px;
+}
+
+.mt-1 {
+  margin-top: 15px;
+}
+
+.my-1 {
+  margin-bottom: 15px;
+  margin-top: 15px;
 }
