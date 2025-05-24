@@ -16,8 +16,13 @@ mat-icon {
   }
 }
 
-
 .table-container .mat-mdc-header-row {
   background-color: var(--mat-sys-on-primary);
   font-size: 110%;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }

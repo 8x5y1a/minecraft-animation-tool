@@ -1,14 +1,18 @@
-<mat-form-field class="mb-1">
-  <mat-label>Filter blocks</mat-label>
-  <input
-    matInput
-    (keyup)="applyFilter($any($event.target).value)"
-    placeholder="e.g. stone"
-    #filterInput
-  />
-</mat-form-field>
+<div class="center mb-1">
+  <mat-form-field>
+    <mat-label>Filter blocks</mat-label>
+    <input
+      matInput
+      (keyup)="applyFilter($any($event.target).value)"
+      placeholder="e.g. stone"
+      #filterInput
+    />
+  </mat-form-field>
 
-<button mat-button (click)="filterAirBlock()">Remove Air blocks</button>
+  <button mat-button style="font-size: medium" (click)="filterAirBlock()">
+    Remove Air blocks
+  </button>
+</div>
 
 <div class="mat-elevation-z8 table-container">
   <table mat-table [dataSource]="dataSource" matSort>

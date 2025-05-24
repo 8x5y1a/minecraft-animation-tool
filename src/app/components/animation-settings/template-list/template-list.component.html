@@ -1,0 +1,12 @@
+<div class="grid">
+  @for (template of templateList; track template) {
+  <div
+    class="template-container"
+    [matTooltip]="template.tooltip"
+    (click)="addTemplate(template)"
+  >
+    <img [src]="template.gif" width="100%" [alt]="template.name" />
+    <div>{{ template.name }}</div>
+  </div>
+  }
+</div>

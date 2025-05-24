@@ -29,7 +29,7 @@ export interface Position {
   y: FC<number>;
   z: FC<number>;
   coordinateList: Coordinates[];
-  coordinateOption: FC<'static' | 'gradual'>
+  coordinateOption: FC<'static' | 'gradual'>;
   endX: FC<number>;
   endY: FC<number>;
   endZ: FC<number>;
@@ -54,4 +54,11 @@ export interface Coordinates {
   x: number;
   y: number;
   z: number;
+}
+
+export interface Template {
+  name: string;
+  gif: string;
+  animationList: AnimationProperties[];
+  tooltip?: string;
 }
