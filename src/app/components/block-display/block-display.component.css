@@ -8,11 +8,11 @@ mat-icon {
 }
 
 .table-container .mat-mdc-row:hover {
-  background-color: var(--mat-sys-outline);
-  color: black;
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
 
   mat-icon {
-    color: #c70000;
+    color: var(--mat-sys-error);
   }
 }
 

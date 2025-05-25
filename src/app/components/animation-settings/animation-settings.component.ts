@@ -1,7 +1,6 @@
 import {
   Component,
   effect,
-  inject,
   input,
   OnDestroy,
   signal,
@@ -66,7 +65,10 @@ export class AnimationSettingsComponent implements OnDestroy {
   private subscriptionList: Subscription[] = [];
   protected isAddTemplate = false;
 
-  constructor(private nbtDataService: NbtDataService) {
+  constructor(
+    private nbtDataService: NbtDataService,
+    private dialog: MatDialog
+  ) {
     this.nbtDataService.blockDataListObs
       .pipe(takeUntilDestroyed())
       .subscribe((newBlockDataList: BlockData[]) => {
@@ -121,7 +123,6 @@ export class AnimationSettingsComponent implements OnDestroy {
   }
 
   @ViewChild('dialogAdd') dialogAdd!: TemplateRef<any>;
-  readonly dialog = inject(MatDialog);
   protected openAddDialog() {
     this.isAddTemplate = false;
     this.dialog.open(this.dialogAdd, { maxWidth: '100%' }); //TODO: Dynamic width

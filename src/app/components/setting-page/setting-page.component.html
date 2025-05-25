@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Settings</h2>
 <mat-dialog-content class="grid">
   <div class="options">
-    <mat-list [formControl]="selectedSettingPage" role="list">
+    <mat-list role="list">
       <mat-list-item
         (click)="selectedSettingPage.setValue('theme')"
         role="listitem"
@@ -13,11 +13,18 @@
         ><mat-icon>tune</mat-icon>Preferences</mat-list-item
       >
     </mat-list>
+    TODO: Selected class to show which page is selected
   </div>
 
   <div class="display-setting">
     @if(selectedSettingPage.value === 'theme'){
-    <div>Dark Mode / Light Mode</div>
+    <div>
+      <mat-slide-toggle
+        (change)="onThemeChange()"
+        [formControl]="isDarkModeControl"
+        >Dark Mode</mat-slide-toggle
+      >
+    </div>
     <div>Site Color</div>
     } @if(selectedSettingPage.value === 'preferences'){ TODO: figure out what
     pref to do and store as cookie
