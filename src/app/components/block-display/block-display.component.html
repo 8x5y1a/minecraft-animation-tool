@@ -8,10 +8,11 @@
       #filterInput
     />
   </mat-form-field>
-
+  @if(!airBlockFiltered()){
   <button mat-button style="font-size: medium" (click)="filterAirBlock()">
     Remove Air blocks
   </button>
+  }
 </div>
 
 <div class="mat-elevation-z8 table-container">
@@ -35,6 +36,7 @@
           mat-icon-button
           (click)="dialogRemoveRow(element)"
           matTooltip="Remove this block"
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
         >
           <mat-icon>close</mat-icon>
         </button>

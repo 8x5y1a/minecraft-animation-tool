@@ -14,6 +14,7 @@ import { GenerateCommandComponent } from '../generate-command/generate-command.c
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { PreferenceService } from 'src/app/services/preference.service';
 
 @Component({
   selector: 'app-steps',
@@ -33,12 +34,22 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
 })
 export class StepsComponent implements AfterViewInit {
-  step = signal(0);
+  protected step = signal(0);
+  @ViewChild('blockList', { read: ElementRef })
+  blockList?: ElementRef<HTMLElement>;
 
-  @ViewChild('blockList', { read: ElementRef }) blockList?: ElementRef<HTMLElement>;
+  constructor(protected preferenceService: PreferenceService) {}
 
   ngAfterViewInit() {
-    this.blockList?.nativeElement.scrollIntoView({behavior: 'smooth', inline: 'start', block:'start'})
+    this.blockList?.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'start',
+      block: 'start',
+    });
+    if (this.preferenceService.skipBlockList) {
+      console.log('skipBlockList');
+      this.step.set(1);
+    }
   }
 
   protected setStep(index: number) {

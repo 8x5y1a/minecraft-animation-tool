@@ -32,11 +32,13 @@
           <mat-button-toggle-group [formControl]="properties.coordinateOption">
             <mat-button-toggle
               matTooltip="Building will stay at the same coordinates"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
               value="static"
               >Static Coordinates</mat-button-toggle
             >
             <mat-button-toggle
               matTooltip="Building will translate to new coordinates"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
               value="gradual"
               >Gradual Coordinates</mat-button-toggle
             >
@@ -44,7 +46,10 @@
         </div>
         }
         <div class="coordinates mb-1">
-          <div matTooltip="Coordinates which the building will be built">
+          <div
+            matTooltip="Coordinates which the building will be built"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
+          >
             @if(properties.coordinateOption.value === 'gradual'){
             <b>Initial: </b>
             }
@@ -64,7 +69,10 @@
 
           @if(properties.coordinateOption.value === 'gradual' &&
           properties.command.value === 'display'){
-          <div matTooltip="Coordinates which the building will be moved to">
+          <div
+            matTooltip="Coordinates which the building will be moved to"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
+          >
             <b>Final: </b>
             <mat-form-field>
               <mat-label>X</mat-label>
@@ -91,6 +99,7 @@
           <mat-slide-toggle
             [formControl]="properties.timing"
             matTooltip="When on: the build will animate in gradually | When off: it appears instantly"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
           >
             Enable Animation
           </mat-slide-toggle>
@@ -104,6 +113,7 @@
               <input
                 matInput
                 matTooltip="Higher value is slower"
+                [matTooltipDisabled]="preferenceService.isDisableTooltips"
                 type="number"
                 [min]="1"
                 [max]="500"
@@ -126,11 +136,13 @@
           <mat-slide-toggle
             [formControl]="properties.isAscending"
             matTooltip="Should it Start from the smallest value and end with the highest value"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
           >
             Ascending order
           </mat-slide-toggle>
           <div
             matTooltip="Add a level of randomness to the current animation order. (0: No randomness)"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
           >
             <div class="randomness-label-container">
               <label for="slider">Randomness: </label>
@@ -154,10 +166,12 @@
             <mat-button-toggle
               matTooltip="Scale will stay the same size"
               value="static"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
               >Static Scale</mat-button-toggle
             >
             <mat-button-toggle
               matTooltip="Scale will gradually change during the animation"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
               value="gradual"
               >Gradual Scale</mat-button-toggle
             >
@@ -194,7 +208,22 @@
               />
               <mat-label>End Scale</mat-label>
             </mat-form-field>
-            TODO: SPEED FOR THE GRADUAL
+            <div
+              matTooltip="Speed at which the scale will change"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
+            >
+              <div class="randomness-label-container">
+                <label for="slider">Scale Speed: </label>
+                <label for="slider"> {{ properties.scaleSpeed.value }}</label>
+              </div>
+              <mat-slider [max]="100" [min]="1" [step]="1">
+                <input
+                  [formControl]="properties.scaleSpeed"
+                  matSliderThumb
+                  id="slider"
+                />
+              </mat-slider>
+            </div>
           </div>
           }
         </div>
@@ -205,6 +234,7 @@
         <mat-form-field
           class="mb-1"
           matTooltip="Animation that will start after this one ends. Leave empty if you don't want any animation to play after."
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
         >
           <mat-label>Animation to play after</mat-label>
           <mat-select [formControl]="properties.nextAnimation">
@@ -221,6 +251,7 @@
         <button
           mat-button
           matTooltip="Add a destroy animation for this animation"
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
           (click)="addDestroyAnimation(properties)"
         >
           Add destroy for this animation
@@ -229,6 +260,7 @@
         <button
           mat-button
           matTooltip="Remove this animation"
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
           (click)="removeAnimation(index)"
         >
           Remove
@@ -241,6 +273,7 @@
   <button
     mat-flat-button
     matTooltip="Add another animation"
+    [matTooltipDisabled]="preferenceService.isDisableTooltips"
     class="add-animation-btn"
     (click)="openAddDialog()"
   >

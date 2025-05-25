@@ -3,6 +3,7 @@
   <div
     class="template-container"
     [matTooltip]="template.tooltip"
+    [matTooltipDisabled]="preferenceService.isDisableTooltips"
     (click)="addTemplate(template)"
   >
     <img [src]="template.gif" width="100%" [alt]="template.name" />

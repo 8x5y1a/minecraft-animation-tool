@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnDestroy,
+  signal,
   TemplateRef,
   ViewChild,
 } from '@angular/core';
@@ -30,6 +31,7 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { PreferenceService } from 'src/app/services/preference.service';
 
 @Component({
   selector: 'app-block-display',
@@ -62,7 +64,10 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   protected readonly displayedColumns: string[] = ['block', 'count', 'Remove'];
   protected readonly dataSource = new MatTableDataSource<BlockCount>([]);
 
-  constructor(private nbtDataService: NbtDataService) {
+  constructor(
+    private nbtDataService: NbtDataService,
+    protected preferenceService: PreferenceService
+  ) {
     this.nbtDataService.blockListObs
       .pipe(takeUntilDestroyed())
       .subscribe((newBlockList: BlockCount[]) => {
@@ -79,6 +84,9 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.dataSource.data = this.blockList;
+    if (this.preferenceService.autoRemoveAir) {
+      this.filterAirBlock();
+    }
   }
 
   ngOnDestroy(): void {
@@ -116,11 +124,14 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  protected airBlockFiltered = signal(false);
   protected filterAirBlock() {
     const newData = this.dataSource.data.filter(
       (data) => data.block !== 'minecraft:air'
     );
     this.dataSource.data = newData;
     this.nbtDataService.filterBlocDataList(newData);
+    this.airBlockFiltered.set(true);
+    console.log('Air block filtered');
   }
 }

@@ -231,7 +231,7 @@ export class GenerateCommandComponent {
       const newTransform =
         transformNoScale +
         `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
-      const interpolation = `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:10${newTransform}}`;
+      const interpolation = `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
 
       commands.push(interpolation);
     }
@@ -287,7 +287,7 @@ export class GenerateCommandComponent {
       properties.randomness.value +
       1;
 
-    //TODO: remove hardcoded maxAxis
+    //TODO: remove hardcoded maxAxis (Fix it)
     maxAxis = 100;
 
     commands.push(
@@ -297,6 +297,15 @@ export class GenerateCommandComponent {
         maxAxis + 1
       } run scoreboard players set $Dataman count 0`
     );
+    if (properties.nextAnimation.value) {
+      commands.push(
+        `execute if score $Dataman count matches ${
+          maxAxis + 1
+        } run schedule function animation:${
+          properties.nextAnimation.value.name
+        } ${properties.nextAnimation.value.speed.value}`
+      );
+    }
   }
 
   /**

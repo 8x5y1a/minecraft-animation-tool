@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnimationProperties, BlockData, Template } from 'src/app/types/type';
@@ -30,6 +30,7 @@ import { Subscription } from 'rxjs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TemplateListComponent } from './template-list/template-list.component';
+import { PreferenceService } from 'src/app/services/preference.service';
 
 @Component({
   selector: 'app-animation-settings',
@@ -67,7 +68,8 @@ export class AnimationSettingsComponent implements OnDestroy {
 
   constructor(
     private nbtDataService: NbtDataService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    protected preferenceService: PreferenceService
   ) {
     this.nbtDataService.blockDataListObs
       .pipe(takeUntilDestroyed())

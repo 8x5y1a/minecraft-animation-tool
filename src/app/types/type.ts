@@ -40,6 +40,7 @@ export interface Scaling {
   staticScale: FC<number>;
   gradualScaleStart: FC<number>;
   gradualScaleEnd: FC<number>;
+  scaleSpeed: FC<number>;
 }
 
 export interface Animation {

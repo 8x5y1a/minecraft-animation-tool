@@ -22,6 +22,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   staticScale: FormControl<number>;
   gradualScaleStart: FormControl<number>;
   gradualScaleEnd: FormControl<number>;
+  scaleSpeed: FormControl<number>;
 
   // Animation
   timing: FormControl<boolean>;
@@ -52,6 +53,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       coordinateOption: 'static' | 'gradual';
       removeAnimation?: AnimationProperties;
       nextAnimation?: AnimationProperties;
+      scaleSpeed: number;
     }
   ) {
     this.name = name;
@@ -98,6 +100,9 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.nextAnimation = new FormControl(params.nextAnimation, {
       nonNullable: true,
     });
+    this.scaleSpeed = new FormControl(params.scaleSpeed, {
+      nonNullable: true,
+    });
   }
 
   static createDefault(index: number) {
@@ -120,6 +125,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleStart: 1,
       gradualScaleEnd: 1,
       coordinateOption: 'static',
+      scaleSpeed: 30,
     });
   }
 
@@ -143,6 +149,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleStart: from.gradualScaleStart.value,
       gradualScaleEnd: from.gradualScaleEnd.value,
       coordinateOption: from.coordinateOption.value,
+      scaleSpeed: from.scaleSpeed.value,
     });
   }
 }

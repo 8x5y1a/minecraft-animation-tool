@@ -37,6 +37,7 @@ function getAnimationDisplayScaleUp(): AnimationProperties {
   defaultAnimation.scaleOption.setValue('gradual');
   defaultAnimation.gradualScaleStart.setValue(0);
   defaultAnimation.gradualScaleEnd.setValue(1);
+  defaultAnimation.scaleSpeed.setValue(30);
   defaultAnimation.name = 'animation_scaleup';
   const animationDisplayScaleUp: AnimationProperties = {
     ...defaultAnimation,

@@ -7,6 +7,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ThemeService } from 'src/app/services/theme.service';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { PreferenceService } from 'src/app/services/preference.service';
 
 export type SettingPage = 'theme' | 'preferences';
 
@@ -25,8 +26,17 @@ export type SettingPage = 'theme' | 'preferences';
   styleUrl: './setting-page.component.css',
 })
 export class SettingPageComponent {
-  constructor(private themeService: ThemeService) {
+  constructor(
+    private themeService: ThemeService,
+    protected preferenceService: PreferenceService
+  ) {
     this.isDarkModeControl.setValue(this.themeService.theme === 'dark');
+    this.isTooltipDisabledControl.setValue(
+      this.preferenceService.isDisableTooltips
+    );
+    this.autoRemoveControl.setValue(this.preferenceService.autoRemoveAir);
+    this.hideHowToControl.setValue(this.preferenceService.hideHowTo);
+    this.skipBlockListControl.setValue(this.preferenceService.skipBlockList);
   }
 
   protected isDarkModeControl: FormControl<boolean> = new FormControl(true, {
@@ -35,6 +45,24 @@ export class SettingPageComponent {
   protected selectedSettingPage: FormControl<SettingPage> = new FormControl(
     'theme',
     { nonNullable: true }
+  );
+  protected isTooltipDisabledControl: FormControl<boolean> = new FormControl(
+    false,
+    {
+      nonNullable: true,
+    }
+  );
+  protected autoRemoveControl: FormControl<boolean> = new FormControl(false, {
+    nonNullable: true,
+  });
+  protected hideHowToControl: FormControl<boolean> = new FormControl(false, {
+    nonNullable: true,
+  });
+  protected skipBlockListControl: FormControl<boolean> = new FormControl(
+    false,
+    {
+      nonNullable: true,
+    }
   );
 
   protected onThemeChange() {

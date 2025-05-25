@@ -6,6 +6,7 @@ import { NBT, parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
+import { PreferenceService } from 'src/app/services/preference.service';
 //TODO: Cleanup this file, it's still really messy
 @Component({
   selector: 'app-nbt-input',
@@ -15,7 +16,10 @@ import { StepsComponent } from '../steps/steps.component';
   standalone: true,
 })
 export class NbtInputComponent {
-  constructor(private nbtDataService: NbtDataService) {}
+  constructor(
+    private nbtDataService: NbtDataService,
+    protected preferenceService: PreferenceService
+  ) {}
 
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;

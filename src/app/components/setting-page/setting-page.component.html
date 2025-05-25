@@ -18,7 +18,7 @@
 
   <div class="display-setting">
     @if(selectedSettingPage.value === 'theme'){
-    <div>
+    <div class="mb-1">
       <mat-slide-toggle
         (change)="onThemeChange()"
         [formControl]="isDarkModeControl"
@@ -26,11 +26,37 @@
       >
     </div>
     <div>Site Color</div>
-    } @if(selectedSettingPage.value === 'preferences'){ TODO: figure out what
-    pref to do and store as cookie
-    <div>Disable tooltips</div>
-    <div>Automatically clear Air blocks</div>
-    <div>Hide How To Video</div>
+    } @if(selectedSettingPage.value === 'preferences'){
+    <div class="mb-1">
+      <mat-slide-toggle
+        (change)="
+          preferenceService.isDisableTooltips = isTooltipDisabledControl.value
+        "
+        [formControl]="isTooltipDisabledControl"
+        >Disable Tooltip</mat-slide-toggle
+      >
+    </div>
+    <div class="mb-1">
+      <mat-slide-toggle
+        (change)="preferenceService.autoRemoveAir = autoRemoveControl.value"
+        [formControl]="autoRemoveControl"
+        >Automatically remove Air blocks</mat-slide-toggle
+      >
+    </div>
+    <div class="mb-1">
+      <mat-slide-toggle
+        (change)="preferenceService.hideHowTo = hideHowToControl.value"
+        [formControl]="hideHowToControl"
+        >Hide How to video</mat-slide-toggle
+      >
+    </div>
+    <div class="mb-1">
+      <mat-slide-toggle
+        (change)="preferenceService.skipBlockList = skipBlockListControl.value"
+        [formControl]="skipBlockListControl"
+        >Skip Block list</mat-slide-toggle
+      >
+    </div>
     }
   </div>
 </mat-dialog-content>
