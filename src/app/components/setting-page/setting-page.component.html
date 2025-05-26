@@ -3,17 +3,18 @@
   <div class="options">
     <mat-list role="list">
       <mat-list-item
+        [class]="selectedSettingPage.value === 'theme' ? 'selected' : ''"
         (click)="selectedSettingPage.setValue('theme')"
         role="listitem"
         ><mat-icon>dark_mode</mat-icon>Theme</mat-list-item
       >
       <mat-list-item
+        [class]="selectedSettingPage.value === 'preferences' ? 'selected' : ''"
         (click)="selectedSettingPage.setValue('preferences')"
         role="listitem"
         ><mat-icon>tune</mat-icon>Preferences</mat-list-item
       >
     </mat-list>
-    TODO: Selected class to show which page is selected
   </div>
 
   <div class="display-setting">
@@ -25,7 +26,6 @@
         >Dark Mode</mat-slide-toggle
       >
     </div>
-    <div>Site Color</div>
     } @if(selectedSettingPage.value === 'preferences'){
     <div class="mb-1">
       <mat-slide-toggle

@@ -32,3 +32,9 @@
   display: flex;
   gap: 0.3rem;
 }
+
+.selected {
+  border-left: 5px solid var(--mat-sys-tertiary);
+  color: var(--mat-sys-on-tertiary-container);
+  border-radius: 3px;
+}
