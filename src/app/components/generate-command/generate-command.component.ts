@@ -142,11 +142,10 @@ export class GenerateCommandComponent {
     if (properties.command.value !== 'destroy') {
       properties.coordinateList.push({ x: newX, y: newY, z: newZ });
     }
-
-    const timing = isTiming ? this.getTiming(newX, newY, newZ, properties) : '';
+    let timing = isTiming ? this.getTiming(newX, newY, newZ, properties) : '';
 
     switch (properties.command.value) {
-      case 'set':
+      case 'set': {
         return [
           this.buildSetCommand(
             timing,
@@ -157,7 +156,9 @@ export class GenerateCommandComponent {
             propertiesString
           ),
         ];
-      case 'display':
+      }
+      case 'display': {
+        timing = isTiming ? this.getTiming(x, y, z, properties) : '';
         return this.buildDisplayCommands(
           timing,
           newX,
@@ -168,6 +169,7 @@ export class GenerateCommandComponent {
           propertiesString,
           isTiming
         );
+      }
       case 'destroy':
         return this.buildDestroyCommands(properties, index, timing);
       default:
@@ -218,9 +220,12 @@ export class GenerateCommandComponent {
       properties.scaleOption.value === 'gradual' ||
       properties.coordinateOption.value === 'gradual'
     ) {
-      const timingWithLatency = isTiming
-        ? this.getTiming(x, y, z, properties, 1)
-        : '';
+      const latency = timing.replace(
+        /matches (\d+)/,
+        (_, num) => `matches ${parseInt(num) + 1}`
+      );
+
+      const timingWithLatency = isTiming ? latency : '';
       const transformNoScale = transform.substring(
         0,
         transform.indexOf('translation')
@@ -280,22 +285,19 @@ export class GenerateCommandComponent {
     );
     const randomMax = Math.max(this.maxAxis.x, this.maxAxis.y, this.maxAxis.z);
 
-    let maxAxis =
+    console.log(
+      `Max Axis: ${this.maxAxis.x}, ${this.maxAxis.y}, ${this.maxAxis.z}`
+    );
+    const maxAxis =
       (properties.animationOrder.value !== 'random'
         ? this.maxAxis[properties.animationOrder.value]
         : randomMax) +
       properties.randomness.value +
       1;
 
-    //TODO: remove hardcoded maxAxis (Fix it)
-    maxAxis = 100;
-
     commands.push(
       `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,
-      `execute if score $Dataman count matches ..${maxAxis} run schedule function animation:${properties.name} ${properties.speed.value}`,
-      `execute if score $Dataman count matches ${
-        maxAxis + 1
-      } run scoreboard players set $Dataman count 0`
+      `execute if score $Dataman count matches ..${maxAxis} run schedule function animation:${properties.name} ${properties.speed.value}`
     );
     if (properties.nextAnimation.value) {
       commands.push(
@@ -306,6 +308,11 @@ export class GenerateCommandComponent {
         } ${properties.nextAnimation.value.speed.value}`
       );
     }
+    commands.push(
+      `execute if score $Dataman count matches ${
+        maxAxis + 1
+      } run scoreboard players set $Dataman count 0`
+    );
   }
 
   /**
