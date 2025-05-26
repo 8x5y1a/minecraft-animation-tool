@@ -23,8 +23,13 @@
   class="mb-1"
   mat-flat-button
   [cdkCopyToClipboard]="commandGeneratedList[0].command"
+  #tooltip="matTooltip"
+  (click)="tooltip.show(0); copyAction()"
+  [matTooltip]="isCopyConfirm ? 'Command copied!' : undefined"
+  [matTooltipPosition]="'below'"
+  [matTooltipShowDelay]="0"
 >
-  <mat-icon>content_copy</mat-icon>
+  <mat-icon>{{ isCopyConfirm ? 'check' : 'content_copy' }}</mat-icon>
   Copy
 </button>
 <textarea matInput readonly class="command-container">{{

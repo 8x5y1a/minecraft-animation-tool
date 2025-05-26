@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AnimationProperties,
@@ -14,6 +14,7 @@ import { pack } from 'src/app/types/datapack-format';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 
 //Not exactly sure if I should still do this, to determine
 //TODO: Fix with multiple files (run function positionned ~ ~ ~)
@@ -38,6 +39,7 @@ import { MatIcon } from '@angular/material/icon';
     MatTabsModule,
     ClipboardModule,
     MatIcon,
+    MatTooltipModule,
   ],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
@@ -48,6 +50,9 @@ export class GenerateCommandComponent {
   private propertiesList: AnimationProperties[] = [];
   private maxAxis: Coordinates = { x: 0, y: 0, z: 0 };
   protected commandGeneratedList: CommandGenerated[] = [];
+  @ViewChild('tooltip') copyTooltip?: MatTooltip;
+
+  protected isCopyConfirm = false;
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -436,5 +441,16 @@ export class GenerateCommandComponent {
     await this.zipService.download('datapack.zip').catch((error) => {
       console.error(error);
     });
+  }
+
+  protected copyAction() {
+    this.isCopyConfirm = true;
+    setTimeout(() => {
+      this.copyTooltip?.show();
+    }, 0);
+    setTimeout(() => {
+      this.isCopyConfirm = false;
+      this.copyTooltip?.hide();
+    }, 2000);
   }
 }
