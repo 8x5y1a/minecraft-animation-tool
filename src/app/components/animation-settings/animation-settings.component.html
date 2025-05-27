@@ -158,9 +158,10 @@
           </div>
           }
         </div>
-        } @if(properties.command.value === 'display'){
+        } @if(displayScaling(properties)){
         <mat-divider />
         <h3>Scaling</h3>
+        @if(properties.command.value === 'display'){
         <div class="mb-1">
           <mat-button-toggle-group [formControl]="properties.scaleOption">
             <mat-button-toggle
@@ -177,8 +178,10 @@
             >
           </mat-button-toggle-group>
         </div>
+        }
         <div class="mb-1">
-          @if(properties.scaleOption.value === 'static'){
+          @if(properties.scaleOption.value === 'static' &&
+          properties.command.value === 'display'){
           <mat-form-field>
             <input
               matInput
@@ -189,42 +192,12 @@
             <mat-label>Scaling</mat-label>
           </mat-form-field>
           } @else {
-          <div class="center">
-            <mat-form-field>
-              <input
-                matInput
-                type="number"
-                [formControl]="properties.gradualScaleStart"
-                min="0"
-              />
-              <mat-label>Start Scale</mat-label>
-            </mat-form-field>
-            <mat-form-field>
-              <input
-                matInput
-                type="number"
-                [formControl]="properties.gradualScaleEnd"
-                min="0"
-              />
-              <mat-label>End Scale</mat-label>
-            </mat-form-field>
-            <div
-              matTooltip="Speed at which the scale will change"
-              [matTooltipDisabled]="preferenceService.isDisableTooltips"
-            >
-              <div class="randomness-label-container">
-                <label for="slider">Scale time: </label>
-                <label for="slider"> {{ properties.scaleSpeed.value }}</label>
-              </div>
-              <mat-slider [max]="100" [min]="1" [step]="1">
-                <input
-                  [formControl]="properties.scaleSpeed"
-                  matSliderThumb
-                  id="slider"
-                />
-              </mat-slider>
-            </div>
-          </div>
+          <ng-container
+            *ngTemplateOutlet="
+              gradualScale;
+              context: { properties: properties }
+            "
+          ></ng-container>
           }
         </div>
         } @if(animationPropertiesList.length > 1){
@@ -302,4 +275,43 @@
   <mat-dialog-actions>
     <button mat-button mat-dialog-close>Cancel</button>
   </mat-dialog-actions>
+</ng-template>
+
+<ng-template #gradualScale let-properties="properties">
+  <div class="center">
+    <mat-form-field>
+      <input
+        matInput
+        type="number"
+        [formControl]="properties.gradualScaleStart"
+        min="0"
+      />
+      <mat-label>Start Scale</mat-label>
+    </mat-form-field>
+    <mat-form-field>
+      <input
+        matInput
+        type="number"
+        [formControl]="properties.gradualScaleEnd"
+        min="0"
+      />
+      <mat-label>End Scale</mat-label>
+    </mat-form-field>
+    <div
+      matTooltip="Speed at which the scale will change"
+      [matTooltipDisabled]="preferenceService.isDisableTooltips"
+    >
+      <div class="randomness-label-container">
+        <label for="slider">Scale time: </label>
+        <label for="slider"> {{ properties.scaleSpeed.value }}</label>
+      </div>
+      <mat-slider [max]="100" [min]="1" [step]="1">
+        <input
+          [formControl]="properties.scaleSpeed"
+          matSliderThumb
+          id="slider"
+        />
+      </mat-slider>
+    </div>
+  </div>
 </ng-template>

@@ -136,4 +136,12 @@ export class AnimationSettingsComponent implements OnDestroy {
     });
     this.dialog.closeAll();
   }
+
+  protected displayScaling(properties: AnimationProperties): boolean {
+    return (
+      properties.command.value === 'display' ||
+      (properties.command.value === 'destroy' &&
+        properties.removeAnimation.value?.command.value === 'display')
+    );
+  }
 }

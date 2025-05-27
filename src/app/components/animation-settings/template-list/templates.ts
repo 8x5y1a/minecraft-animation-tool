@@ -37,8 +37,10 @@ function getAnimationDisplayScaleUp(): AnimationProperties {
   defaultAnimation.scaleOption.setValue('gradual');
   defaultAnimation.gradualScaleStart.setValue(0);
   defaultAnimation.gradualScaleEnd.setValue(1);
-  defaultAnimation.scaleSpeed.setValue(30);
+  defaultAnimation.scaleSpeed.setValue(5);
   defaultAnimation.name = 'animation_scaleup';
+  defaultAnimation.speed.setValue(4);
+
   const animationDisplayScaleUp: AnimationProperties = {
     ...defaultAnimation,
   };
@@ -49,6 +51,9 @@ function getAnimationDisplayScaleDown(destroy: AnimationProperties) {
   const animationDisplayDown = AnimationPropertiesModel.createDestroy(destroy);
   animationDisplayDown.gradualScaleStart.setValue(1);
   animationDisplayDown.gradualScaleEnd.setValue(0);
+  animationDisplayDown.speed.setValue(4);
+  animationDisplayDown.scaleSpeed.setValue(5);
+  animationDisplayDown.isAscending.setValue(false);
   //TODO: delete displayblock after
   return animationDisplayDown;
 }

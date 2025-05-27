@@ -182,6 +182,10 @@ export class GenerateCommandComponent {
     }
   }
 
+  /**
+   * Builds the set command for placing a block at specified coordinates.
+   * This command is used when the animation type is 'set'.
+   */
   private buildSetCommand(
     timing: string,
     x: number,
@@ -193,6 +197,10 @@ export class GenerateCommandComponent {
     return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
   }
 
+  /**
+   * Builds the commands for displaying a block with optional transformations.
+   * This includes scaling and positioning based on the animation properties.
+   */
   private buildDisplayCommands(
     timing: string,
     x: number,
@@ -225,30 +233,22 @@ export class GenerateCommandComponent {
       properties.scaleOption.value === 'gradual' ||
       properties.coordinateOption.value === 'gradual'
     ) {
-      const latency = timing.replace(
-        /matches (\d+)/,
-        (_, num) => `matches ${parseInt(num) + 1}`
+      const interpolation = this.getInterlopation(
+        timing,
+        isTiming,
+        transform,
+        properties,
+        coordinateTag
       );
-
-      const timingWithLatency = isTiming ? latency : '';
-      const transformNoScale = transform.substring(
-        0,
-        transform.indexOf('translation')
-      );
-      const endScale = properties.gradualScaleEnd.value;
-      const translation = this.calculateScaleOffset(0, startScale);
-      const negative = startScale > 1 ? '' : '-';
-      const newTransform =
-        transformNoScale +
-        `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
-      const interpolation = `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
-
       commands.push(interpolation);
     }
 
     return commands;
   }
 
+  /**
+   * Builds the commands for destroying a block display.
+   */
   private buildDestroyCommands(
     properties: AnimationProperties,
     index: number,
@@ -270,6 +270,31 @@ export class GenerateCommandComponent {
     // Faster delete if there is no timing
     if (!properties.timing.value) {
       return index === 0 ? [`kill @e[tag=${animToDel.name}]`] : [];
+    }
+    if (
+      properties.gradualScaleStart.value !== 1 ||
+      properties.gradualScaleEnd.value !== 1
+    ) {
+      const interlopation = this.getInterlopation(
+        timing,
+        true,
+        this.buildTransformation(
+          [0, 0, 0],
+          false,
+          properties.gradualScaleStart.value,
+          true
+        ),
+        properties,
+        `${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}`,
+        false
+      );
+
+      const lateTiming = this.addLatency(timing, 1);
+
+      return [
+        interlopation,
+        `${lateTiming} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`,
+      ];
     }
 
     return [
@@ -427,6 +452,9 @@ export class GenerateCommandComponent {
     } run`;
   }
 
+  /**
+   * Generates the files for the datapack and downloads them as a zip.
+   */
   protected async generateFiles(): Promise<void> {
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
@@ -443,6 +471,9 @@ export class GenerateCommandComponent {
     });
   }
 
+  /**
+   * Copies the generated commands to the clipboard and shows a confirmation tooltip.
+   */
   protected copyAction() {
     this.isCopyConfirm = true;
     setTimeout(() => {
@@ -452,5 +483,50 @@ export class GenerateCommandComponent {
       this.isCopyConfirm = false;
       this.copyTooltip?.hide();
     }, 2000);
+  }
+
+  /**
+   * Generates the interlopation command for gradual scale animations.
+   * This command is used to smoothly transition the scale of the block display.
+   * This will also be used for coordinate interpolation eventually.
+   */
+  private getInterlopation(
+    timing: string,
+    isTiming: boolean,
+    transform: string,
+    properties: AnimationProperties,
+    coordinateTag: string,
+    enableLatency = true
+  ): string {
+    let timingWithLatency = isTiming ? timing : '';
+    if (enableLatency) {
+      timingWithLatency = this.addLatency(timingWithLatency);
+    }
+
+    const transformNoScale = transform.substring(
+      0,
+      transform.indexOf('translation')
+    );
+    const endScale = properties.gradualScaleEnd.value;
+    const translation = this.calculateScaleOffset(
+      0,
+      properties.gradualScaleStart.value
+    );
+    const negative = properties.gradualScaleStart.value > 1 ? '' : '-';
+    const newTransform =
+      transformNoScale +
+      `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
+    return `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
+  }
+
+  /**
+   * Adds latency to the timing string.
+   * This is used to ensure that the next command waits for the previous one to finish.
+   */
+  private addLatency(timing: string, increment = 1): string {
+    return timing.replace(
+      /matches (\d+)/,
+      (_, num) => `matches ${parseInt(num) + increment}`
+    );
   }
 }

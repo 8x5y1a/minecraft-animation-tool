@@ -10,7 +10,7 @@
     <button
       class="mb-1"
       mat-flat-button
-      [cdkCopyToClipboard]="commandGeneratedList[0].command"
+      [cdkCopyToClipboard]="command.command"
       #tooltip="matTooltip"
       (click)="tooltip.show(0); copyAction()"
       [matTooltip]="isCopyConfirm ? 'Command copied!' : undefined"
