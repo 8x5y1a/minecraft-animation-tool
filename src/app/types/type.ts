@@ -16,15 +16,16 @@ export interface BlockCount {
 
 type FC<T> = FormControl<T>;
 
-//Could potentially move this to a Class to have a constructor. To determine
-export interface AnimationProperties extends Position, Scaling, Animation {
-  name: string;
-  command: FC<'set' | 'display' | 'destroy'>;
-  removeAnimation: FC<undefined | AnimationProperties>;
-  nextAnimation: FC<undefined | AnimationProperties>;
-}
+export type AnimationProperties = Position &
+  Scaling &
+  Animation & {
+    name: string;
+    command: FC<'set' | 'display' | 'destroy'>;
+    removeAnimation: FC<undefined | AnimationProperties>;
+    nextAnimation: FC<undefined | AnimationProperties>;
+  };
 
-export interface Position {
+export type Position = {
   x: FC<number>;
   y: FC<number>;
   z: FC<number>;
@@ -33,38 +34,40 @@ export interface Position {
   endX: FC<number>;
   endY: FC<number>;
   endZ: FC<number>;
-}
+  facing: FC<'north' | 'south' | 'east' | 'west'>;
+  facingEnd: FC<'north' | 'south' | 'east' | 'west'>;
+};
 
-export interface Scaling {
+export type Scaling = {
   scaleOption: FC<'static' | 'gradual'>;
   staticScale: FC<number>;
   gradualScaleStart: FC<number>;
   gradualScaleEnd: FC<number>;
   scaleSpeed: FC<number>;
-}
+};
 
-export interface Animation {
+export type Animation = {
   timing: FC<boolean>;
   speed: FC<number>;
   animationOrder: FC<'x' | 'y' | 'z' | 'random'>;
   isAscending: FC<boolean>;
   randomness: FC<number>;
-}
+};
 
-export interface Coordinates {
+export type Coordinates = {
   x: number;
   y: number;
   z: number;
-}
+};
 
-export interface Template {
+export type Template = {
   name: string;
   gif: string;
   animationList: AnimationProperties[];
   tooltip?: string;
-}
+};
 
-export interface CommandGenerated {
+export type CommandGenerated = {
   name: string;
   command: string;
-}
+};

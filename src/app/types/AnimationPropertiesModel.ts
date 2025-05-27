@@ -16,6 +16,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
   endX: FormControl<number>;
   endY: FormControl<number>;
   endZ: FormControl<number>;
+  facing: FormControl<'north' | 'south' | 'east' | 'west'>;
+  facingEnd: FormControl<'north' | 'south' | 'east' | 'west'>;
 
   // Scaling
   scaleOption: FormControl<'static' | 'gradual'>;
@@ -43,6 +45,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endX: number;
       endY: number;
       endZ: number;
+      facing: 'north' | 'south' | 'east' | 'west';
+      facingEnd: 'north' | 'south' | 'east' | 'west';
       animationOrder: 'x' | 'y' | 'z' | 'random';
       isAscending: boolean;
       randomness: number;
@@ -67,6 +71,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.endX = new FormControl(params.endX, { nonNullable: true });
     this.endY = new FormControl(params.endY, { nonNullable: true });
     this.endZ = new FormControl(params.endZ, { nonNullable: true });
+    this.facing = new FormControl(params.facing, { nonNullable: true });
+    this.facingEnd = new FormControl(params.facing, { nonNullable: true });
 
     this.removeAnimation = new FormControl(params.removeAnimation, {
       nonNullable: true,
@@ -126,6 +132,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleEnd: 1,
       coordinateOption: 'static',
       scaleSpeed: 30,
+      facing: 'north',
+      facingEnd: 'north',
     });
   }
 
@@ -150,6 +158,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleEnd: from.gradualScaleEnd.value,
       coordinateOption: from.coordinateOption.value,
       scaleSpeed: from.scaleSpeed.value,
+      facing: from.facing.value,
+      facingEnd: from.facing.value,
     });
   }
 }

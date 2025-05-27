@@ -7,7 +7,6 @@ import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
-//TODO: Cleanup this file, it's still really messy
 @Component({
   selector: 'app-nbt-input',
   imports: [CommonModule, MatButtonModule, MatIconModule, StepsComponent],
@@ -16,14 +15,8 @@ import { PreferenceService } from 'src/app/services/preference.service';
   standalone: true,
 })
 export class NbtInputComponent {
-  constructor(
-    private nbtDataService: NbtDataService,
-    protected preferenceService: PreferenceService
-  ) {}
-
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
-
   protected nbtList: NBT[] = [];
 
   private maxAxis: Coordinates = {
@@ -31,6 +24,11 @@ export class NbtInputComponent {
     y: -200,
     z: -200,
   };
+
+  constructor(
+    private nbtDataService: NbtDataService,
+    protected preferenceService: PreferenceService
+  ) {}
 
   protected async onFileInput(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -41,21 +39,18 @@ export class NbtInputComponent {
     // Reading file and parsing file
     const bufferArray = await file.arrayBuffer();
     const buffer = Buffer.from(bufferArray);
-    const data = await parse(buffer);
+    const nbtResult = await parse(buffer);
 
-    if (!data.parsed) {
+    if (!nbtResult.parsed) {
       return;
     }
-    this.nbtList.push(data.parsed);
+    this.nbtList.push(nbtResult.parsed);
 
-    const blockData = data.parsed.value['blocks'];
-
-    const palette: any = data.parsed.value['palette']?.value;
-    console.log(palette?.value);
+    const blockData = nbtResult.parsed.value['blocks'];
+    const palette: any = nbtResult.parsed.value['palette']?.value;
     const blockNameList: string[] = palette?.value.map(
       (id: any) => id.Name.value
     );
-    console.log(blockNameList);
 
     // Verifying data is correctly parsed // Valid nbt for
     if (
@@ -68,14 +63,13 @@ export class NbtInputComponent {
     }
 
     const nbtPosData = blockData.value.value;
-    console.log(nbtPosData);
-
     const blockCountDict: Record<string, number> = {};
     const blockDataList: BlockData[] = [];
 
     nbtPosData.forEach((data: any) => {
       const block = blockNameList[data.state.value];
       const [x, y, z] = data.pos.value.value;
+
       blockDataList.push({
         block: block,
         property: this.transformProperty(
@@ -96,13 +90,8 @@ export class NbtInputComponent {
       ([block, count]) => ({ block, count })
     );
 
-    console.log(blockDataList);
-    console.log(blockCountList);
-
     this.nbtDataService.setBlockList(blockCountList);
     this.nbtDataService.setBlockDataList(blockDataList);
-
-    //TODO: Make some better naming
   }
 
   private transformProperty(
@@ -112,7 +101,7 @@ export class NbtInputComponent {
       return undefined;
     }
     const propertyTransformed: Record<string, string> = {};
-    Object.keys(propertyNbt.value).map((key) => {
+    Object.keys(propertyNbt.value).forEach((key) => {
       propertyTransformed[key] = propertyNbt.value[key].value;
     });
 

@@ -17,7 +17,7 @@
   width: 6rem;
 }
 
-.center{
+.center {
   gap: 0.5rem;
   display: flex;
   align-items: center;
@@ -31,6 +31,6 @@
 }
 
 .coordinates {
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto;
   display: grid;
 }

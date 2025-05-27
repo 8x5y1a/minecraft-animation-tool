@@ -14,10 +14,16 @@ import { PreferenceService } from 'src/app/services/preference.service';
 export class TemplateListComponent {
   @Output() templateEmit: EventEmitter<Template> = new EventEmitter();
   protected templateList: Template[] = templates;
+  private readonly gitHubUrl: string =
+    'https://github.com/JeffGamache/minecraft-animation-tool/issues';
 
   constructor(protected preferenceService: PreferenceService) {}
 
   protected addTemplate(template: Template) {
     this.templateEmit.emit(template);
+  }
+
+  protected openGitHub() {
+    window.open(this.gitHubUrl, '_blank', 'noopener,noreferrer');
   }
 }
