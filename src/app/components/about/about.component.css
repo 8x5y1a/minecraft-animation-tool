@@ -2,6 +2,37 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  text-align: center;
+  margin-top: 3rem;
+}
 .content {
-  margin-left: 2rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
+  display: grid;
+  padding-inline: 15%;
+  margin-bottom: 20px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+button {
+  margin-top: 10px;
+  font-size: 1.1rem;
+}
+
+.description-container {
+  align-content: center;
+}
+
+.image-container {
+  padding-inline: 25%;
+}
+
+.button-list {
+  text-align: center;
 }

@@ -4,8 +4,8 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--mat-sys-level5);
-  /* position: sticky; */
-  z-index: 100;
+  position: sticky;
+  z-index: 300;
   top: 0;
   background-color: var(--mat-sys-surface-dim);
 }
@@ -44,4 +44,8 @@ a:hover {
 mat-icon:hover {
   color: var(--mat-sys-tertiary);
   transform: scale(1.1);
+}
+
+.nav-start:hover {
+  cursor: pointer;
 }

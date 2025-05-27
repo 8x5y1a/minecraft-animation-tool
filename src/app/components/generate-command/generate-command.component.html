@@ -7,8 +7,18 @@
 <mat-tab-group dynamicHeight>
   @for(command of commandGeneratedList; track command){
   <mat-tab [label]="command.name">
-    <button mat-flat-button class="my-1" [cdkCopyToClipboard]="command.command">
-      <mat-icon>content_copy</mat-icon>Copy
+    <button
+      class="mb-1"
+      mat-flat-button
+      [cdkCopyToClipboard]="commandGeneratedList[0].command"
+      #tooltip="matTooltip"
+      (click)="tooltip.show(0); copyAction()"
+      [matTooltip]="isCopyConfirm ? 'Command copied!' : undefined"
+      [matTooltipPosition]="'below'"
+      [matTooltipShowDelay]="0"
+    >
+      <mat-icon>{{ isCopyConfirm ? 'check' : 'content_copy' }}</mat-icon>
+      Copy
     </button>
     <div>
       <textarea matInput readonly class="command-container">{{
@@ -36,12 +46,3 @@
   commandGeneratedList[0].command
 }}</textarea>
 }
-
-<!-- <mat-form-field>
-  <mat-label>Command (Animation X)</mat-label>
-  <textarea
-    matInput
-    readonly
-    style="width: 100%; height: 80%"
-  ></textarea>
-</mat-form-field> -->

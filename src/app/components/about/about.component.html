@@ -1,9 +1,57 @@
-<h1>About the app</h1>
+<h1>About</h1>
 <div class="content">
-  <h2>How to contribute</h2>
-  <p>Github (Star/Add), Report Issue, Share ideas</p>
-  <h2>Special Thanks</h2>
-  <p>Gneiss channel / video with excel</p>
-  <p>Future contributors</p>
-  <h2>Copyright / IMT License</h2>
+  <div class="grid-container">
+    <div class="description-container" style="text-align: center">
+      This application let users easily generate minecraft building animation
+      and export it through Commands or Datapacks. It is designed to be
+      user-friendly, allowing anyone to create animations without needing
+      extensive Datapack knowledge.
+    </div>
+    <div class="image-container">
+      <a routerLink="/" routerLinkActive="router-link-active" rel="noopener">
+        <img src="favicon.ico" alt="GitHub Logo" width="100%" />
+      </a>
+    </div>
+  </div>
+
+  <div>
+    <h2>How to Contribute</h2>
+    <div class="grid-container">
+      <div class="image-container">
+        <a [href]="githubUrl" target="_blank" rel="noopener">
+          <img src="github-mark.png" alt="GitHub Logo" width="100%" />
+        </a>
+      </div>
+      <div class="description-container button-list">
+        This project is open source and welcomes contributions. You can:
+        <div>
+          <button mat-button (click)="openGithub('/issues')">
+            Report bugs or suggest features
+          </button>
+        </div>
+        <button mat-button (click)="openGithub('/pulls')">
+          Submit pull requests to improve the code, add features, or fix bugs
+        </button>
+        <div>
+          <button mat-button (click)="openGithub()">
+            Star the project on GitHub
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2>Special Thanks</h2>
+    <p>
+      Special thanks to
+      <a [href]="gneissChannelUrl" target="_blank" rel="noopener">Gneiss</a>
+      for his
+      <a target="_blank" rel="noopener" [href]="sheetUrl">sheet</a>
+      and
+      <a target="_blank" rel="noopener" [href]="videoUrl">video</a>
+      on creating animations. Also thank you to all future contributors who will
+      help make this project better!
+    </p>
+  </div>
 </div>
