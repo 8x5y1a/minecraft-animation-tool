@@ -25,6 +25,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   gradualScaleStart: FormControl<number>;
   gradualScaleEnd: FormControl<number>;
   scaleSpeed: FormControl<number>;
+  shouldSetBlock: FormControl<boolean>;
 
   // Animation
   timing: FormControl<boolean>;
@@ -58,6 +59,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       removeAnimation?: AnimationProperties;
       nextAnimation?: AnimationProperties;
       scaleSpeed: number;
+      shouldSetBlock: boolean;
     }
   ) {
     this.name = name;
@@ -109,6 +111,9 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.scaleSpeed = new FormControl(params.scaleSpeed, {
       nonNullable: true,
     });
+    this.shouldSetBlock = new FormControl(params.shouldSetBlock, {
+      nonNullable: true,
+    });
   }
 
   static createDefault(index: number) {
@@ -134,6 +139,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       scaleSpeed: 30,
       facing: 'north',
       facingEnd: 'north',
+      shouldSetBlock: true,
     });
   }
 
@@ -160,6 +166,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       scaleSpeed: from.scaleSpeed.value,
       facing: from.facing.value,
       facingEnd: from.facing.value,
+      shouldSetBlock: from.shouldSetBlock.value,
     });
   }
 }

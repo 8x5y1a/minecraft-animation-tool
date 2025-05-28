@@ -44,6 +44,7 @@ export type Scaling = {
   gradualScaleStart: FC<number>;
   gradualScaleEnd: FC<number>;
   scaleSpeed: FC<number>;
+  shouldSetBlock: FC<boolean>;
 };
 
 export type Animation = {

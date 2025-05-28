@@ -51,8 +51,8 @@ export class GenerateCommandComponent {
   private maxAxis: Coordinates = { x: 0, y: 0, z: 0 };
   protected commandGeneratedList: CommandGenerated[] = [];
   @ViewChild('tooltip') copyTooltip?: MatTooltip;
-
   protected isCopyConfirm = false;
+  private maxIncrement = 0;
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -172,11 +172,18 @@ export class GenerateCommandComponent {
           block,
           properties,
           propertiesString,
-          isTiming
+          isTiming,
+          blockData
         );
       }
       case 'destroy':
-        return this.buildDestroyCommands(properties, index, timing);
+        return this.buildDestroyCommands(
+          properties,
+          index,
+          timing,
+          block,
+          propertiesString
+        );
       default:
         return [];
     }
@@ -209,9 +216,13 @@ export class GenerateCommandComponent {
     block: string,
     properties: AnimationProperties,
     propertiesString: string,
-    isTiming: boolean
+    isTiming: boolean,
+    blockData: BlockData
   ): string[] {
-    const startScale = properties.gradualScaleStart.value;
+    const startScale =
+      properties.scaleOption.value === 'gradual'
+        ? properties.gradualScaleStart.value
+        : properties.staticScale.value;
     const coordinates = `${this.calculateScaleOffset(
       x,
       startScale
@@ -241,6 +252,29 @@ export class GenerateCommandComponent {
         coordinateTag
       );
       commands.push(interpolation);
+
+      if (
+        properties.gradualScaleEnd.value === 1 &&
+        properties.shouldSetBlock.value
+      ) {
+        const setBlockProperties = this.buildPropertiesString(
+          blockData.property ?? {},
+          true
+        );
+        //TODO: Calculate latency based on the scale speed
+        const latency = 3;
+        if (this.maxIncrement < latency) {
+          this.maxIncrement = latency;
+        }
+
+        commands.push(
+          `${this.addLatency(
+            timing,
+            latency
+          )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
+          `${this.addLatency(timing, latency)} kill @e[tag=${coordinateTag}]`
+        );
+      }
     }
 
     return commands;
@@ -252,25 +286,28 @@ export class GenerateCommandComponent {
   private buildDestroyCommands(
     properties: AnimationProperties,
     index: number,
-    timing: string
+    timing: string,
+    block: string,
+    propertiesString: string
   ): string[] {
     const animToDel = this.propertiesList.find(
       (anim) => anim.name === properties.removeAnimation.value?.name
     );
     const coordinatesToDel = animToDel?.coordinateList[index];
-
     if (!animToDel || !coordinatesToDel) return [];
+    const coodirnatesString = `${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z}`;
 
     if (animToDel.command.value === 'set') {
-      return [
-        `${timing} setblock ${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z} minecraft:air`,
-      ];
+      return [`${timing} setblock ${coodirnatesString} minecraft:air`];
     }
 
     // Faster delete if there is no timing
     if (!properties.timing.value) {
       return index === 0 ? [`kill @e[tag=${animToDel.name}]`] : [];
     }
+
+    const tags = `${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}`;
+
     if (
       properties.gradualScaleStart.value !== 1 ||
       properties.gradualScaleEnd.value !== 1
@@ -281,15 +318,53 @@ export class GenerateCommandComponent {
         this.buildTransformation(
           [0, 0, 0],
           false,
-          properties.gradualScaleStart.value,
+          properties.gradualScaleEnd.value,
           true
         ),
         properties,
-        `${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}`,
-        false
+        tags,
+        properties.gradualScaleEnd.value === 0 &&
+          properties.shouldSetBlock.value
       );
 
       const lateTiming = this.addLatency(timing, 1);
+
+      if (
+        properties.gradualScaleEnd.value === 0 &&
+        properties.shouldSetBlock.value &&
+        properties.gradualScaleStart.value === 1
+      ) {
+        //TODO: Calculate latency based on the scale speed
+        const latency = 3;
+        if (this.maxIncrement < latency) {
+          this.maxIncrement = latency;
+        }
+        const killTiming = this.addLatency(timing, latency);
+        const transform = this.buildTransformation(
+          [0, 0, 0],
+          true,
+          properties.gradualScaleStart.value,
+          true
+        );
+        const coordinatesDisplay = `${this.calculateScaleOffset(
+          coordinatesToDel.x,
+          properties.gradualScaleEnd.value
+        )} ${coordinatesToDel.y} ${this.calculateScaleOffset(
+          coordinatesToDel.z,
+          properties.gradualScaleEnd.value
+        )}`;
+        const transformWithTranslation = this.addTranslation(
+          transform,
+          properties.gradualScaleEnd.value,
+          properties.gradualScaleStart.value
+        );
+        return [
+          `${timing} setblock ${coodirnatesString} minecraft:air`,
+          `${timing} summon block_display ${coordinatesDisplay} {block_state:{Name:"${block}"${propertiesString}}${transformWithTranslation},Tags:["${tags}"]}`,
+          interlopation,
+          `${killTiming} kill @e[tag=${tags}]`,
+        ];
+      }
 
       return [
         interlopation,
@@ -315,9 +390,6 @@ export class GenerateCommandComponent {
     );
     const randomMax = Math.max(this.maxAxis.x, this.maxAxis.y, this.maxAxis.z);
 
-    console.log(
-      `Max Axis: ${this.maxAxis.x}, ${this.maxAxis.y}, ${this.maxAxis.z}`
-    );
     const maxAxis =
       (properties.animationOrder.value !== 'random'
         ? this.maxAxis[properties.animationOrder.value]
@@ -326,13 +398,19 @@ export class GenerateCommandComponent {
       1;
 
     commands.push(
-      `execute if score $Dataman count matches ..${maxAxis} run scoreboard players add $Dataman count 1`,
-      `execute if score $Dataman count matches ..${maxAxis} run schedule function animation:${properties.name} ${properties.speed.value}`
+      `execute if score $Dataman count matches ..${
+        maxAxis + this.maxIncrement - 1
+      } run scoreboard players add $Dataman count 1`,
+      `execute if score $Dataman count matches ..${
+        maxAxis + this.maxIncrement - 1
+      } run schedule function animation:${properties.name} ${
+        properties.speed.value
+      }`
     );
     if (properties.nextAnimation.value) {
       commands.push(
         `execute if score $Dataman count matches ${
-          maxAxis + 1
+          maxAxis + this.maxIncrement
         } run schedule function animation:${
           properties.nextAnimation.value.name
         } ${properties.nextAnimation.value.speed.value}`
@@ -340,7 +418,7 @@ export class GenerateCommandComponent {
     }
     commands.push(
       `execute if score $Dataman count matches ${
-        maxAxis + 1
+        maxAxis + this.maxIncrement
       } run scoreboard players set $Dataman count 0`
     );
   }
@@ -502,21 +580,30 @@ export class GenerateCommandComponent {
     if (enableLatency) {
       timingWithLatency = this.addLatency(timingWithLatency);
     }
+    const newTransform = this.addTranslation(
+      transform,
+      properties.gradualScaleStart.value,
+      properties.gradualScaleEnd.value
+    );
+    return `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
+  }
 
+  private addTranslation(
+    transform: string,
+    start: number,
+    end: number
+  ): string {
     const transformNoScale = transform.substring(
       0,
       transform.indexOf('translation')
     );
-    const endScale = properties.gradualScaleEnd.value;
-    const translation = this.calculateScaleOffset(
-      0,
-      properties.gradualScaleStart.value
-    );
-    const negative = properties.gradualScaleStart.value > 1 ? '' : '-';
+    const endScale = end;
+    const translation = this.calculateScaleOffset(0, start);
+    const negative = start > 1 ? '' : '-';
     const newTransform =
       transformNoScale +
       `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
-    return `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
+    return newTransform;
   }
 
   /**

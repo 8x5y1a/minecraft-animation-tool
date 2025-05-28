@@ -65,6 +65,7 @@ export class AnimationSettingsComponent implements OnDestroy {
   public commandsSelected = input(false);
   private subscriptionList: Subscription[] = [];
   protected isAddTemplate = false;
+  protected isDefaultAnimation = true; // TODO:
 
   constructor(
     private nbtDataService: NbtDataService,
