@@ -53,6 +53,7 @@ export class GenerateCommandComponent {
   @ViewChild('tooltip') copyTooltip?: MatTooltip;
   protected isCopyConfirm = false;
   private maxIncrement = 0;
+  private maxLoop = 0;
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -386,7 +387,8 @@ export class GenerateCommandComponent {
   ) {
     commands.unshift(
       'scoreboard objectives add count trigger',
-      'scoreboard players add $Dataman count 0'
+      'scoreboard players add $Dataman count 0',
+      '# Scoreboard Management End'
     );
     const randomMax = Math.max(this.maxAxis.x, this.maxAxis.y, this.maxAxis.z);
 
@@ -398,6 +400,7 @@ export class GenerateCommandComponent {
       1;
 
     commands.push(
+      '# Timing Management',
       `execute if score $Dataman count matches ..${
         maxAxis + this.maxIncrement - 1
       } run scoreboard players add $Dataman count 1`,
@@ -421,6 +424,8 @@ export class GenerateCommandComponent {
         maxAxis + this.maxIncrement
       } run scoreboard players set $Dataman count 0`
     );
+
+    this.maxLoop = maxAxis + this.maxIncrement;
   }
 
   /**
@@ -536,12 +541,63 @@ export class GenerateCommandComponent {
   protected async generateFiles(): Promise<void> {
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
-    //TODO: Make the destroy command run last
+    //TODO: Make the destroy command run last (Order properties list by command type)
+
     this.propertiesList.forEach((properties) => {
-      this.zipService.addFile(
-        `data/animation/function/${properties.name}.mcfunction`,
-        this.buildCommands(properties)
-      );
+      const commandString = this.buildCommands(properties);
+      const commandList = commandString.split('\n');
+      if (commandList.length > 50000) {
+        const regex = /count matches (\d+)/;
+
+        const timeManagementIndex = commandList.findIndex(
+          (line) => line === '# Timing Management'
+        );
+        const timeManagement =
+          timeManagementIndex >= 0
+            ? commandList.slice(timeManagementIndex + 1)
+            : [];
+
+        const scoreBoardManagerIndex = commandList.findIndex(
+          (line) => line === '# Scoreboard Management End'
+        );
+        const scoreBoardManager =
+          scoreBoardManagerIndex >= 0
+            ? commandList.slice(0, scoreBoardManagerIndex)
+            : [];
+
+        const mainCommand: string[] = [];
+        for (let i = 0; i < this.maxLoop; i++) {
+          const helperCommand: string[] = [];
+          commandList.forEach((line, index) => {
+            const match = line.match(regex);
+            if (match && match[1] && parseInt(match[1]) === i) {
+              helperCommand.push(line);
+              delete commandList[index];
+            }
+          });
+
+          if (helperCommand.length > 0) {
+            this.zipService.addFile(
+              `data/animation/function/${properties.name}_helper_${i}.mcfunction`,
+              helperCommand.join('\n')
+            );
+            mainCommand.push(
+              `execute if score $Dataman count matches ${i} run function animation:${properties.name}_helper_${i}`
+            );
+          }
+        }
+        mainCommand.unshift(...scoreBoardManager);
+        mainCommand.push(...timeManagement);
+        this.zipService.addFile(
+          `data/animation/function/${properties.name}.mcfunction`,
+          mainCommand.join('\n')
+        );
+      } else {
+        this.zipService.addFile(
+          `data/animation/function/${properties.name}.mcfunction`,
+          commandString
+        );
+      }
     });
 
     await this.zipService.download('datapack.zip').catch((error) => {
