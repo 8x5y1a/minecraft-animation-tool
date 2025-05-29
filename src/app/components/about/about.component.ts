@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 })
 export class AboutComponent {
   protected readonly githubUrl =
-    'https://github.com/jeffgamache/minecraft-animation-tool';
+    'https://github.com/8x5y1a/minecraft-animation-tool';
   protected readonly gneissChannelUrl = 'https://www.youtube.com/@gneissname';
   protected readonly sheetUrl =
     'https://docs.google.com/spreadsheets/d/15j8Jb_n9rYhQTGhOZa2U289ytoMmhe5HJ_BYetV7Zdg/edit?gid=167770427#gid=167770427';

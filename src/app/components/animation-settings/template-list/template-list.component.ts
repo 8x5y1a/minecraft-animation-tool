@@ -15,7 +15,7 @@ export class TemplateListComponent {
   @Output() templateEmit: EventEmitter<Template> = new EventEmitter();
   protected templateList: Template[] = templates;
   private readonly gitHubUrl: string =
-    'https://github.com/JeffGamache/minecraft-animation-tool/issues';
+    'https://github.com/8x5y1a/minecraft-animation-tool/issues';
   constructor(protected preferenceService: PreferenceService) {}
 
   protected addTemplate(template: Template) {
