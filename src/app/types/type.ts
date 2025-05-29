@@ -67,7 +67,6 @@ export type Template = {
   video: string;
   animationList: AnimationProperties[];
   tooltip?: string;
-  previewMode: boolean;
 };
 
 export type CommandGenerated = {

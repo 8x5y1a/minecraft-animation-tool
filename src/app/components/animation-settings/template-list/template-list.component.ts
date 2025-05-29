@@ -25,23 +25,4 @@ export class TemplateListComponent {
   protected openGitHub() {
     window.open(this.gitHubUrl, '_blank', 'noopener,noreferrer');
   }
-
-  protected playVideo() {
-    const video = document.querySelector('video');
-    if (video instanceof HTMLVideoElement) {
-      video.width = document.querySelector('img')?.clientWidth || 0;
-      video.height = document.querySelector('img')?.clientHeight || 0;
-      video.play().catch((error) => {
-        console.error('Error playing video:', error);
-      });
-    }
-  }
-
-  protected pauseVideo() {
-    const video = document.querySelector('video');
-    if (video instanceof HTMLVideoElement) {
-      video.pause();
-      video.currentTime = 0;
-    }
-  }
 }

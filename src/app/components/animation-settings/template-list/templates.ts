@@ -5,33 +5,12 @@ const defaultAnimation = AnimationPropertiesModel.createDefault(0);
 
 export const templates: Template[] = [
   {
-    name: 'Scale Consctuction Animation',
+    name: 'Gradual Scaling With Real Blocks',
     thumbnail: 'template-images/template.jpg',
     video: 'template-images/scaleup.mp4',
     animationList: getAnimationScale(),
-    tooltip: 'A description for the template',
-    previewMode: true,
-  },
-  {
-    name: 'Template 2',
-    thumbnail: 'template-images/template.jpg',
-    video: 'template-images/scaleup.mp4',
-    animationList: [],
-    previewMode: true,
-  },
-  {
-    name: 'Template 3',
-    thumbnail: 'template-images/template.jpg',
-    video: 'template-images/scaleup.mp4',
-    animationList: [],
-    previewMode: true,
-  },
-  {
-    name: 'Template 4',
-    thumbnail: 'template-images/template.jpg',
-    video: 'template-images/scaleup.mp4',
-    animationList: [],
-    previewMode: true,
+    tooltip:
+      'Build structure by scaling display block gradually and then setting real interactable blocks. Includes destroy animation with descending scale.',
   },
 ];
 function getAnimationScale(): AnimationProperties[] {

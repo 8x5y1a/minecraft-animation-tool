@@ -8,24 +8,28 @@
     [matTooltip]="template.tooltip"
     [matTooltipDisabled]="preferenceService.isDisableTooltips"
     (click)="addTemplate(template)"
-    (mouseenter)="template.previewMode = false; playVideo()"
-    (mouseleave)="template.previewMode = true; pauseVideo()"
   >
-    @if(template.previewMode) {
-    <img [src]="template.thumbnail" width="80%" [alt]="template.name" />
-    } @else {
-    <div class="video-wrapper">
-      <video #video muted loop preload="none" class="hover-video">
+    <div
+      class="video-container"
+      (mouseenter)="video.play()"
+      (mouseleave)="video.pause(); video.currentTime = 0"
+    >
+      <video #video muted loop class="video">
         <source src="template-images/scaleup.mp4" type="video/mp4" />
         Your browser does not support videos.
       </video>
     </div>
-    }
     <div>{{ template.name }}</div>
   </div>
   }
-  <div class="template-container" (click)="openGitHub()">
-    <img src="addmore.png" width="125%" alt="Add more templates" />
+  <div
+    class="template-container"
+    matTooltip="Contribute to the project by proposing new templates"
+    [matTooltipDisabled]="preferenceService.isDisableTooltips"
+  >
+    <div class="video-container" (click)="openGitHub()">
+      <img src="addmore.png" width="80%" alt="Add more templates" />
+    </div>
     <div>Add more templates</div>
   </div>
 </div>
