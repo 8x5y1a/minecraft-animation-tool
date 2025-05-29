@@ -36,3 +36,10 @@ button {
 .button-list {
   text-align: center;
 }
+
+.section {
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 8px;
+  color: var(--mat-sys-on-surface-container);
+  padding: 1rem;
+}
