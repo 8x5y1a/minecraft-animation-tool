@@ -145,4 +145,10 @@ export class AnimationSettingsComponent implements OnDestroy {
         properties.removeAnimation.value?.command.value === 'display')
     );
   }
+
+  protected hasDisplayAnimation(): boolean {
+    return this.animationPropertiesList.some(
+      (prop) => prop.command.value === 'display'
+    );
+  }
 }

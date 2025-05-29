@@ -255,6 +255,7 @@ export class GenerateCommandComponent {
       commands.push(interpolation);
 
       if (
+        properties.scaleOption.value === 'gradual' &&
         properties.gradualScaleEnd.value === 1 &&
         properties.shouldSetBlock.value
       ) {
@@ -357,11 +358,12 @@ export class GenerateCommandComponent {
         const transformWithTranslation = this.addTranslation(
           transform,
           properties.gradualScaleEnd.value,
-          properties.gradualScaleStart.value
+          properties.gradualScaleStart.value,
+          properties
         );
         return [
-          `${timing} setblock ${coodirnatesString} minecraft:air`,
           `${timing} summon block_display ${coordinatesDisplay} {block_state:{Name:"${block}"${propertiesString}}${transformWithTranslation},Tags:["${tags}"]}`,
+          `${timing} setblock ${coodirnatesString} minecraft:air`,
           interlopation,
           `${killTiming} kill @e[tag=${tags}]`,
         ];
@@ -542,6 +544,7 @@ export class GenerateCommandComponent {
    * Generates the files for the datapack and downloads them as a zip.
    */
   protected async generateFiles(): Promise<void> {
+    this.commandGeneratedList = [];
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
     //TODO: Make the destroy command run last (Order properties list by command type)
@@ -642,7 +645,8 @@ export class GenerateCommandComponent {
     const newTransform = this.addTranslation(
       transform,
       properties.gradualScaleStart.value,
-      properties.gradualScaleEnd.value
+      properties.gradualScaleEnd.value,
+      properties
     );
     return `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
   }
@@ -650,18 +654,31 @@ export class GenerateCommandComponent {
   private addTranslation(
     transform: string,
     start: number,
-    end: number
+    end: number,
+    properties: AnimationProperties
   ): string {
     const transformNoScale = transform.substring(
       0,
       transform.indexOf('translation')
     );
     const endScale = end;
-    const translation = this.calculateScaleOffset(0, start);
-    const negative = start > 1 ? '' : '-';
+    const offset = this.calculateScaleOffset(0, endScale);
+    const translation = start > 1 ? offset : offset * -1;
+
+    let x = 0;
+    let y = 0;
+    let z = 0;
+    if (properties.coordinateOption.value === 'gradual') {
+      x = properties.endX.value - properties.x.value;
+      y = properties.endY.value - properties.y.value;
+      z = properties.endZ.value - properties.z.value;
+    }
+
     const newTransform =
       transformNoScale +
-      `translation:[${negative}${translation}f,0f,${negative}${translation}f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
+      `translation:[${translation + x}f,${y}f,${
+        translation + z
+      }f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
     return newTransform;
   }
 

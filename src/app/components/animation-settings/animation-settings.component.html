@@ -25,6 +25,13 @@
           value="destroy"
           >Destroy block</mat-chip-option
         >
+        @if(hasDisplayAnimation()) {
+        <mat-chip-option
+          matTooltip="(NOT YET IMPLEMENTED) Translate the blocks of the chosen animation"
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
+          value="translate"
+          >Translate Display</mat-chip-option
+        >}
       </mat-chip-listbox>
       <mat-divider />
 
@@ -85,7 +92,10 @@
               <mat-label>Z</mat-label>
               <input type="number" matInput [formControl]="properties.z" />
             </mat-form-field>
-            <mat-form-field>
+            <mat-form-field
+              matTooltip="(NOT YET IMPLEMENTED)"
+              matTooltipDisabled="preferenceService.isDisableTooltips"
+            >
               <mat-label>Facing</mat-label>
               <mat-select [formControl]="properties.facing">
                 <mat-option value="north">North</mat-option>
@@ -114,7 +124,10 @@
               <mat-label>Z</mat-label>
               <input type="number" matInput [formControl]="properties.endZ" />
             </mat-form-field>
-            <mat-form-field>
+            <mat-form-field
+              matTooltip="(NOT YET IMPLEMENTED) Translate the blocks of the chosen animation"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
+            >
               <mat-label>Facing</mat-label>
               <mat-select [formControl]="properties.facingEnd">
                 <mat-option value="north">North</mat-option>
@@ -124,6 +137,12 @@
               </mat-select>
             </mat-form-field>
           </div>
+          <mat-slide-toggle
+            [formControl]="properties.shouldSetBlock"
+            matTooltip="Should it set the block to the end scale? (It will replace the display by real blocks)"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
+            >Set block to end scale</mat-slide-toggle
+          >
           }
         </div>
         }

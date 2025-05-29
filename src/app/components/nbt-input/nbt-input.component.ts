@@ -7,9 +7,16 @@ import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
+import { MatTooltip } from '@angular/material/tooltip';
 @Component({
   selector: 'app-nbt-input',
-  imports: [CommonModule, MatButtonModule, MatIconModule, StepsComponent],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    StepsComponent,
+    MatTooltip,
+  ],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
   standalone: true,
