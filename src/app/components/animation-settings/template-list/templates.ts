@@ -6,24 +6,32 @@ const defaultAnimation = AnimationPropertiesModel.createDefault(0);
 export const templates: Template[] = [
   {
     name: 'Scale Consctuction Animation',
-    gif: 'template-images/template.jpg',
+    thumbnail: 'template-images/template.jpg',
+    video: 'template-images/scaleup.mp4',
     animationList: getAnimationScale(),
     tooltip: 'A description for the template',
+    previewMode: true,
   },
   {
     name: 'Template 2',
-    gif: 'template-images/template.jpg',
+    thumbnail: 'template-images/template.jpg',
+    video: 'template-images/scaleup.mp4',
     animationList: [],
+    previewMode: true,
   },
   {
     name: 'Template 3',
-    gif: 'template-images/template.jpg',
+    thumbnail: 'template-images/template.jpg',
+    video: 'template-images/scaleup.mp4',
     animationList: [],
+    previewMode: true,
   },
   {
     name: 'Template 4',
-    gif: 'template-images/template.jpg',
+    thumbnail: 'template-images/template.jpg',
+    video: 'template-images/scaleup.mp4',
     animationList: [],
+    previewMode: true,
   },
 ];
 function getAnimationScale(): AnimationProperties[] {

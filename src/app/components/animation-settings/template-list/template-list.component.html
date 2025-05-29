@@ -1,3 +1,6 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+
 <div class="grid">
   @for (template of templateList; track template) {
   <div
@@ -5,8 +8,19 @@
     [matTooltip]="template.tooltip"
     [matTooltipDisabled]="preferenceService.isDisableTooltips"
     (click)="addTemplate(template)"
+    (mouseenter)="template.previewMode = false; playVideo()"
+    (mouseleave)="template.previewMode = true; pauseVideo()"
   >
-    <img [src]="template.gif" width="100%" [alt]="template.name" />
+    @if(template.previewMode) {
+    <img [src]="template.thumbnail" width="80%" [alt]="template.name" />
+    } @else {
+    <div class="video-wrapper">
+      <video #video muted loop preload="none" class="hover-video">
+        <source src="template-images/scaleup.mp4" type="video/mp4" />
+        Your browser does not support videos.
+      </video>
+    </div>
+    }
     <div>{{ template.name }}</div>
   </div>
   }

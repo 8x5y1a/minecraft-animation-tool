@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Template } from 'src/app/types/type';
 import { templates } from './templates';
@@ -16,7 +16,6 @@ export class TemplateListComponent {
   protected templateList: Template[] = templates;
   private readonly gitHubUrl: string =
     'https://github.com/JeffGamache/minecraft-animation-tool/issues';
-
   constructor(protected preferenceService: PreferenceService) {}
 
   protected addTemplate(template: Template) {
@@ -25,5 +24,24 @@ export class TemplateListComponent {
 
   protected openGitHub() {
     window.open(this.gitHubUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  protected playVideo() {
+    const video = document.querySelector('video');
+    if (video instanceof HTMLVideoElement) {
+      video.width = document.querySelector('img')?.clientWidth || 0;
+      video.height = document.querySelector('img')?.clientHeight || 0;
+      video.play().catch((error) => {
+        console.error('Error playing video:', error);
+      });
+    }
+  }
+
+  protected pauseVideo() {
+    const video = document.querySelector('video');
+    if (video instanceof HTMLVideoElement) {
+      video.pause();
+      video.currentTime = 0;
+    }
   }
 }

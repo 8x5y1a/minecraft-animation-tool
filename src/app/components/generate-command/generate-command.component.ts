@@ -486,6 +486,9 @@ export class GenerateCommandComponent {
    * Calculates the offset for scale.
    */
   private calculateScaleOffset(x: number, scale: number): number {
+    if (x < 0) {
+      return -1 * Math.abs(x + 0.5 - scale / 2);
+    }
     return Math.abs(x + 0.5 - scale / 2);
   }
 

@@ -63,9 +63,11 @@ export type Coordinates = {
 
 export type Template = {
   name: string;
-  gif: string;
+  thumbnail: string;
+  video: string;
   animationList: AnimationProperties[];
   tooltip?: string;
+  previewMode: boolean;
 };
 
 export type CommandGenerated = {

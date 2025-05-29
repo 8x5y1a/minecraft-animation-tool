@@ -318,16 +318,18 @@
   <h2 mat-dialog-title>Add animation</h2>
   <mat-dialog-content>
     @if (!isAddTemplate) {
-    <button mat-flat-button mat-dialog-close (click)="addAnimation()">
-      Add custom animation
-    </button>
-    <button
-      style="margin-left: 10px"
-      mat-flat-button
-      (click)="isAddTemplate = true"
-    >
-      Add from templates
-    </button>
+    <div style="height: 100px">
+      <button mat-flat-button mat-dialog-close (click)="addAnimation()">
+        Add custom animation
+      </button>
+      <button
+        style="margin-left: 10px"
+        mat-flat-button
+        (click)="isAddTemplate = true"
+      >
+        Add from templates
+      </button>
+    </div>
     } @else {
     <app-template-list (templateEmit)="addTemplate($event)" />
     }
