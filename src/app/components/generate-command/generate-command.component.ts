@@ -15,22 +15,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
+import { GenerateCommandHelperService } from 'src/app/services/generate-command-helper';
 
-//Not exactly sure if I should still do this, to determine
-//TODO: Fix with multiple files (run function positionned ~ ~ ~)
-//Can call file: helper:animation? or animation:helper_animation_0
-//Could add Comments in each mcfunction to also indicate why/what it does
-
-/**
- * TODO: When timing is on, we need 2 mcfunction.
- * 1 That does execute:
- *       positioned x y z function ...
- * A second that does:
- *       call the builder function
- *
- * So maybe implement this when we start writing the files for the datapack
- * Could call this application Data pack generator.. but that might not be very accurate since it's only building animation
- */
 @Component({
   selector: 'app-generate-command',
   imports: [
@@ -57,7 +43,8 @@ export class GenerateCommandComponent {
 
   constructor(
     private nbtDataService: NbtDataService,
-    private zipService: ZipService
+    private zipService: ZipService,
+    private commandHelper: GenerateCommandHelperService
   ) {
     this.nbtDataService.blockDataListObs
       .pipe(takeUntilDestroyed())
@@ -78,6 +65,9 @@ export class GenerateCommandComponent {
       });
   }
 
+  /**
+   * Generates all commands for the current properties list.
+   */
   protected createCommands() {
     this.commandGeneratedList = [];
     this.propertiesList.forEach((properties) => {
@@ -124,9 +114,6 @@ export class GenerateCommandComponent {
     return commandResult;
   }
 
-  /**
-   * Builds commands depending on the animation type.
-   */
   private buildBlockCommands(
     blockData: BlockData,
     properties: AnimationProperties,
@@ -140,10 +127,25 @@ export class GenerateCommandComponent {
       position: { x, y, z },
       property,
     } = blockData;
-    const propertiesString = this.buildPropertiesString(property ?? {}, isSet);
-    const newX = this.transformCoordinates(x, properties.x.value, scaleValue);
-    const newY = this.transformCoordinates(y, properties.y.value, scaleValue);
-    const newZ = this.transformCoordinates(z, properties.z.value, scaleValue);
+    const propertiesString = this.commandHelper.buildPropertiesString(
+      property ?? {},
+      isSet
+    );
+    const newX = this.commandHelper.transformCoordinates(
+      x,
+      properties.x.value,
+      scaleValue
+    );
+    const newY = this.commandHelper.transformCoordinates(
+      y,
+      properties.y.value,
+      scaleValue
+    );
+    const newZ = this.commandHelper.transformCoordinates(
+      z,
+      properties.z.value,
+      scaleValue
+    );
 
     if (properties.command.value !== 'destroy') {
       properties.coordinateList.push({ x: newX, y: newY, z: newZ });
@@ -151,7 +153,7 @@ export class GenerateCommandComponent {
     let timing = isTiming ? this.getTiming(newX, newY, newZ, properties) : '';
 
     switch (properties.command.value) {
-      case 'set': {
+      case 'set':
         return [
           this.buildSetCommand(
             timing,
@@ -162,8 +164,7 @@ export class GenerateCommandComponent {
             propertiesString
           ),
         ];
-      }
-      case 'display': {
+      case 'display':
         timing = isTiming ? this.getTiming(x, y, z, properties) : '';
         return this.buildDisplayCommands(
           timing,
@@ -176,7 +177,6 @@ export class GenerateCommandComponent {
           isTiming,
           blockData
         );
-      }
       case 'destroy':
         return this.buildDestroyCommands(
           properties,
@@ -192,7 +192,6 @@ export class GenerateCommandComponent {
 
   /**
    * Builds the set command for placing a block at specified coordinates.
-   * This command is used when the animation type is 'set'.
    */
   private buildSetCommand(
     timing: string,
@@ -207,7 +206,7 @@ export class GenerateCommandComponent {
 
   /**
    * Builds the commands for displaying a block with optional transformations.
-   * This includes scaling and positioning based on the animation properties.
+   * Handles gradual scale/coordinate and final setblock/kill if needed.
    */
   private buildDisplayCommands(
     timing: string,
@@ -224,17 +223,17 @@ export class GenerateCommandComponent {
       properties.scaleOption.value === 'gradual'
         ? properties.gradualScaleStart.value
         : properties.staticScale.value;
-    const coordinates = `${this.calculateScaleOffset(
+    const coordinates = `${this.commandHelper.calculateScaleOffset(
       x,
       startScale
-    )} ${y} ${this.calculateScaleOffset(z, startScale)}`;
-    const transform = this.buildTransformation(
+    )} ${y} ${this.commandHelper.calculateScaleOffset(z, startScale)}`;
+    const transform = this.commandHelper.buildTransformation(
       [0, 0, 0],
       false,
       startScale,
       true
     );
-    const coordinateTag = `${x}-${y}-${z}`;
+    const coordinateTag = this.commandHelper.getCoordinateTag(x, y, z);
     const tags = `,Tags:["${coordinateTag}", "${properties.name}"]`;
 
     const commands: string[] = [
@@ -245,7 +244,7 @@ export class GenerateCommandComponent {
       properties.scaleOption.value === 'gradual' ||
       properties.coordinateOption.value === 'gradual'
     ) {
-      const interpolation = this.getInterlopation(
+      const interpolation = this.commandHelper.getInterpolation(
         timing,
         isTiming,
         transform,
@@ -259,7 +258,7 @@ export class GenerateCommandComponent {
         properties.gradualScaleEnd.value === 1 &&
         properties.shouldSetBlock.value
       ) {
-        const setBlockProperties = this.buildPropertiesString(
+        const setBlockProperties = this.commandHelper.buildPropertiesString(
           blockData.property ?? {},
           true
         );
@@ -270,11 +269,14 @@ export class GenerateCommandComponent {
         }
 
         commands.push(
-          `${this.addLatency(
+          `${this.commandHelper.addLatency(
             timing,
             latency
           )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
-          `${this.addLatency(timing, latency)} kill @e[tag=${coordinateTag}]`
+          `${this.commandHelper.addLatency(
+            timing,
+            latency
+          )} kill @e[tag=${coordinateTag}]`
         );
       }
     }
@@ -297,10 +299,15 @@ export class GenerateCommandComponent {
     );
     const coordinatesToDel = animToDel?.coordinateList[index];
     if (!animToDel || !coordinatesToDel) return [];
-    const coodirnatesString = `${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z}`;
+    const coordinatesString = `${coordinatesToDel.x} ${coordinatesToDel.y} ${coordinatesToDel.z}`;
+    const tags = this.commandHelper.getCoordinateTag(
+      coordinatesToDel.x,
+      coordinatesToDel.y,
+      coordinatesToDel.z
+    );
 
     if (animToDel.command.value === 'set') {
-      return [`${timing} setblock ${coodirnatesString} minecraft:air`];
+      return [`${timing} setblock ${coordinatesString} minecraft:air`];
     }
 
     // Faster delete if there is no timing
@@ -308,16 +315,14 @@ export class GenerateCommandComponent {
       return index === 0 ? [`kill @e[tag=${animToDel.name}]`] : [];
     }
 
-    const tags = `${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}`;
-
     if (
       properties.gradualScaleStart.value !== 1 ||
       properties.gradualScaleEnd.value !== 1
     ) {
-      const interlopation = this.getInterlopation(
+      const interpolation = this.commandHelper.getInterpolation(
         timing,
         true,
-        this.buildTransformation(
+        this.commandHelper.buildTransformation(
           [0, 0, 0],
           false,
           properties.gradualScaleEnd.value,
@@ -329,7 +334,7 @@ export class GenerateCommandComponent {
           properties.shouldSetBlock.value
       );
 
-      const lateTiming = this.addLatency(timing, 1);
+      const lateTiming = this.commandHelper.addLatency(timing, 1);
 
       if (
         properties.gradualScaleEnd.value === 0 &&
@@ -341,43 +346,38 @@ export class GenerateCommandComponent {
         if (this.maxIncrement < latency) {
           this.maxIncrement = latency;
         }
-        const killTiming = this.addLatency(timing, latency);
-        const transform = this.buildTransformation(
+        const killTiming = this.commandHelper.addLatency(timing, latency);
+        const transform = this.commandHelper.buildTransformation(
           [0, 0, 0],
           true,
           properties.gradualScaleStart.value,
           true
         );
-        const coordinatesDisplay = `${this.calculateScaleOffset(
+        const coordinatesDisplay = `${this.commandHelper.calculateScaleOffset(
           coordinatesToDel.x,
           properties.gradualScaleEnd.value
-        )} ${coordinatesToDel.y} ${this.calculateScaleOffset(
+        )} ${coordinatesToDel.y} ${this.commandHelper.calculateScaleOffset(
           coordinatesToDel.z,
           properties.gradualScaleEnd.value
         )}`;
-        const transformWithTranslation = this.addTranslation(
+        const transformWithTranslation = this.commandHelper.addTranslation(
           transform,
           properties.gradualScaleEnd.value,
           properties.gradualScaleStart.value,
           properties
         );
         return [
+          `${timing} setblock ${coordinatesString} minecraft:air`,
           `${timing} summon block_display ${coordinatesDisplay} {block_state:{Name:"${block}"${propertiesString}}${transformWithTranslation},Tags:["${tags}"]}`,
-          `${timing} setblock ${coodirnatesString} minecraft:air`,
-          interlopation,
+          interpolation,
           `${killTiming} kill @e[tag=${tags}]`,
         ];
       }
 
-      return [
-        interlopation,
-        `${lateTiming} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`,
-      ];
+      return [interpolation, `${lateTiming} kill @e[tag=${tags}]`];
     }
 
-    return [
-      `${timing} kill @e[tag=${coordinatesToDel.x}-${coordinatesToDel.y}-${coordinatesToDel.z}]`,
-    ];
+    return [`${timing} kill @e[tag=${tags}]`];
   }
 
   /**
@@ -428,70 +428,6 @@ export class GenerateCommandComponent {
     );
 
     this.maxLoop = maxAxis + this.maxIncrement;
-  }
-
-  /**
-   * Builds the block properties string for set/display commands.
-   */
-  private buildPropertiesString(
-    properties: Record<string, string>,
-    isSet: boolean
-  ): string {
-    if (isSet) {
-      const propertiesEntries = Object.entries(properties)
-        .map(([k, v]) => `${k}=${v}`)
-        .join(',');
-      return propertiesEntries ? `[${propertiesEntries}]` : '';
-    }
-
-    const propertiesEntries = Object.entries(properties)
-      .map(([key, value]) => `${key}:"${value}"`)
-      .join(', ');
-    return propertiesEntries ? `,Properties:{${propertiesEntries}}` : '';
-  }
-
-  /**
-   * Builds the transformation string for display commands.
-   */
-  private buildTransformation(
-    coords: [number, number, number],
-    isTiming: boolean,
-    scaleValue: number,
-    isDisplay = true
-  ): string {
-    if (!isDisplay) return '';
-    const [x, y, z] = coords;
-    const translation = isTiming ? `[${x}f,${y}f,${z}f]` : `[0f,0f,0f]`;
-    return (
-      `,transformation:{` +
-      `left_rotation:[0f,0f,0f,1f],` +
-      `right_rotation:[0f,0f,0f,1f],` +
-      `translation:${translation},` +
-      `scale:[${scaleValue}f,${scaleValue}f,${scaleValue}f]}`
-    );
-  }
-
-  /**
-   * Transforms block coordinates based on scale and offset.
-   */
-  private transformCoordinates(
-    blockCoordinate: number,
-    coordinate: number,
-    scale: number
-  ): number {
-    return parseFloat(
-      (blockCoordinate * (scale === 0 ? 1 : scale) + coordinate).toFixed(4)
-    );
-  }
-
-  /**
-   * Calculates the offset for scale.
-   */
-  private calculateScaleOffset(x: number, scale: number): number {
-    if (x < 0) {
-      return -1 * Math.abs(x + 0.5 - scale / 2);
-    }
-    return Math.abs(x + 0.5 - scale / 2);
   }
 
   /**
@@ -623,73 +559,5 @@ export class GenerateCommandComponent {
       this.isCopyConfirm = false;
       this.copyTooltip?.hide();
     }, 2000);
-  }
-
-  /**
-   * Generates the interlopation command for gradual scale animations.
-   * This command is used to smoothly transition the scale of the block display.
-   * This will also be used for coordinate interpolation eventually.
-   */
-  private getInterlopation(
-    timing: string,
-    isTiming: boolean,
-    transform: string,
-    properties: AnimationProperties,
-    coordinateTag: string,
-    enableLatency = true
-  ): string {
-    let timingWithLatency = isTiming ? timing : '';
-    if (enableLatency) {
-      timingWithLatency = this.addLatency(timingWithLatency);
-    }
-    const newTransform = this.addTranslation(
-      transform,
-      properties.gradualScaleStart.value,
-      properties.gradualScaleEnd.value,
-      properties
-    );
-    return `${timingWithLatency} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${properties.scaleSpeed.value}${newTransform}}`;
-  }
-
-  private addTranslation(
-    transform: string,
-    start: number,
-    end: number,
-    properties: AnimationProperties
-  ): string {
-    const transformNoScale = transform.substring(
-      0,
-      transform.indexOf('translation')
-    );
-    const endScale = end;
-    const offset = this.calculateScaleOffset(0, endScale);
-    const translation = start > 1 ? offset : offset * -1;
-
-    let x = 0;
-    let y = 0;
-    let z = 0;
-    if (properties.coordinateOption.value === 'gradual') {
-      x = properties.endX.value - properties.x.value;
-      y = properties.endY.value - properties.y.value;
-      z = properties.endZ.value - properties.z.value;
-    }
-
-    const newTransform =
-      transformNoScale +
-      `translation:[${translation + x}f,${y}f,${
-        translation + z
-      }f],scale:[${endScale}f,${endScale}f,${endScale}f]}`;
-    return newTransform;
-  }
-
-  /**
-   * Adds latency to the timing string.
-   * This is used to ensure that the next command waits for the previous one to finish.
-   */
-  private addLatency(timing: string, increment = 1): string {
-    return timing.replace(
-      /matches (\d+)/,
-      (_, num) => `matches ${parseInt(num) + increment}`
-    );
   }
 }
