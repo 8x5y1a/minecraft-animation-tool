@@ -1,26 +1,109 @@
 import { Injectable } from '@angular/core';
 import { AnimationProperties } from '../types/type';
 
+export type Rotation = 'north' | 'east' | 'west' | 'south';
+
 @Injectable({ providedIn: 'root' })
 export class GenerateCommandHelperService {
+  private rotation: Record<Rotation, Record<string, string>> = {
+    north: {
+      north: 'north',
+      east: 'east',
+      south: 'south',
+      west: 'west',
+      straight: 'straight',
+      inner_left: 'inner_left',
+      inner_right: 'inner_right',
+      outer_left: 'outer_left',
+      outer_right: 'outer_right',
+      x: 'x',
+      y: 'y',
+      z: 'z',
+    },
+    west: {
+      north: 'east',
+      east: 'south',
+      south: 'west',
+      west: 'north',
+      straight: 'straight',
+      inner_left: 'outer_left',
+      inner_right: 'inner_left',
+      outer_left: 'outer_right',
+      outer_right: 'inner_right',
+      x: 'z',
+      y: 'y',
+      z: 'x',
+    },
+    south: {
+      north: 'south',
+      east: 'west',
+      south: 'north',
+      west: 'east',
+      straight: 'straight',
+      inner_left: 'inner_right',
+      inner_right: 'outer_right',
+      outer_left: 'inner_left',
+      outer_right: 'outer_left',
+      x: 'x',
+      y: 'y',
+      z: 'z',
+    },
+    east: {
+      north: 'west',
+      east: 'north',
+      south: 'east',
+      west: 'south',
+      straight: 'straight',
+      inner_left: 'outer_right',
+      inner_right: 'outer_left',
+      outer_left: 'inner_right',
+      outer_right: 'inner_left',
+      x: 'z',
+      y: 'y',
+      z: 'x',
+    },
+  };
+
   /**
    * Builds the block properties string for set/display commands.
    */
   public buildPropertiesString(
     properties: Record<string, string>,
-    isSet: boolean
+    isSet: boolean,
+    facing: Rotation
   ): string {
-    if (isSet) {
-      const propertiesEntries = Object.entries(properties)
-        .map(([k, v]) => `${k}=${v}`)
-        .join(',');
-      return propertiesEntries ? `[${propertiesEntries}]` : '';
-    }
+    const separator = isSet ? '=' : ':';
+    const directions = ['north', 'east', 'south', 'west'];
+
+    const mapProperty = (k: string, v: string): string => {
+      if (k === 'facing') {
+        const rotated = this.rotation[facing]?.[v] || v;
+        return `${k}${separator}${rotated}`;
+      } else if (k === 'shape') {
+        const rotated = this.rotation[facing]?.[v] || v;
+        return `${k}${separator}${rotated}`;
+      } else if (directions.includes(k)) {
+        const newKey = this.rotation[facing]?.[k] || k;
+        return `${newKey}${separator}${v}`;
+      } else if (k === 'axis') {
+        const rotated = this.rotation[facing]?.[v] || v;
+        return `${k}${separator}${rotated}`;
+      }
+
+      return `${k}${separator}${v}`;
+    };
 
     const propertiesEntries = Object.entries(properties)
-      .map(([key, value]) => `${key}:"${value}"`)
-      .join(', ');
-    return propertiesEntries ? `,Properties:{${propertiesEntries}}` : '';
+      .map(([k, v]) => mapProperty(k, v))
+      .join(isSet ? ',' : ', ');
+
+    return isSet
+      ? propertiesEntries
+        ? `[${propertiesEntries}]`
+        : ''
+      : propertiesEntries
+      ? `,Properties:{${propertiesEntries}}`
+      : '';
   }
 
   /**

@@ -54,6 +54,7 @@ export class NbtInputComponent {
     this.nbtList.push(nbtResult.parsed);
 
     const blockData = nbtResult.parsed.value['blocks'];
+    const structureSize: any = nbtResult.parsed.value['size']?.value;
     const palette: any = nbtResult.parsed.value['palette']?.value;
     const blockNameList: string[] = palette?.value.map(
       (id: any) => id.Name.value
@@ -92,6 +93,11 @@ export class NbtInputComponent {
     });
 
     this.nbtDataService.setMaxAxis(this.maxAxis);
+    this.nbtDataService.setStructureSize({
+      x: structureSize.value[0],
+      y: structureSize.value[1],
+      z: structureSize.value[2],
+    });
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
       ([block, count]) => ({ block, count })

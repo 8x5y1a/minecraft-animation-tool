@@ -45,12 +45,26 @@ export class NbtDataService {
   }
 
   //Max Axis
-  private maxAxisSubject = new BehaviorSubject<Coordinates>(
-    {x: 0, y: 0, z:0}
-  );
+  private maxAxisSubject = new BehaviorSubject<Coordinates>({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
   readonly maxAxistObs: Observable<Coordinates> =
     this.maxAxisSubject.asObservable();
   setMaxAxis(newMaxAxis: Coordinates) {
     this.maxAxisSubject.next(newMaxAxis);
+  }
+
+  //Structure size
+  private structureSizeSubject = new BehaviorSubject<Coordinates>({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+  readonly structureSizeObs: Observable<Coordinates> =
+    this.structureSizeSubject.asObservable();
+  setStructureSize(structureSize: Coordinates) {
+    this.structureSizeSubject.next(structureSize);
   }
 }

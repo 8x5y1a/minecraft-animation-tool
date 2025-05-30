@@ -40,6 +40,11 @@ export class GenerateCommandComponent {
   protected isCopyConfirm = false;
   private maxIncrement = 0;
   private maxLoop = 0;
+  private structureSize: Coordinates = {
+    x: 0,
+    y: 0,
+    z: 0,
+  };
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -62,6 +67,12 @@ export class GenerateCommandComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((newMaxAxis) => {
         this.maxAxis = newMaxAxis;
+      });
+
+    this.nbtDataService.structureSizeObs
+      .pipe(takeUntilDestroyed())
+      .subscribe((newStructureSize) => {
+        this.structureSize = newStructureSize;
       });
   }
 
@@ -129,7 +140,8 @@ export class GenerateCommandComponent {
     } = blockData;
     const propertiesString = this.commandHelper.buildPropertiesString(
       property ?? {},
-      isSet
+      isSet,
+      properties.facing.value
     );
     const newX = this.commandHelper.transformCoordinates(
       x,
@@ -161,7 +173,8 @@ export class GenerateCommandComponent {
             newY,
             newZ,
             block,
-            propertiesString
+            propertiesString,
+            properties.facing.value
           ),
         ];
       case 'display':
@@ -199,9 +212,17 @@ export class GenerateCommandComponent {
     y: number,
     z: number,
     block: string,
-    propertiesString: string
+    propertiesString: string,
+    facing: string
   ): string {
-    return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
+    const coordinates = this.rotateBlockPos(
+      x,
+      y,
+      z,
+      facing,
+      this.structureSize
+    );
+    return `${timing} setblock ${coordinates.x} ${coordinates.y} ${coordinates.z} ${block}${propertiesString} keep`;
   }
 
   /**
@@ -223,17 +244,32 @@ export class GenerateCommandComponent {
       properties.scaleOption.value === 'gradual'
         ? properties.gradualScaleStart.value
         : properties.staticScale.value;
-    const coordinates = `${this.commandHelper.calculateScaleOffset(
+    const rotatedCoordinates = this.rotateBlockPos(
       x,
+      y,
+      z,
+      properties.facing.value,
+      this.structureSize
+    );
+    const coordinates = `${this.commandHelper.calculateScaleOffset(
+      rotatedCoordinates.x,
       startScale
-    )} ${y} ${this.commandHelper.calculateScaleOffset(z, startScale)}`;
+    )} ${rotatedCoordinates.y} ${this.commandHelper.calculateScaleOffset(
+      rotatedCoordinates.z,
+      startScale
+    )}`;
     const transform = this.commandHelper.buildTransformation(
       [0, 0, 0],
       false,
       startScale,
       true
     );
-    const coordinateTag = this.commandHelper.getCoordinateTag(x, y, z);
+
+    const coordinateTag = this.commandHelper.getCoordinateTag(
+      rotatedCoordinates.x,
+      rotatedCoordinates.y,
+      rotatedCoordinates.z
+    );
     const tags = `,Tags:["${coordinateTag}", "${properties.name}"]`;
 
     const commands: string[] = [
@@ -260,7 +296,8 @@ export class GenerateCommandComponent {
       ) {
         const setBlockProperties = this.commandHelper.buildPropertiesString(
           blockData.property ?? {},
-          true
+          true,
+          properties.facing.value
         );
         //TODO: Calculate latency based on the scale speed
         const latency = 3;
@@ -269,10 +306,11 @@ export class GenerateCommandComponent {
         }
 
         commands.push(
-          `${this.commandHelper.addLatency(
-            timing,
-            latency
-          )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
+          `${this.commandHelper.addLatency(timing, latency)} setblock ${
+            rotatedCoordinates.x
+          } ${rotatedCoordinates.y} ${
+            rotatedCoordinates.z
+          } ${block}${setBlockProperties}`,
           `${this.commandHelper.addLatency(
             timing,
             latency
@@ -559,5 +597,26 @@ export class GenerateCommandComponent {
       this.isCopyConfirm = false;
       this.copyTooltip?.hide();
     }, 2000);
+  }
+
+  private rotateBlockPos(
+    x: number,
+    y: number,
+    z: number,
+    rotation: string,
+    size: { x: number; y: number; z: number }
+  ): { x: number; y: number; z: number } {
+    switch (rotation) {
+      case 'north':
+        return { x, y, z };
+      case 'east':
+        return { x: z, y, z: size.x - 1 - x };
+      case 'south':
+        return { x: size.x - 1 - x, y, z: size.z - 1 - z };
+      case 'west':
+        return { x: size.z - 1 - z, y, z: x };
+      default:
+        return { x, y, z };
+    }
   }
 }
