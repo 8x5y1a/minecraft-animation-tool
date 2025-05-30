@@ -84,10 +84,14 @@ export class GenerateCommandHelperService {
         return `${k}${separator}${rotated}`;
       } else if (directions.includes(k)) {
         const newKey = this.rotation[facing]?.[k] || k;
-        return `${newKey}${separator}${v}`;
+        return `${newKey}${separator}'${v}'`;
       } else if (k === 'axis') {
         const rotated = this.rotation[facing]?.[v] || v;
         return `${k}${separator}${rotated}`;
+      }
+
+      if (v === 'true' || v === 'false') {
+        return `${k}${separator}'${v}'`;
       }
 
       return `${k}${separator}${v}`;
