@@ -8,6 +8,7 @@ import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatTooltip } from '@angular/material/tooltip';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-nbt-input',
   imports: [
@@ -25,6 +26,7 @@ export class NbtInputComponent {
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
   protected nbtList: NBT[] = [];
+  protected blockDataList: BlockData[] = [];
 
   private maxAxis: Coordinates = {
     x: -200,
@@ -35,7 +37,13 @@ export class NbtInputComponent {
   constructor(
     private nbtDataService: NbtDataService,
     protected preferenceService: PreferenceService
-  ) {}
+  ) {
+    this.nbtDataService.blockDataListObs
+      .pipe(takeUntilDestroyed())
+      .subscribe((blockData) => {
+        this.blockDataList = blockData;
+      });
+  }
 
   protected async onFileInput(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
