@@ -41,6 +41,5 @@ function getAnimationDisplayScaleDown(destroy: AnimationProperties) {
   animationDisplayDown.speed.setValue(4);
   animationDisplayDown.scaleSpeed.setValue(5);
   animationDisplayDown.isAscending.setValue(false);
-  //TODO: delete displayblock after
   return animationDisplayDown;
 }

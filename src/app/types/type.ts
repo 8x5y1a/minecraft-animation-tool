@@ -1,6 +1,5 @@
 import { FormControl } from '@angular/forms';
 
-//TODO: Find better name for this
 export interface BlockData {
   block: string;
   property: Record<string, string> | undefined;
