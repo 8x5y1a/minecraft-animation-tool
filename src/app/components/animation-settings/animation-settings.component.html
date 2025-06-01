@@ -1,11 +1,41 @@
 <div class="animation-tabs-wrapper">
   <mat-tab-group [selectedIndex]="tabIndex()">
-    @for (properties of animationPropertiesList; track properties; let index =
+    @for (properties of allAnimationProperties; track properties; let index =
     $index) {
-    <mat-tab [label]="'Animation ' + (index + 1)">
+    <mat-tab [label]="properties.name">
+      <!-- Structure Selection -->
+      @if(structureList.length > 1 ){
+      <h3>Structure</h3>
+      <mat-form-field class="mb-1">
+        <mat-label>Structure</mat-label>
+        <mat-select
+          (selectionChange)="
+            updateAnimationName($event.value, properties.command.value, index)
+          "
+          [formControl]="properties.structureName"
+        >
+          @for (structure of structureList; track structure) {
+          <mat-option [value]="structure.name">{{ structure.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-divider />
+      }
+
       <!-- Command Selection -->
       <h3>Command</h3>
-      <mat-chip-listbox [formControl]="properties.command" class="mb-1">
+      <mat-chip-listbox
+        (change)="
+          updateAnimationName(
+            properties.structureName.value,
+            $event.value,
+            index
+          )
+        "
+        [formControl]="properties.command"
+        class="mb-1"
+      >
         <mat-chip-option
           matTooltip="Set the blocks at the specified coordinates like a normal building"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"

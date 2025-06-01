@@ -2,10 +2,14 @@ import { FormControl } from '@angular/forms';
 import { AnimationProperties } from './type.js';
 
 export class AnimationPropertiesModel implements AnimationProperties {
+  private static nextId = 0;
+  readonly id: number;
+
   name: string;
   command: FormControl<'set' | 'display' | 'destroy'>;
   removeAnimation: FormControl<undefined | AnimationProperties>;
   nextAnimation: FormControl<undefined | AnimationProperties>;
+  structureName: FormControl<string>;
 
   // Position
   x: FormControl<number>;
@@ -60,12 +64,17 @@ export class AnimationPropertiesModel implements AnimationProperties {
       nextAnimation?: AnimationProperties;
       scaleSpeed: number;
       shouldSetBlock: boolean;
+      structureName: string;
     }
   ) {
+    this.id = AnimationPropertiesModel.nextId++;
     this.name = name;
     this.command = new FormControl(params.command, { nonNullable: true });
     this.timing = new FormControl(params.timing, { nonNullable: true });
     this.speed = new FormControl(params.speed, { nonNullable: true });
+    this.structureName = new FormControl(params.structureName, {
+      nonNullable: true,
+    });
 
     this.x = new FormControl(params.x, { nonNullable: true });
     this.y = new FormControl(params.y, { nonNullable: true });
@@ -116,8 +125,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
     });
   }
 
-  static createDefault(index: number) {
-    return new AnimationPropertiesModel(`animation_${index}`, {
+  static createDefault(name: string) {
+    return new AnimationPropertiesModel(name, {
       command: 'set',
       timing: true,
       speed: 1,
@@ -140,6 +149,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       facing: 'north',
       facingEnd: 'north',
       shouldSetBlock: true,
+      structureName: '',
     });
   }
 
@@ -167,6 +177,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       facing: from.facing.value,
       facingEnd: from.facing.value,
       shouldSetBlock: from.shouldSetBlock.value,
+      structureName: from.structureName.value,
     });
   }
 }

@@ -10,10 +10,14 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AnimationProperties, BlockData, Template } from 'src/app/types/type';
+import {
+  AnimationProperties,
+  NBTStructure,
+  Template,
+} from 'src/app/types/type';
 import { AnimationPropertiesModel } from 'src/app/types/AnimationPropertiesModel';
 import { MatInput } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -59,7 +63,11 @@ import { PreferenceService } from 'src/app/services/preference.service';
   styleUrl: './animation-settings.component.css',
 })
 export class AnimationSettingsComponent implements OnDestroy {
-  protected blockDataList: BlockData[] = [];
+  protected structureList: NBTStructure[] = [];
+  protected structureCtrl: FormControl<NBTStructure> = new FormControl(
+    this.structureList[0],
+    { nonNullable: true }
+  );
   protected animationPropertiesList: AnimationProperties[] = [];
   protected tabIndex = signal(0);
   public commandsSelected = input(false);
@@ -72,17 +80,20 @@ export class AnimationSettingsComponent implements OnDestroy {
     private dialog: MatDialog,
     protected preferenceService: PreferenceService
   ) {
-    this.nbtDataService.blockDataListObs
+    this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
-      .subscribe((newBlockDataList: BlockData[]) => {
-        this.blockDataList = newBlockDataList;
+      .subscribe((structureList: NBTStructure[]) => {
+        this.structureList = structureList;
+        if (!this.structureCtrl.value) {
+          this.structureCtrl.setValue(this.structureList[0]);
+        }
       });
 
     this.addAnimation();
 
     effect(() => {
       if (this.commandsSelected()) {
-        this.nbtDataService.setPropertiesList(this.animationPropertiesList);
+        this.nbtDataService.overrideNBTStructure(this.structureList);
       }
     });
   }
@@ -95,8 +106,14 @@ export class AnimationSettingsComponent implements OnDestroy {
 
   protected addAnimation(newAnimation?: AnimationProperties) {
     if (!newAnimation) {
-      const index = this.animationPropertiesList.length + 1;
-      newAnimation = AnimationPropertiesModel.createDefault(index);
+      newAnimation = AnimationPropertiesModel.createDefault(
+        this.nbtDataService.getFunctionName(
+          this.structureCtrl.value.name,
+          'set',
+          this.structureList
+        )
+      );
+      newAnimation.structureName.setValue(this.structureList[0].name);
     }
     const commandSub = newAnimation.command.valueChanges.subscribe(
       (commandSelected) => {
@@ -106,13 +123,14 @@ export class AnimationSettingsComponent implements OnDestroy {
       }
     );
     this.subscriptionList.push(commandSub);
-
-    this.animationPropertiesList.push(newAnimation);
+    this.structureCtrl.value.animationProperties.push(newAnimation);
     this.tabIndex.set(this.animationPropertiesList.length - 1);
   }
 
   protected removeAnimation(index: number) {
     this.animationPropertiesList.splice(index, 1);
+    console.log('TODO:');
+    //TODO: remove from NBTStructure or link both?
   }
 
   protected formatSpeedSlider(value: number): string {
@@ -152,6 +170,22 @@ export class AnimationSettingsComponent implements OnDestroy {
       this.animationPropertiesList.some(
         (prop) => prop.command.value === 'display'
       )
+    );
+  }
+
+  protected updateAnimationName(name: string, command: string, index: number) {
+    const newName = this.nbtDataService.getFunctionName(
+      name,
+      command ?? 'set',
+      this.structureList
+    );
+    this.allAnimationProperties[index].name = newName;
+  }
+
+  //TODO: From this object, save at the end.
+  get allAnimationProperties(): AnimationProperties[] {
+    return this.structureList.flatMap(
+      (structure) => structure.animationProperties
     );
   }
 }

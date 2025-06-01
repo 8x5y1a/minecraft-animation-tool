@@ -120,8 +120,9 @@ export class NbtInputComponent {
     // this.nbtDataService.setBlockList(blockCountList);
     // this.nbtDataService.setBlockDataList(blockDataList);
 
+    const cleanName = this.cleanFunctionName(file.name.replace(/\.nbt$/, ''));
     const structure: NBTStructure = {
-      name: file.name,
+      name: cleanName,
       blockData: blockDataList,
       blockCount: blockCountList,
       animationProperties: [],
@@ -143,5 +144,15 @@ export class NbtInputComponent {
     });
 
     return propertyTransformed;
+  }
+
+  private cleanFunctionName(name: string): string {
+    return name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '_');
   }
 }

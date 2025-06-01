@@ -1,7 +1,7 @@
 import { AnimationPropertiesModel } from 'src/app/types/AnimationPropertiesModel';
 import { AnimationProperties, Template } from 'src/app/types/type';
 
-const defaultAnimation = AnimationPropertiesModel.createDefault(0);
+const defaultAnimation = AnimationPropertiesModel.createDefault('animation_1');
 
 export const templates: Template[] = [
   {

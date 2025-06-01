@@ -5,6 +5,7 @@ import {
   BlockData,
   CommandGenerated,
   Coordinates,
+  NBTStructure,
 } from 'src/app/types/type';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -32,47 +33,29 @@ import { GenerateCommandHelperService } from 'src/app/services/generate-command-
   standalone: true,
 })
 export class GenerateCommandComponent {
-  protected blockDataList: BlockData[] = [];
+  private structureList: NBTStructure[] = [];
   private propertiesList: AnimationProperties[] = [];
-  private maxAxis: Coordinates = { x: 0, y: 0, z: 0 };
   protected commandGeneratedList: CommandGenerated[] = [];
   @ViewChild('tooltip') copyTooltip?: MatTooltip;
   protected isCopyConfirm = false;
   private maxIncrement = 0;
   private maxLoop = 0;
-  private structureSize: Coordinates = {
-    x: 0,
-    y: 0,
-    z: 0,
-  };
 
   constructor(
     private nbtDataService: NbtDataService,
     private zipService: ZipService,
     private commandHelper: GenerateCommandHelperService
   ) {
-    this.nbtDataService.blockDataListObs
-      .pipe(takeUntilDestroyed())
-      .subscribe((newBlockDataList: BlockData[]) => {
-        this.blockDataList = newBlockDataList;
-      });
+    // this.nbtDataService.propertiesListObs
+    //   .pipe(takeUntilDestroyed())
+    //   .subscribe((propertiesList: AnimationProperties[]) => {
+    //     this.propertiesList = propertiesList;
+    //   });
 
-    this.nbtDataService.propertiesListObs
+    this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
-      .subscribe((propertiesList: AnimationProperties[]) => {
-        this.propertiesList = propertiesList;
-      });
-
-    this.nbtDataService.maxAxistObs
-      .pipe(takeUntilDestroyed())
-      .subscribe((newMaxAxis) => {
-        this.maxAxis = newMaxAxis;
-      });
-
-    this.nbtDataService.structureSizeObs
-      .pipe(takeUntilDestroyed())
-      .subscribe((newStructureSize) => {
-        this.structureSize = newStructureSize;
+      .subscribe((structureList) => {
+        this.structureList = structureList;
       });
   }
 
@@ -81,16 +64,21 @@ export class GenerateCommandComponent {
    */
   protected createCommands() {
     this.commandGeneratedList = [];
-    this.propertiesList.forEach((properties) => {
-      if (!properties) return;
-      this.buildCommands(properties);
+    this.structureList.forEach((structure) => {
+      structure.animationProperties.forEach((properties) => {
+        if (!properties) return;
+        this.buildCommands(properties, structure);
+      });
     });
   }
 
   /**
    * Main command builder for a given animation properties set.
    */
-  private buildCommands(properties: AnimationProperties): string {
+  private buildCommands(
+    properties: AnimationProperties,
+    structure: NBTStructure
+  ): string {
     const isSet = properties.command.value === 'set';
     const isTiming = properties.timing.value;
     const scaleValue =
@@ -99,7 +87,7 @@ export class GenerateCommandComponent {
         : properties.gradualScaleEnd.value;
     properties.coordinateList = [];
 
-    const commandList: string[] = this.blockDataList.flatMap(
+    const commandList: string[] = structure.blockData.flatMap(
       (blockData, index) =>
         this.buildBlockCommands(
           blockData,
@@ -107,12 +95,13 @@ export class GenerateCommandComponent {
           index,
           isSet,
           isTiming,
-          scaleValue
+          scaleValue,
+          structure
         )
     );
 
     if (isTiming) {
-      this.addTimingCommands(commandList, properties);
+      this.addTimingCommands(commandList, properties, structure.maxAxis);
     }
 
     const commandResult = commandList.join('\n');
@@ -131,7 +120,8 @@ export class GenerateCommandComponent {
     index: number,
     isSet: boolean,
     isTiming: boolean,
-    scaleValue: number
+    scaleValue: number,
+    structure: NBTStructure
   ): string[] {
     const {
       block,
@@ -162,7 +152,9 @@ export class GenerateCommandComponent {
     if (properties.command.value !== 'destroy') {
       properties.coordinateList.push({ x: newX, y: newY, z: newZ });
     }
-    let timing = isTiming ? this.getTiming(newX, newY, newZ, properties) : '';
+    let timing = isTiming
+      ? this.getTiming(newX, newY, newZ, properties, structure.maxAxis)
+      : '';
 
     switch (properties.command.value) {
       case 'set':
@@ -174,11 +166,14 @@ export class GenerateCommandComponent {
             newZ,
             block,
             propertiesString,
-            properties.facing.value
+            properties.facing.value,
+            structure.structureSize
           ),
         ];
       case 'display':
-        timing = isTiming ? this.getTiming(x, y, z, properties) : '';
+        timing = isTiming
+          ? this.getTiming(x, y, z, properties, structure.maxAxis)
+          : '';
         return this.buildDisplayCommands(
           timing,
           newX,
@@ -188,7 +183,8 @@ export class GenerateCommandComponent {
           properties,
           propertiesString,
           isTiming,
-          blockData
+          blockData,
+          structure.structureSize
         );
       case 'destroy':
         return this.buildDestroyCommands(
@@ -213,15 +209,10 @@ export class GenerateCommandComponent {
     z: number,
     block: string,
     propertiesString: string,
-    facing: string
+    facing: string,
+    structureSize: Coordinates
   ): string {
-    const coordinates = this.rotateBlockPos(
-      x,
-      y,
-      z,
-      facing,
-      this.structureSize
-    );
+    const coordinates = this.rotateBlockPos(x, y, z, facing, structureSize);
     return `${timing} setblock ${coordinates.x} ${coordinates.y} ${coordinates.z} ${block}${propertiesString} keep`;
   }
 
@@ -238,7 +229,8 @@ export class GenerateCommandComponent {
     properties: AnimationProperties,
     propertiesString: string,
     isTiming: boolean,
-    blockData: BlockData
+    blockData: BlockData,
+    structureSize: Coordinates
   ): string[] {
     const startScale =
       properties.scaleOption.value === 'gradual'
@@ -249,7 +241,7 @@ export class GenerateCommandComponent {
       y,
       z,
       properties.facing.value,
-      this.structureSize
+      structureSize
     );
     const coordinates = `${this.commandHelper.calculateScaleOffset(
       rotatedCoordinates.x,
@@ -423,18 +415,19 @@ export class GenerateCommandComponent {
    */
   private addTimingCommands(
     commands: string[],
-    properties: AnimationProperties
+    properties: AnimationProperties,
+    maxAxis: Coordinates
   ) {
     commands.unshift(
       'scoreboard objectives add count trigger',
       'scoreboard players add $Dataman count 0',
       '# Scoreboard Management End'
     );
-    const randomMax = Math.max(this.maxAxis.x, this.maxAxis.y, this.maxAxis.z);
+    const randomMax = Math.max(maxAxis.x, maxAxis.y, maxAxis.z);
 
-    const maxAxis =
+    const finalMaxAxis =
       (properties.animationOrder.value !== 'random'
-        ? this.maxAxis[properties.animationOrder.value]
+        ? maxAxis[properties.animationOrder.value]
         : randomMax) +
       properties.randomness.value +
       1;
@@ -442,10 +435,10 @@ export class GenerateCommandComponent {
     commands.push(
       '# Timing Management',
       `execute if score $Dataman count matches ..${
-        maxAxis + this.maxIncrement - 1
+        finalMaxAxis + this.maxIncrement - 1
       } run scoreboard players add $Dataman count 1`,
       `execute if score $Dataman count matches ..${
-        maxAxis + this.maxIncrement - 1
+        finalMaxAxis + this.maxIncrement - 1
       } run schedule function animation:${properties.name} ${
         properties.speed.value
       }`
@@ -453,7 +446,7 @@ export class GenerateCommandComponent {
     if (properties.nextAnimation.value) {
       commands.push(
         `execute if score $Dataman count matches ${
-          maxAxis + this.maxIncrement
+          finalMaxAxis + this.maxIncrement
         } run schedule function animation:${
           properties.nextAnimation.value.name
         } ${properties.nextAnimation.value.speed.value}`
@@ -461,11 +454,11 @@ export class GenerateCommandComponent {
     }
     commands.push(
       `execute if score $Dataman count matches ${
-        maxAxis + this.maxIncrement
+        finalMaxAxis + this.maxIncrement
       } run scoreboard players set $Dataman count 0`
     );
 
-    this.maxLoop = maxAxis + this.maxIncrement;
+    this.maxLoop = finalMaxAxis + this.maxIncrement;
   }
 
   /**
@@ -476,9 +469,10 @@ export class GenerateCommandComponent {
     y: number,
     z: number,
     properties: AnimationProperties,
+    maxAxis: Coordinates,
     increment = 0
   ): string {
-    const maxAxisList = [this.maxAxis.x, this.maxAxis.y, this.maxAxis.z];
+    const maxAxisList = [maxAxis.x, maxAxis.y, maxAxis.z];
     const randomMaxAxis = maxAxisList[Math.floor(Math.random() * 3)];
     const random = Math.floor(Math.random() * randomMaxAxis) + 1;
 
@@ -498,7 +492,7 @@ export class GenerateCommandComponent {
         : coordAxis;
 
     if (!properties.isAscending.value) {
-      count = this.maxAxis[axis] - count;
+      count = maxAxis[axis] - count;
     }
 
     let roundedCount = Math.abs(Math.round(count));
@@ -522,62 +516,63 @@ export class GenerateCommandComponent {
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
     //TODO: Make the destroy command run last (Order properties list by command type)
+    this.structureList.forEach((structure) => {
+      structure.animationProperties.forEach((properties) => {
+        const commandString = this.buildCommands(properties, structure);
+        const commandList = commandString.split('\n');
+        if (commandList.length > 50000) {
+          const regex = /count matches (\d+)/;
 
-    this.propertiesList.forEach((properties) => {
-      const commandString = this.buildCommands(properties);
-      const commandList = commandString.split('\n');
-      if (commandList.length > 50000) {
-        const regex = /count matches (\d+)/;
+          const timeManagementIndex = commandList.findIndex(
+            (line) => line === '# Timing Management'
+          );
+          const timeManagement =
+            timeManagementIndex >= 0
+              ? commandList.slice(timeManagementIndex + 1)
+              : [];
 
-        const timeManagementIndex = commandList.findIndex(
-          (line) => line === '# Timing Management'
-        );
-        const timeManagement =
-          timeManagementIndex >= 0
-            ? commandList.slice(timeManagementIndex + 1)
-            : [];
+          const scoreBoardManagerIndex = commandList.findIndex(
+            (line) => line === '# Scoreboard Management End'
+          );
+          const scoreBoardManager =
+            scoreBoardManagerIndex >= 0
+              ? commandList.slice(0, scoreBoardManagerIndex)
+              : [];
 
-        const scoreBoardManagerIndex = commandList.findIndex(
-          (line) => line === '# Scoreboard Management End'
-        );
-        const scoreBoardManager =
-          scoreBoardManagerIndex >= 0
-            ? commandList.slice(0, scoreBoardManagerIndex)
-            : [];
+          const mainCommand: string[] = [];
+          for (let i = 0; i < this.maxLoop; i++) {
+            const helperCommand: string[] = [];
+            commandList.forEach((line, index) => {
+              const match = line.match(regex);
+              if (match && match[1] && parseInt(match[1]) === i) {
+                helperCommand.push(line);
+                delete commandList[index];
+              }
+            });
 
-        const mainCommand: string[] = [];
-        for (let i = 0; i < this.maxLoop; i++) {
-          const helperCommand: string[] = [];
-          commandList.forEach((line, index) => {
-            const match = line.match(regex);
-            if (match && match[1] && parseInt(match[1]) === i) {
-              helperCommand.push(line);
-              delete commandList[index];
+            if (helperCommand.length > 0) {
+              this.zipService.addFile(
+                `data/animation/function/${properties.name}_helper_${i}.mcfunction`,
+                helperCommand.join('\n')
+              );
+              mainCommand.push(
+                `execute if score $Dataman count matches ${i} run function animation:${properties.name}_helper_${i}`
+              );
             }
-          });
-
-          if (helperCommand.length > 0) {
-            this.zipService.addFile(
-              `data/animation/function/${properties.name}_helper_${i}.mcfunction`,
-              helperCommand.join('\n')
-            );
-            mainCommand.push(
-              `execute if score $Dataman count matches ${i} run function animation:${properties.name}_helper_${i}`
-            );
           }
+          mainCommand.unshift(...scoreBoardManager);
+          mainCommand.push(...timeManagement);
+          this.zipService.addFile(
+            `data/animation/function/${properties.name}.mcfunction`,
+            mainCommand.join('\n')
+          );
+        } else {
+          this.zipService.addFile(
+            `data/animation/function/${properties.name}.mcfunction`,
+            commandString
+          );
         }
-        mainCommand.unshift(...scoreBoardManager);
-        mainCommand.push(...timeManagement);
-        this.zipService.addFile(
-          `data/animation/function/${properties.name}.mcfunction`,
-          mainCommand.join('\n')
-        );
-      } else {
-        this.zipService.addFile(
-          `data/animation/function/${properties.name}.mcfunction`,
-          commandString
-        );
-      }
+      });
     });
 
     await this.zipService.download('datapack.zip').catch((error) => {

@@ -18,10 +18,12 @@ type FC<T> = FormControl<T>;
 export type AnimationProperties = Position &
   Scaling &
   Animation & {
+    id: number;
     name: string;
     command: FC<'set' | 'display' | 'destroy'>;
     removeAnimation: FC<undefined | AnimationProperties>;
     nextAnimation: FC<undefined | AnimationProperties>;
+    structureName: FC<string>;
   };
 
 export type Position = {
