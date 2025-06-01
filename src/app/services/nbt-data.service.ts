@@ -5,10 +5,12 @@ import {
   BlockCount,
   BlockData,
   Coordinates,
+  NBTStructure,
 } from '../types/type';
 
 @Injectable({ providedIn: 'root' })
 export class NbtDataService {
+  //TODO: Cleanup all of these
   //Block list
   private blockListSubject = new BehaviorSubject<BlockCount[]>([]);
   readonly blockListObs: Observable<BlockCount[]> =
@@ -66,5 +68,18 @@ export class NbtDataService {
     this.structureSizeSubject.asObservable();
   setStructureSize(structureSize: Coordinates) {
     this.structureSizeSubject.next(structureSize);
+  }
+
+  //NBT Structures
+  private nbtStructureSubject = new BehaviorSubject<NBTStructure[]>([]);
+  readonly nbtStructureObs: Observable<NBTStructure[]> =
+    this.nbtStructureSubject.asObservable();
+  addNBTStructure(structure: NBTStructure) {
+    const currentList = this.nbtStructureSubject.getValue();
+    const updatedList = [...currentList, structure];
+    this.nbtStructureSubject.next(updatedList);
+  }
+  overrideNBTStructure(structureList: NBTStructure[]) {
+    this.nbtStructureSubject.next(structureList);
   }
 }

@@ -8,14 +8,15 @@ import {
   signal,
   TemplateRef,
   ViewChild,
+  WritableSignal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BlockCount } from 'src/app/types/type';
+import { BlockCount, NBTStructure } from 'src/app/types/type';
 import { MatButtonModule } from '@angular/material/button';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -32,6 +33,7 @@ import {
 } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { PreferenceService } from 'src/app/services/preference.service';
+import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-block-display',
@@ -51,6 +53,8 @@ import { PreferenceService } from 'src/app/services/preference.service';
     MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
+    MatSelect,
+    MatOption,
   ],
   templateUrl: './block-display.component.html',
   styleUrl: './block-display.component.css',
@@ -58,34 +62,45 @@ import { PreferenceService } from 'src/app/services/preference.service';
 })
 export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   public blocListSelected = input(false);
-  protected blockList: BlockCount[] = [];
+  protected structureList: NBTStructure[] = [];
+  protected structureCtrl: FormControl<NBTStructure> = new FormControl(
+    this.structureList[0],
+    { nonNullable: true }
+  );
 
   @ViewChild(MatSort) sort!: MatSort;
   protected readonly displayedColumns: string[] = ['block', 'count', 'Remove'];
   protected readonly dataSource = new MatTableDataSource<BlockCount>([]);
 
+  private shouldUpdate: WritableSignal<boolean> = signal(false);
+
   constructor(
     private nbtDataService: NbtDataService,
     protected preferenceService: PreferenceService
   ) {
-    this.nbtDataService.blockListObs
+    this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
-      .subscribe((newBlockList: BlockCount[]) => {
-        this.blockList = newBlockList;
+      .subscribe((structureList: NBTStructure[]) => {
+        this.structureList = structureList;
+        if (!this.structureCtrl.value) {
+          this.structureCtrl.setValue(structureList[0]);
+        }
       });
 
     effect(() => {
       if (this.blocListSelected()) {
-        this.nbtDataService.filterBlocDataList(this.dataSource.data);
+        this.shouldUpdate.set(true);
+      } else if (this.shouldUpdate()) {
+        this.shouldUpdate.set(false);
+        this.nbtDataService.overrideNBTStructure(this.structureList);
       }
     });
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    this.dataSource.data = this.blockList;
+    this.changeDataSource();
     if (this.preferenceService.autoRemoveAir) {
-      this.filterAirBlock();
+      this.airBlockFiltered.set(true);
     }
   }
 
@@ -119,19 +134,24 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
       if (result && row) {
         const newData = this.dataSource.data.filter((data) => data !== row);
         this.dataSource.data = newData;
-        this.nbtDataService.filterBlocDataList(newData);
+        this.structureCtrl.value.blockCount = newData;
       }
     });
   }
 
+  //TODO: rework this signal for multiple NBT
   protected airBlockFiltered = signal(false);
   protected filterAirBlock() {
     const newData = this.dataSource.data.filter(
       (data) => data.block !== 'minecraft:air'
     );
     this.dataSource.data = newData;
-    this.nbtDataService.filterBlocDataList(newData);
+    this.structureCtrl.value.blockCount = newData;
     this.airBlockFiltered.set(true);
-    console.log('Air block filtered');
+  }
+
+  protected changeDataSource() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.data = this.structureCtrl.value.blockCount;
   }
 }

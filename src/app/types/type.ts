@@ -72,3 +72,12 @@ export type CommandGenerated = {
   name: string;
   command: string;
 };
+
+export type NBTStructure = {
+  name: string;
+  blockData: BlockData[];
+  blockCount: BlockCount[];
+  animationProperties: AnimationProperties[];
+  maxAxis: Coordinates;
+  structureSize: Coordinates;
+};

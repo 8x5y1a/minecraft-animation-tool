@@ -4,7 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NBT, parse } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
-import { BlockCount, BlockData, Coordinates } from 'src/app/types/type';
+import {
+  BlockCount,
+  BlockData,
+  Coordinates,
+  NBTStructure,
+} from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -78,6 +83,10 @@ export class NbtInputComponent {
       const block = blockNameList[data.state.value];
       const [x, y, z] = data.pos.value.value;
 
+      if (this.preferenceService.autoRemoveAir && block === 'minecraft:air') {
+        return;
+      }
+
       blockDataList.push({
         block: block,
         property: this.transformProperty(
@@ -92,19 +101,34 @@ export class NbtInputComponent {
       this.maxAxis.z = Math.max(this.maxAxis.z, z);
     });
 
-    this.nbtDataService.setMaxAxis(this.maxAxis);
-    this.nbtDataService.setStructureSize({
+    // this.nbtDataService.setMaxAxis(this.maxAxis);
+    const structureSizeCoor: Coordinates = {
       x: structureSize.value[0],
       y: structureSize.value[1],
       z: structureSize.value[2],
-    });
+    };
+    // this.nbtDataService.setStructureSize({
+    //   x: structureSize.value[0],
+    //   y: structureSize.value[1],
+    //   z: structureSize.value[2],
+    // });
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
       ([block, count]) => ({ block, count })
     );
 
-    this.nbtDataService.setBlockList(blockCountList);
-    this.nbtDataService.setBlockDataList(blockDataList);
+    // this.nbtDataService.setBlockList(blockCountList);
+    // this.nbtDataService.setBlockDataList(blockDataList);
+
+    const structure: NBTStructure = {
+      name: file.name,
+      blockData: blockDataList,
+      blockCount: blockCountList,
+      animationProperties: [],
+      maxAxis: this.maxAxis,
+      structureSize: structureSizeCoor,
+    };
+    this.nbtDataService.addNBTStructure(structure);
   }
 
   private transformProperty(
