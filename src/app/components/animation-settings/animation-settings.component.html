@@ -9,9 +9,7 @@
       <mat-form-field class="mb-1">
         <mat-label>Structure</mat-label>
         <mat-select
-          (selectionChange)="
-            updateAnimationName($event.value, properties.command.value, index)
-          "
+          (selectionChange)="transferAnimation($event.value, properties, index)"
           [formControl]="properties.structureName"
         >
           @for (structure of structureList; track structure) {
@@ -335,12 +333,12 @@
         >
           Add destroy for this animation
         </button>
-        } @if (animationPropertiesList.length > 1) {
+        } @if (allAnimationProperties.length > 1) {
         <button
           mat-button
           matTooltip="Remove this animation"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
-          (click)="removeAnimation(index)"
+          (click)="removeAnimation(index, properties)"
         >
           Remove
         </button>

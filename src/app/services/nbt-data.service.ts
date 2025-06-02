@@ -84,20 +84,32 @@ export class NbtDataService {
   }
 
   public getFunctionName(
-    name: string,
+    baseName: string,
     command: string,
     structureList: NBTStructure[]
   ): string {
-    let index = 1;
-    structureList.forEach((structure) => {
-      if (structure.name === name.split('_')[0]) {
-        const commandIndex = structure.animationProperties.filter(
-          (prop) => prop.command.value === command
-        ).length;
-        index = commandIndex === 0 ? 1 : commandIndex + 1;
+    const namePrefix = baseName.split('_')[0];
+
+    const usedNames = new Set<string>();
+
+    for (const structure of structureList) {
+      if (structure.name !== namePrefix) continue;
+
+      for (const prop of structure.animationProperties) {
+        const propName = prop.name;
+        if (propName.startsWith(namePrefix + '_' + command)) {
+          usedNames.add(propName);
+        }
       }
-    });
-    const functionName = name + '_' + command + '_' + index;
-    return functionName;
+    }
+
+    let index = 1;
+    let candidateName = `${namePrefix}_${command}_${index}`;
+    while (usedNames.has(candidateName)) {
+      index++;
+      candidateName = `${namePrefix}_${command}_${index}`;
+    }
+
+    return candidateName;
   }
 }

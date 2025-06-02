@@ -1,8 +1,10 @@
 import {
+  ChangeDetectorRef,
   Component,
   effect,
   input,
   OnDestroy,
+  OnInit,
   signal,
   TemplateRef,
   ViewChild,
@@ -62,7 +64,7 @@ import { PreferenceService } from 'src/app/services/preference.service';
   templateUrl: './animation-settings.component.html',
   styleUrl: './animation-settings.component.css',
 })
-export class AnimationSettingsComponent implements OnDestroy {
+export class AnimationSettingsComponent implements OnInit, OnDestroy {
   protected structureList: NBTStructure[] = [];
   protected structureCtrl: FormControl<NBTStructure> = new FormControl(
     this.structureList[0],
@@ -74,11 +76,13 @@ export class AnimationSettingsComponent implements OnDestroy {
   private subscriptionList: Subscription[] = [];
   protected isAddTemplate = false;
   protected isDefaultAnimation = true; // TODO:
+  protected previousStructureSelected: string | undefined;
 
   constructor(
     private nbtDataService: NbtDataService,
     private dialog: MatDialog,
-    protected preferenceService: PreferenceService
+    protected preferenceService: PreferenceService,
+    private cdr: ChangeDetectorRef
   ) {
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
@@ -96,6 +100,10 @@ export class AnimationSettingsComponent implements OnDestroy {
         this.nbtDataService.overrideNBTStructure(this.structureList);
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.previousStructureSelected = this.structureList[0].name;
   }
 
   ngOnDestroy(): void {
@@ -127,10 +135,18 @@ export class AnimationSettingsComponent implements OnDestroy {
     this.tabIndex.set(this.animationPropertiesList.length - 1);
   }
 
-  protected removeAnimation(index: number) {
-    this.animationPropertiesList.splice(index, 1);
-    console.log('TODO:');
-    //TODO: remove from NBTStructure or link both?
+  protected removeAnimation(index: number, properties: AnimationProperties) {
+    const structure = this.findStructureFromName(
+      properties.name.split('_')[0]
+    ) as NBTStructure | undefined;
+    if (!structure) return;
+
+    const idx = structure.animationProperties?.findIndex((prop) => {
+      return prop.id === properties.id;
+    });
+    if (idx === -1) return;
+
+    structure.animationProperties.splice(idx, 1);
   }
 
   protected formatSpeedSlider(value: number): string {
@@ -180,12 +196,65 @@ export class AnimationSettingsComponent implements OnDestroy {
       this.structureList
     );
     this.allAnimationProperties[index].name = newName;
+    //Necessary
+    this.cdr.markForCheck();
   }
 
   //TODO: From this object, save at the end.
   get allAnimationProperties(): AnimationProperties[] {
-    return this.structureList.flatMap(
-      (structure) => structure.animationProperties
-    );
+    return this.structureList
+      .flatMap((structure) => structure.animationProperties ?? [])
+      .filter((prop): prop is AnimationProperties => !!prop);
+  }
+
+  protected transferAnimation(
+    targetName: string,
+    properties: AnimationProperties,
+    index: number
+  ) {
+    if (this.structureList.length < 1) {
+      this.updateAnimationName(targetName, properties.command.value, index);
+      return;
+    }
+    const previousName = this.previousStructureSelected ?? '';
+
+    const targetIndex = this.findStructureFromName(targetName, true) as number;
+    const previousIndex = this.findStructureFromName(
+      previousName,
+      true
+    ) as number;
+
+    if (targetIndex === -1 || previousIndex === -1) return;
+    const previousProp = this.structureList[previousIndex].animationProperties;
+    const targetProp = this.structureList[targetIndex].animationProperties;
+
+    const idx = previousProp.findIndex((prop) => {
+      return prop.id === properties.id;
+    });
+
+    if (idx === -1) return;
+
+    const [moved] = previousProp
+      .splice(idx, 1)
+      .filter((prop): prop is AnimationProperties => !!prop);
+
+    targetProp.push(moved);
+    this.structureList = [...this.structureList];
+
+    this.updateAnimationName(targetName, properties.command.value, index);
+    this.previousStructureSelected = targetName;
+  }
+
+  private findStructureFromName(
+    name: string,
+    getIndex = false
+  ): number | NBTStructure | undefined {
+    if (getIndex) {
+      const index = this.structureList.findIndex(
+        (structure) => structure.name === name
+      );
+      return index;
+    }
+    return this.structureList.find((structure) => structure.name === name);
   }
 }
