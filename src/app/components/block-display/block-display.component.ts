@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -70,21 +71,32 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild(MatSort) sort!: MatSort;
   protected readonly displayedColumns: string[] = ['block', 'count', 'Remove'];
-  protected readonly dataSource = new MatTableDataSource<BlockCount>([]);
 
+  protected airBlockFiltered = signal(false);
   private shouldUpdate: WritableSignal<boolean> = signal(false);
+
+  protected dataSourceList: MatTableDataSource<BlockCount>[] = [];
+  protected dataSourceIndex = 0;
 
   constructor(
     private nbtDataService: NbtDataService,
-    protected preferenceService: PreferenceService
+    protected preferenceService: PreferenceService,
+    private cdr: ChangeDetectorRef
   ) {
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
       .subscribe((structureList: NBTStructure[]) => {
         this.structureList = structureList;
-        if (!this.structureCtrl.value) {
-          this.structureCtrl.setValue(structureList[0]);
-        }
+        this.structureCtrl.setValue(structureList[0]);
+
+        this.dataSourceList.length = 0;
+        this.structureList.forEach((structure) => {
+          const newDataSource = new MatTableDataSource<BlockCount>(
+            structure.blockCount
+          );
+          newDataSource.data = structure.blockCount;
+          this.dataSourceList.push(newDataSource);
+        });
       });
 
     effect(() => {
@@ -92,13 +104,24 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
         this.shouldUpdate.set(true);
       } else if (this.shouldUpdate()) {
         this.shouldUpdate.set(false);
+
+        this.structureList.forEach((structure, index) => {
+          structure.blockCount = this.dataSourceList[index].data;
+          const blockSet = new Set(
+            this.dataSourceList[index].data.map((block) => block.block)
+          );
+          structure.blockData = structure.blockData.filter((block) =>
+            blockSet.has(block.block)
+          );
+        });
+
         this.nbtDataService.overrideNBTStructure(this.structureList);
       }
     });
   }
 
   ngAfterViewInit() {
-    this.changeDataSource();
+    this.changeDataSource(this.structureList[0].name);
     if (this.preferenceService.autoRemoveAir) {
       this.airBlockFiltered.set(true);
     }
@@ -109,7 +132,9 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   }
 
   protected applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.dataSourceList[this.dataSourceIndex].filter = filterValue
+      .trim()
+      .toLowerCase();
   }
 
   protected formatMinecraftName(input: string): string {
@@ -132,26 +157,34 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result && row) {
-        const newData = this.dataSource.data.filter((data) => data !== row);
-        this.dataSource.data = newData;
-        this.structureCtrl.value.blockCount = newData;
+        const newData = this.dataSourceList[this.dataSourceIndex].data.filter(
+          (data) => data !== row
+        );
+        this.dataSourceList[this.dataSourceIndex].data = newData;
       }
     });
   }
 
-  //TODO: rework this signal for multiple NBT
-  protected airBlockFiltered = signal(false);
   protected filterAirBlock() {
-    const newData = this.dataSource.data.filter(
+    const dataSource = this.dataSourceList[this.dataSourceIndex];
+    const newData = dataSource.data.filter(
       (data) => data.block !== 'minecraft:air'
     );
-    this.dataSource.data = newData;
-    this.structureCtrl.value.blockCount = newData;
+    dataSource.data = newData;
     this.airBlockFiltered.set(true);
   }
 
-  protected changeDataSource() {
-    this.dataSource.sort = this.sort;
-    this.dataSource.data = this.structureCtrl.value.blockCount;
+  protected changeDataSource(name: string) {
+    this.dataSourceIndex = this.structureList.findIndex(
+      (structure) => structure.name === name
+    );
+
+    const dataSource = this.dataSourceList[this.dataSourceIndex];
+    dataSource.sort = this.sort;
+
+    if (dataSource.data.some((block) => block.block === 'minecraft:air')) {
+      this.airBlockFiltered = signal(false);
+    }
+    this.cdr.detectChanges();
   }
 }

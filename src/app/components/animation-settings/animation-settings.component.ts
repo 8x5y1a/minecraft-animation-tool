@@ -66,10 +66,6 @@ import { PreferenceService } from 'src/app/services/preference.service';
 })
 export class AnimationSettingsComponent implements OnInit, OnDestroy {
   protected structureList: NBTStructure[] = [];
-  protected structureCtrl: FormControl<NBTStructure> = new FormControl(
-    this.structureList[0],
-    { nonNullable: true }
-  );
   protected tabIndex = signal(0);
   public commandsSelected = input(false);
   private subscriptionList: Subscription[] = [];
@@ -87,9 +83,6 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe((structureList: NBTStructure[]) => {
         this.structureList = structureList;
-        if (!this.structureCtrl.value) {
-          this.structureCtrl.setValue(this.structureList[0]);
-        }
       });
 
     this.addAnimation();
@@ -115,7 +108,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     if (!newAnimation) {
       newAnimation = AnimationPropertiesModel.createDefault(
         this.nbtDataService.getFunctionName(
-          this.structureCtrl.value.name,
+          this.structureList[0].name,
           'set',
           this.structureList
         )
@@ -130,7 +123,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       }
     );
     this.subscriptionList.push(commandSub);
-    this.structureCtrl.value.animationProperties.push(newAnimation);
+    this.structureList[0].animationProperties.push(newAnimation);
     this.tabIndex.set(this.allAnimationProperties.length - 1);
     this.previousStructureSelected = this.structureList[0].name;
   }
