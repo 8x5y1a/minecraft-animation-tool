@@ -70,7 +70,6 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.structureList[0],
     { nonNullable: true }
   );
-  protected animationPropertiesList: AnimationProperties[] = [];
   protected tabIndex = signal(0);
   public commandsSelected = input(false);
   private subscriptionList: Subscription[] = [];
@@ -132,7 +131,8 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     );
     this.subscriptionList.push(commandSub);
     this.structureCtrl.value.animationProperties.push(newAnimation);
-    this.tabIndex.set(this.animationPropertiesList.length - 1);
+    this.tabIndex.set(this.allAnimationProperties.length - 1);
+    this.previousStructureSelected = this.structureList[0].name;
   }
 
   protected removeAnimation(index: number, properties: AnimationProperties) {
@@ -155,8 +155,8 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
 
   protected addDestroyAnimation(properties: AnimationProperties) {
     const newAnimation = AnimationPropertiesModel.createDestroy(properties);
-    this.animationPropertiesList.push(newAnimation);
-    this.tabIndex.set(this.animationPropertiesList.length - 1);
+    this.allAnimationProperties.push(newAnimation);
+    this.tabIndex.set(this.allAnimationProperties.length - 1);
   }
 
   @ViewChild('dialogAdd') dialogAdd!: TemplateRef<any>;
@@ -182,8 +182,8 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
 
   protected hasDisplayAnimation(): boolean {
     return (
-      this.animationPropertiesList.length > 1 &&
-      this.animationPropertiesList.some(
+      this.allAnimationProperties.length > 1 &&
+      this.allAnimationProperties.some(
         (prop) => prop.command.value === 'display'
       )
     );
@@ -200,11 +200,11 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  //TODO: From this object, save at the end.
   get allAnimationProperties(): AnimationProperties[] {
     return this.structureList
       .flatMap((structure) => structure.animationProperties ?? [])
-      .filter((prop): prop is AnimationProperties => !!prop);
+      .filter((prop): prop is AnimationProperties => !!prop)
+      .sort((a, b) => a.id - b.id);
   }
 
   protected transferAnimation(
