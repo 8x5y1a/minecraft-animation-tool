@@ -12,7 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -71,7 +71,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
   private subscriptionList: Subscription[] = [];
   protected isAddTemplate = false;
   protected isDefaultAnimation = true; // TODO:
-  protected previousStructureSelected: string | undefined;
+  protected previousStructureSelected: Record<number, string | undefined> = {};
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -95,7 +95,9 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.previousStructureSelected = this.structureList[0].name;
+    this.previousStructureSelected[
+      this.structureList[0].animationProperties[0].id
+    ] = this.structureList[0].name;
   }
 
   ngOnDestroy(): void {
@@ -125,7 +127,9 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.subscriptionList.push(commandSub);
     this.structureList[0].animationProperties.push(newAnimation);
     this.tabIndex.set(this.allAnimationProperties.length - 1);
-    this.previousStructureSelected = this.structureList[0].name;
+    this.previousStructureSelected[
+      this.structureList[0].animationProperties[0].id
+    ] = this.structureList[0].name;
   }
 
   protected removeAnimation(index: number, properties: AnimationProperties) {
@@ -209,7 +213,10 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       this.updateAnimationName(targetName, properties.command.value, index);
       return;
     }
-    const previousName = this.previousStructureSelected ?? '';
+
+    const previousName =
+      this.previousStructureSelected[properties.id] ??
+      this.structureList[0].name;
 
     const targetIndex = this.findStructureFromName(targetName, true) as number;
     const previousIndex = this.findStructureFromName(
@@ -235,7 +242,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.structureList = [...this.structureList];
 
     this.updateAnimationName(targetName, properties.command.value, index);
-    this.previousStructureSelected = targetName;
+    this.previousStructureSelected[properties.id] = targetName;
   }
 
   private findStructureFromName(
