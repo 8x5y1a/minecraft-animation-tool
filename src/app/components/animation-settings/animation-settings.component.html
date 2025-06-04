@@ -120,10 +120,7 @@
               <mat-label>Z</mat-label>
               <input type="number" matInput [formControl]="properties.z" />
             </mat-form-field>
-            <mat-form-field
-              matTooltip="(NOT YET IMPLEMENTED)"
-              matTooltipDisabled="preferenceService.isDisableTooltips"
-            >
+            <mat-form-field>
               <mat-label>Facing</mat-label>
               <mat-select [formControl]="properties.facing">
                 <mat-option value="north">North</mat-option>
@@ -152,10 +149,7 @@
               <mat-label>Z</mat-label>
               <input type="number" matInput [formControl]="properties.endZ" />
             </mat-form-field>
-            <mat-form-field
-              matTooltip="(NOT YET IMPLEMENTED) Translate the blocks of the chosen animation"
-              [matTooltipDisabled]="preferenceService.isDisableTooltips"
-            >
+            <mat-form-field>
               <mat-label>Facing</mat-label>
               <mat-select [formControl]="properties.facingEnd">
                 <mat-option value="north">North</mat-option>

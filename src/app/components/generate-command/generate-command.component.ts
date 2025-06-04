@@ -34,7 +34,6 @@ import { GenerateCommandHelperService } from 'src/app/services/generate-command-
 })
 export class GenerateCommandComponent {
   private structureList: NBTStructure[] = [];
-  private propertiesList: AnimationProperties[] = [];
   protected commandGeneratedList: CommandGenerated[] = [];
   @ViewChild('tooltip') copyTooltip?: MatTooltip;
   protected isCopyConfirm = false;
@@ -46,12 +45,6 @@ export class GenerateCommandComponent {
     private zipService: ZipService,
     private commandHelper: GenerateCommandHelperService
   ) {
-    // this.nbtDataService.propertiesListObs
-    //   .pipe(takeUntilDestroyed())
-    //   .subscribe((propertiesList: AnimationProperties[]) => {
-    //     this.propertiesList = propertiesList;
-    //   });
-
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
       .subscribe((structureList) => {
@@ -192,7 +185,8 @@ export class GenerateCommandComponent {
           index,
           timing,
           block,
-          propertiesString
+          propertiesString,
+          structure
         );
       default:
         return [];
@@ -322,9 +316,10 @@ export class GenerateCommandComponent {
     index: number,
     timing: string,
     block: string,
-    propertiesString: string
+    propertiesString: string,
+    structure: NBTStructure
   ): string[] {
-    const animToDel = this.propertiesList.find(
+    const animToDel = structure.animationProperties.find(
       (anim) => anim.name === properties.removeAnimation.value?.name
     );
     const coordinatesToDel = animToDel?.coordinateList[index];

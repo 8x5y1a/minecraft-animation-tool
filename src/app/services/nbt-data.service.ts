@@ -22,26 +22,40 @@ export class NbtDataService {
     command: string,
     structureList: NBTStructure[]
   ): string {
-    const namePrefix = baseName.split('_')[0];
+    const isDestroy: boolean = baseName.startsWith('destroy');
+    const namePrefix = isDestroy
+      ? baseName.split('_').slice(1).join('_')
+      : baseName.split('_')[0];
 
     const usedNames = new Set<string>();
 
     for (const structure of structureList) {
-      if (structure.name !== namePrefix) continue;
+      if (
+        structure.name !== namePrefix &&
+        structure.name !== baseName.split('_')[1]
+      )
+        continue;
 
       for (const prop of structure.animationProperties) {
         const propName = prop.name;
-        if (propName.startsWith(namePrefix + '_' + command)) {
+        if (
+          propName.startsWith(namePrefix + '_' + command) ||
+          prop.name.startsWith('destroy_' + namePrefix)
+        ) {
           usedNames.add(propName);
         }
       }
     }
 
     let index = 1;
-    let candidateName = `${namePrefix}_${command}_${index}`;
+    let candidateName = isDestroy
+      ? `${baseName}_${index}`
+      : `${namePrefix}_${command}_${index}`;
     while (usedNames.has(candidateName)) {
       index++;
-      candidateName = `${namePrefix}_${command}_${index}`;
+      candidateName = isDestroy
+        ? `${baseName}_${index}`
+        : `${namePrefix}_${command}_${index}`;
     }
 
     return candidateName;

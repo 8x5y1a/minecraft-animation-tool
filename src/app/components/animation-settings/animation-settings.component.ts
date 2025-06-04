@@ -152,8 +152,17 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
 
   protected addDestroyAnimation(properties: AnimationProperties) {
     const newAnimation = AnimationPropertiesModel.createDestroy(properties);
-    this.allAnimationProperties.push(newAnimation);
+    const structure = this.findStructureFromName(
+      properties.structureName.value
+    ) as NBTStructure;
+
+    structure?.animationProperties.push(newAnimation);
     this.tabIndex.set(this.allAnimationProperties.length - 1);
+    this.updateAnimationName(
+      newAnimation.name,
+      '',
+      this.allAnimationProperties.length - 1
+    );
   }
 
   @ViewChild('dialogAdd') dialogAdd!: TemplateRef<any>;
