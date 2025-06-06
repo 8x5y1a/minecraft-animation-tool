@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
-import { MatDivider } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-about',
-  imports: [CommonModule, MatButton, MatDivider, MatIcon, RouterLink],
+  imports: [CommonModule, MatButton, RouterLink],
   templateUrl: './about.component.html',
   styleUrl: './about.component.css',
   standalone: true,

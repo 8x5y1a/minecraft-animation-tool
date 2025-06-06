@@ -130,6 +130,12 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.previousStructureSelected[
       this.structureList[0].animationProperties[0].id
     ] = this.structureList[0].name;
+    this.updateAnimationName(
+      newAnimation.structureName.value,
+      newAnimation.command.value,
+      this.allAnimationProperties.length - 1,
+      newAnimation.templateName
+    );
   }
 
   protected removeAnimation(index: number, properties: AnimationProperties) {

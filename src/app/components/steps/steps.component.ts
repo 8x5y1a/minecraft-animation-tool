@@ -47,7 +47,6 @@ export class StepsComponent implements AfterViewInit {
       block: 'start',
     });
     if (this.preferenceService.skipBlockList) {
-      console.log('skipBlockList');
       this.step.set(1);
     }
   }

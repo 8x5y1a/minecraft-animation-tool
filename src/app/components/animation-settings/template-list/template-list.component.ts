@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Template } from 'src/app/types/type';
-import { templates } from './templates';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PreferenceService } from 'src/app/services/preference.service';
+import { TemplateService } from '../../../services/template.service';
 
 @Component({
   selector: 'app-template-list',
@@ -13,10 +13,15 @@ import { PreferenceService } from 'src/app/services/preference.service';
 })
 export class TemplateListComponent {
   @Output() templateEmit: EventEmitter<Template> = new EventEmitter();
-  protected templateList: Template[] = templates;
+  protected templateList: Template[] = [];
   private readonly gitHubUrl: string =
     'https://github.com/8x5y1a/minecraft-animation-tool/issues';
-  constructor(protected preferenceService: PreferenceService) {}
+  constructor(
+    protected preferenceService: PreferenceService,
+    private templateService: TemplateService
+  ) {
+    this.templateList = this.templateService.templateList;
+  }
 
   protected addTemplate(template: Template) {
     this.templateEmit.emit(template);

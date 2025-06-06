@@ -23,7 +23,6 @@ export class NbtDataService {
     structureList: NBTStructure[],
     templateName: string | undefined = undefined
   ): string {
-    console.log(templateName);
     const usedNames = new Set<string>();
     for (const structure of structureList) {
       if (structure.name !== structureName) continue;
