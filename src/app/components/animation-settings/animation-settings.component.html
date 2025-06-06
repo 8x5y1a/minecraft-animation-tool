@@ -286,7 +286,8 @@
               context: { properties: properties }
             "
           ></ng-container>
-          @if(properties.gradualScaleEnd.value === 1) {
+          @if(properties.gradualScaleEnd.value === 1 && properties.command.value
+          !== 'destroy') {
           <mat-slide-toggle
             [formControl]="properties.shouldSetBlock"
             matTooltip="Should it set the block to the end scale? (It will replace the display by real blocks)"

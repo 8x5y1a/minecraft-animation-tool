@@ -75,30 +75,30 @@ export class GenerateCommandHelperService {
     const separator = isSet ? '=' : ':';
     const directions = ['north', 'east', 'south', 'west'];
 
-    const mapProperty = (k: string, v: string): string => {
-      if (k === 'facing') {
-        const rotated = this.rotation[facing]?.[v] || v;
-        return `${k}${separator}${rotated}`;
-      } else if (k === 'shape') {
-        const rotated = this.rotation[facing]?.[v] || v;
-        return `${k}${separator}${rotated}`;
-      } else if (directions.includes(k)) {
-        const newKey = this.rotation[facing]?.[k] || k;
-        return `${newKey}${separator}'${v}'`;
-      } else if (k === 'axis') {
-        const rotated = this.rotation[facing]?.[v] || v;
-        return `${k}${separator}${rotated}`;
+    const mapProperty = (key: string, value: string): string => {
+      if (key === 'facing') {
+        const rotated = this.rotation[facing]?.[value] || value;
+        return `${key}${separator}${rotated}`;
+      } else if (key === 'shape') {
+        const rotated = this.rotation[facing]?.[value] || value;
+        return `${key}${separator}${rotated}`;
+      } else if (directions.includes(key)) {
+        const newkeyey = this.rotation[facing]?.[key] || key;
+        return `${newkeyey}${separator}'${value}'`;
+      } else if (key === 'axis') {
+        const rotated = this.rotation[facing]?.[value] || value;
+        return `${key}${separator}${rotated}`;
       }
 
-      if (v === 'true' || v === 'false') {
-        return `${k}${separator}'${v}'`;
+      if (value === 'true' || value === 'false') {
+        return `${key}${separator}'${value}'`;
       }
 
-      return `${k}${separator}${v}`;
+      return `${key}${separator}${value}`;
     };
 
     const propertiesEntries = Object.entries(properties)
-      .map(([k, v]) => mapProperty(k, v))
+      .map(([key, value]) => mapProperty(key, value))
       .join(isSet ? ',' : ', ');
 
     return isSet

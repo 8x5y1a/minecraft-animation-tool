@@ -31,12 +31,6 @@ export class NbtInputComponent {
   protected fileInputRef!: ElementRef<HTMLInputElement>;
   protected nbtList: NBT[] = [];
 
-  private maxAxis: Coordinates = {
-    x: -200,
-    y: -200,
-    z: -200,
-  };
-
   constructor(
     private nbtDataService: NbtDataService,
     protected preferenceService: PreferenceService
@@ -75,6 +69,12 @@ export class NbtInputComponent {
       return;
     }
 
+    const maxAxis: Coordinates = {
+      x: -200,
+      y: -200,
+      z: -200,
+    };
+
     const nbtPosData = blockData.value.value;
     const blockCountDict: Record<string, number> = {};
     const blockDataList: BlockData[] = [];
@@ -96,12 +96,12 @@ export class NbtInputComponent {
       });
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
 
-      this.maxAxis.x = Math.max(this.maxAxis.x, x);
-      this.maxAxis.y = Math.max(this.maxAxis.y, y);
-      this.maxAxis.z = Math.max(this.maxAxis.z, z);
+      maxAxis.x = Math.max(maxAxis.x, x);
+      maxAxis.y = Math.max(maxAxis.y, y);
+      maxAxis.z = Math.max(maxAxis.z, z);
     });
 
-    // this.nbtDataService.setMaxAxis(this.maxAxis);
+    // this.nbtDataService.setMaxAxis(maxAxis);
     const structureSizeCoor: Coordinates = {
       x: structureSize.value[0],
       y: structureSize.value[1],
@@ -126,7 +126,7 @@ export class NbtInputComponent {
       blockData: blockDataList,
       blockCount: blockCountList,
       animationProperties: [],
-      maxAxis: this.maxAxis,
+      maxAxis: maxAxis,
       structureSize: structureSizeCoor,
     };
     this.nbtDataService.addNBTStructure(structure);
