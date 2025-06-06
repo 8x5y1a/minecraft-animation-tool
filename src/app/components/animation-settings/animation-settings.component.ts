@@ -235,9 +235,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
         targetName,
         properties.command.value,
         index,
-        properties.isTemplate
-          ? properties.name.split('_' + properties.structureName.value)[0]
-          : undefined
+        properties.isTemplate ? properties.templateName : undefined
       );
       return;
     }
@@ -273,9 +271,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       targetName,
       properties.command.value,
       index,
-      properties.isTemplate
-        ? properties.name.split('_' + properties.structureName.value)[0]
-        : undefined
+      properties.isTemplate ? properties.templateName : undefined
     );
     this.previousStructureSelected[properties.id] = targetName;
   }

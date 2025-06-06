@@ -11,6 +11,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   nextAnimation: FormControl<undefined | AnimationProperties>;
   structureName: FormControl<string>;
   isTemplate: boolean;
+  templateName?: string | undefined;
 
   // Position
   x: FormControl<number>;

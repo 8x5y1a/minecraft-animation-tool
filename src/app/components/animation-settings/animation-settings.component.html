@@ -29,9 +29,7 @@
             properties.structureName.value,
             $event.value,
             index,
-            properties.isTemplate
-              ? properties.name.split(properties.structureName.value)[0]
-              : undefined
+            properties.isTemplate ? properties.templateName : undefined
           )
         "
         [formControl]="properties.command"

@@ -25,6 +25,7 @@ export type AnimationProperties = Position &
     nextAnimation: FC<undefined | AnimationProperties>;
     structureName: FC<string>;
     isTemplate: boolean;
+    templateName?: string
   };
 
 export type Position = {

@@ -26,6 +26,7 @@ function getAnimationDisplayScaleUp(): AnimationProperties {
   defaultAnimation.gradualScaleEnd.setValue(1);
   defaultAnimation.scaleSpeed.setValue(5);
   defaultAnimation.name = 'animation_scaleup';
+  defaultAnimation.templateName = 'animation_scaleup';
   defaultAnimation.speed.setValue(4);
   defaultAnimation.isTemplate = true;
 
@@ -42,6 +43,7 @@ function getAnimationDisplayScaleDown(destroy: AnimationProperties) {
   animationDisplayDown.speed.setValue(4);
   animationDisplayDown.scaleSpeed.setValue(5);
   animationDisplayDown.isAscending.setValue(false);
-  defaultAnimation.isTemplate = true;
+  animationDisplayDown.templateName = 'destroy_animation_scaleup';
+  animationDisplayDown.isTemplate = true;
   return animationDisplayDown;
 }
