@@ -48,13 +48,14 @@
           value="display"
           >Display block</mat-chip-option
         >
+        @if(allAnimationProperties.length > 1){
         <mat-chip-option
           matTooltip="Destroy the blocks of the chosen animation"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           value="destroy"
           >Destroy block</mat-chip-option
         >
-        @if(hasDisplayAnimation()) {
+        } @if(hasDisplayAnimation()) {
         <mat-chip-option
           matTooltip="(NOT YET IMPLEMENTED) Translate the blocks of the chosen animation"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
@@ -172,10 +173,10 @@
 
         <mat-divider />
 
-        <!-- Animation Settings -->
+        <!-- Animation Timing -->
         <div class="center">
           <h3 [className]="properties.timing.value ? 'disabled' : ''">
-            Animation settings
+            Animation Timing
           </h3>
           <mat-slide-toggle
             [formControl]="properties.timing"
@@ -194,7 +195,7 @@
               <mat-label>Animation speed</mat-label>
               <input
                 matInput
-                matTooltip="Higher value is slower"
+                matTooltip="Higher value is slower (number of ticks before the next layer appears)"
                 [matTooltipDisabled]="preferenceService.isDisableTooltips"
                 type="number"
                 [min]="1"
@@ -268,7 +269,7 @@
           </mat-button-toggle-group>
         </div>
         }
-        <div class="mb-1 scale center">
+        <div class="mb-1 center">
           @if (properties.scaleOption.value === 'static' &&
           properties.command.value === 'display' ) {
           <mat-form-field>

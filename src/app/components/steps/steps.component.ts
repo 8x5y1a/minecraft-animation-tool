@@ -43,8 +43,8 @@ export class StepsComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.blockList?.nativeElement.scrollIntoView({
       behavior: 'smooth',
-      inline: 'start',
-      block: 'start',
+      inline: 'nearest',
+      block: 'nearest',
     });
     if (this.preferenceService.skipBlockList) {
       this.step.set(1);

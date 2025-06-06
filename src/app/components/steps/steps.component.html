@@ -1,11 +1,11 @@
 <div style="margin-top: 30px"></div>
-<mat-accordion class="headers-align">
+<mat-accordion class="headers-align" #blockList>
   <mat-expansion-panel
     [expanded]="step() === 0"
     (opened)="setStep(0)"
     hideToggle
   >
-    <mat-expansion-panel-header #blockList>
+    <mat-expansion-panel-header>
       <mat-panel-title> 1 - Block list </mat-panel-title>
       <mat-panel-description>
         Filter the blocks
