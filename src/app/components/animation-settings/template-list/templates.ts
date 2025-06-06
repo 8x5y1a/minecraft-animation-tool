@@ -27,6 +27,7 @@ function getAnimationDisplayScaleUp(): AnimationProperties {
   defaultAnimation.scaleSpeed.setValue(5);
   defaultAnimation.name = 'animation_scaleup';
   defaultAnimation.speed.setValue(4);
+  defaultAnimation.isTemplate = true;
 
   const animationDisplayScaleUp: AnimationProperties = {
     ...defaultAnimation,
@@ -41,5 +42,6 @@ function getAnimationDisplayScaleDown(destroy: AnimationProperties) {
   animationDisplayDown.speed.setValue(4);
   animationDisplayDown.scaleSpeed.setValue(5);
   animationDisplayDown.isAscending.setValue(false);
+  defaultAnimation.isTemplate = true;
   return animationDisplayDown;
 }

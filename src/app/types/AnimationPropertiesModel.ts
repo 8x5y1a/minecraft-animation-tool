@@ -10,6 +10,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   removeAnimation: FormControl<undefined | AnimationProperties>;
   nextAnimation: FormControl<undefined | AnimationProperties>;
   structureName: FormControl<string>;
+  isTemplate: boolean;
 
   // Position
   x: FormControl<number>;
@@ -65,6 +66,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       scaleSpeed: number;
       shouldSetBlock: boolean;
       structureName: string;
+      isTemplate: boolean;
     }
   ) {
     this.id = AnimationPropertiesModel.nextId++;
@@ -75,6 +77,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.structureName = new FormControl(params.structureName, {
       nonNullable: true,
     });
+    this.isTemplate = false;
 
     this.x = new FormControl(params.x, { nonNullable: true });
     this.y = new FormControl(params.y, { nonNullable: true });
@@ -150,6 +153,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       facingEnd: 'north',
       shouldSetBlock: true,
       structureName: '',
+      isTemplate: false,
     });
   }
 
@@ -178,6 +182,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       facingEnd: from.facing.value,
       shouldSetBlock: from.shouldSetBlock.value,
       structureName: from.structureName.value,
+      isTemplate: from.isTemplate,
     });
   }
 }

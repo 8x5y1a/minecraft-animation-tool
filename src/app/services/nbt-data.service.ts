@@ -18,46 +18,39 @@ export class NbtDataService {
   }
 
   public getFunctionName(
-    baseName: string,
+    structureName: string,
     command: string,
-    structureList: NBTStructure[]
+    structureList: NBTStructure[],
+    templateName: string | undefined = undefined
   ): string {
-    const isDestroy: boolean = baseName.startsWith('destroy');
-    const namePrefix = isDestroy
-      ? baseName.split('_').slice(1).join('_')
-      : baseName.split('_')[0];
-
+    console.log(templateName);
     const usedNames = new Set<string>();
-
     for (const structure of structureList) {
-      if (
-        structure.name !== namePrefix &&
-        structure.name !== baseName.split('_')[1]
-      )
-        continue;
+      if (structure.name !== structureName) continue;
 
       for (const prop of structure.animationProperties) {
-        const propName = prop.name;
         if (
-          propName.startsWith(namePrefix + '_' + command) ||
-          prop.name.startsWith('destroy_' + namePrefix)
+          prop.name.startsWith(structureName + '_' + command) ||
+          (templateName &&
+            prop.name.startsWith(templateName + '_' + structureName))
         ) {
-          usedNames.add(propName);
+          usedNames.add(prop.name);
         }
       }
     }
 
     let index = 1;
-    let candidateName = isDestroy
-      ? `${baseName}_${index}`
-      : `${namePrefix}_${command}_${index}`;
-    while (usedNames.has(candidateName)) {
+    let newName = templateName
+      ? `${templateName}_${structureName}_${index}`
+      : `${structureName}_${command}_${index}`;
+
+    while (usedNames.has(newName)) {
       index++;
-      candidateName = isDestroy
-        ? `${baseName}_${index}`
-        : `${namePrefix}_${command}_${index}`;
+      newName = templateName
+        ? `${templateName}_${structureName}_${index}`
+        : `${structureName}_${command}_${index}`;
     }
 
-    return candidateName;
+    return newName;
   }
 }

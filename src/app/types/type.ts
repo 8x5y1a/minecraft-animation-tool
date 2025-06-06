@@ -24,6 +24,7 @@ export type AnimationProperties = Position &
     removeAnimation: FC<undefined | AnimationProperties>;
     nextAnimation: FC<undefined | AnimationProperties>;
     structureName: FC<string>;
+    isTemplate: boolean;
   };
 
 export type Position = {

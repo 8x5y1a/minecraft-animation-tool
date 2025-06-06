@@ -28,7 +28,10 @@
           updateAnimationName(
             properties.structureName.value,
             $event.value,
-            index
+            index,
+            properties.isTemplate
+              ? properties.name.split(properties.structureName.value)[0]
+              : undefined
           )
         "
         [formControl]="properties.command"

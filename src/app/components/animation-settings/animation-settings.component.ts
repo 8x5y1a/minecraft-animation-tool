@@ -159,20 +159,23 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     structure?.animationProperties.push(newAnimation);
     this.tabIndex.set(this.allAnimationProperties.length - 1);
     this.updateAnimationName(
-      newAnimation.name,
+      newAnimation.structureName.value,
       '',
-      this.allAnimationProperties.length - 1
+      this.allAnimationProperties.length - 1,
+      'destroy'
     );
   }
 
   @ViewChild('dialogAdd') dialogAdd!: TemplateRef<any>;
   protected openAddDialog() {
     this.isAddTemplate = false;
-    this.dialog.open(this.dialogAdd, { maxWidth: '100%' }); //TODO: Dynamic width
+    this.dialog.open(this.dialogAdd, { maxWidth: '100%' }); //TODO: Dynamic width? or just not 100% of the screen
   }
 
   protected addTemplate(template: Template) {
     template.animationList.forEach((animation) => {
+      animation.structureName.setValue(this.structureList[0].name);
+      animation.name += '_' + animation.structureName.value;
       this.addAnimation(animation);
     });
     this.dialog.closeAll();
@@ -195,11 +198,17 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected updateAnimationName(name: string, command: string, index: number) {
+  protected updateAnimationName(
+    structureName: string,
+    command: string,
+    index: number,
+    templateName: string | undefined = undefined
+  ) {
     const newName = this.nbtDataService.getFunctionName(
-      name,
+      structureName,
       command ?? 'set',
-      this.structureList
+      this.structureList,
+      templateName
     );
     this.allAnimationProperties[index].name = newName;
     //Necessary
@@ -213,13 +222,23 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.id - b.id);
   }
 
+  /**
+   * When changing Structure for an animation, transfer the animation to the target Structure container.
+   */
   protected transferAnimation(
     targetName: string,
     properties: AnimationProperties,
     index: number
   ) {
     if (this.structureList.length < 1) {
-      this.updateAnimationName(targetName, properties.command.value, index);
+      this.updateAnimationName(
+        targetName,
+        properties.command.value,
+        index,
+        properties.isTemplate
+          ? properties.name.split('_' + properties.structureName.value)[0]
+          : undefined
+      );
       return;
     }
 
@@ -250,7 +269,14 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     targetProp.push(moved);
     this.structureList = [...this.structureList];
 
-    this.updateAnimationName(targetName, properties.command.value, index);
+    this.updateAnimationName(
+      targetName,
+      properties.command.value,
+      index,
+      properties.isTemplate
+        ? properties.name.split('_' + properties.structureName.value)[0]
+        : undefined
+    );
     this.previousStructureSelected[properties.id] = targetName;
   }
 

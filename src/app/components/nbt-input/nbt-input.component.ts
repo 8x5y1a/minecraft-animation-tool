@@ -101,24 +101,15 @@ export class NbtInputComponent {
       maxAxis.z = Math.max(maxAxis.z, z);
     });
 
-    // this.nbtDataService.setMaxAxis(maxAxis);
     const structureSizeCoor: Coordinates = {
       x: structureSize.value[0],
       y: structureSize.value[1],
       z: structureSize.value[2],
     };
-    // this.nbtDataService.setStructureSize({
-    //   x: structureSize.value[0],
-    //   y: structureSize.value[1],
-    //   z: structureSize.value[2],
-    // });
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
       ([block, count]) => ({ block, count })
     );
-
-    // this.nbtDataService.setBlockList(blockCountList);
-    // this.nbtDataService.setBlockDataList(blockDataList);
 
     const cleanName = this.cleanFunctionName(file.name.replace(/\.nbt$/, ''));
     const structure: NBTStructure = {
