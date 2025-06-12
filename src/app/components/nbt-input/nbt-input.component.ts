@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import {
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-nbt-input',
   imports: [
@@ -21,6 +22,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     MatIconModule,
     StepsComponent,
     MatTooltip,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
@@ -30,6 +32,7 @@ export class NbtInputComponent {
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
   protected nbtList: NBT[] = [];
+  protected isLoading = signal(false);
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -37,6 +40,7 @@ export class NbtInputComponent {
   ) {}
 
   protected async onFileInput(event: Event): Promise<void> {
+    this.isLoading.set(true);
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) {
       return;
@@ -45,7 +49,9 @@ export class NbtInputComponent {
     // Reading file and parsing file
     const bufferArray = await file.arrayBuffer();
     const buffer = Buffer.from(bufferArray);
-    const nbtResult = await parse(buffer);
+    const nbtResult = await parse(buffer).finally(() => {
+      this.isLoading.set(false);
+    });
 
     if (!nbtResult.parsed) {
       return;

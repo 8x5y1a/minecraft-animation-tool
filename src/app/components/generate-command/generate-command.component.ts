@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AnimationProperties,
@@ -17,6 +17,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 import { GenerateCommandHelperService } from 'src/app/services/generate-command-helper';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-generate-command',
@@ -27,6 +28,7 @@ import { GenerateCommandHelperService } from 'src/app/services/generate-command-
     ClipboardModule,
     MatIcon,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
@@ -39,6 +41,7 @@ export class GenerateCommandComponent {
   protected isCopyConfirm = false;
   private maxIncrement = 0;
   private maxLoop = 0;
+  protected isLoading = signal(false);
 
   constructor(
     private nbtDataService: NbtDataService,
@@ -55,8 +58,7 @@ export class GenerateCommandComponent {
   /**
    * Generates all commands for the current properties list.
    */
-  protected createCommands() {
-    this.commandGeneratedList = [];
+  private createCommands() {
     this.structureList.forEach((structure) => {
       structure.animationProperties.forEach((properties) => {
         if (!properties) return;
@@ -103,6 +105,9 @@ export class GenerateCommandComponent {
         name: properties.name,
         command: commandResult,
       });
+      this.isLoading.set(
+        this.commandGeneratedList.length !== this.animationCount
+      );
     }
     return commandResult;
   }
@@ -506,11 +511,10 @@ export class GenerateCommandComponent {
   /**
    * Generates the files for the datapack and downloads them as a zip.
    */
-  protected async generateFiles(): Promise<void> {
-    this.commandGeneratedList = [];
+  private async generateFiles(): Promise<void> {
     this.zipService.addFile('pack.mcmeta', pack);
     this.zipService.addFile('data/tags/function/load.json', '{"values":[]}');
-    //TODO: Make the destroy command run last (Order properties list by command type)
+    //TODO: Make the destroy command run last (Order properties list by command type) (It should already be last by default, but to be certain)
     this.structureList.forEach((structure) => {
       structure.animationProperties.forEach((properties) => {
         const commandString = this.buildCommands(properties, structure);
@@ -570,9 +574,14 @@ export class GenerateCommandComponent {
       });
     });
 
-    await this.zipService.download('datapack.zip').catch((error) => {
-      console.error(error);
-    });
+    await this.zipService
+      .download('datapack.zip')
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoading.set(false);
+      });
   }
 
   /**
@@ -608,5 +617,22 @@ export class GenerateCommandComponent {
       default:
         return { x, y, z };
     }
+  }
+
+  private animationCount = 0;
+  protected creationHandle(create: 'datapack' | 'command') {
+    this.isLoading.set(true);
+    this.commandGeneratedList = [];
+    this.animationCount = 0;
+    this.structureList.forEach((structure) => {
+      this.animationCount += structure.animationProperties.length;
+    });
+
+    if (create === 'command') {
+      this.createCommands();
+      return;
+    }
+
+    this.generateFiles();
   }
 }

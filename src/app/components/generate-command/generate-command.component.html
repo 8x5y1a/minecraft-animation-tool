@@ -1,11 +1,17 @@
 <div class="button-container mb-1">
-  <button mat-flat-button (click)="createCommands()">Create commands</button>
-  <button mat-flat-button (click)="generateFiles()">Download Datapack</button>
+  <button mat-flat-button (click)="creationHandle('command')">
+    Create commands
+  </button>
+  <button mat-flat-button (click)="creationHandle('datapack')">
+    Download Datapack
+  </button>
+  @if(isLoading()){
+  <mat-spinner></mat-spinner>
+  }
 </div>
-
 @if(commandGeneratedList.length > 1){
 <mat-tab-group dynamicHeight>
-  @for(command of commandGeneratedList; track command){
+  @for(command of commandGeneratedList; track command.name){
   <mat-tab [label]="command.name">
     <button
       class="mb-1 mt-1"
