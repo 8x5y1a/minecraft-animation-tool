@@ -84,6 +84,7 @@ export class NbtInputComponent {
     const nbtPosData = blockData.value.value;
     const blockCountDict: Record<string, number> = {};
     const blockDataList: BlockData[] = [];
+    const coordinateAndBlock: string[] = [];
 
     nbtPosData.forEach((data: any) => {
       const block = blockNameList[data.state.value];
@@ -93,6 +94,9 @@ export class NbtInputComponent {
         return;
       }
 
+      coordinateAndBlock.push(
+        `${x} ${y} ${z}: ${this.nbtDataService.formatMinecraftName(block)}`
+      );
       blockDataList.push({
         block: block,
         property: this.transformProperty(
@@ -122,6 +126,7 @@ export class NbtInputComponent {
       name: cleanName,
       blockData: blockDataList,
       blockCount: blockCountList,
+      CoordinateAndBlock: coordinateAndBlock,
       animationProperties: [],
       maxAxis: maxAxis,
       structureSize: structureSizeCoor,

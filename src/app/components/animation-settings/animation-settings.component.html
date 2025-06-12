@@ -163,9 +163,9 @@
           </div>
           <mat-slide-toggle
             [formControl]="properties.shouldSetBlock"
-            matTooltip="Should it set the block to the end scale? (It will replace the display by real blocks)"
+            matTooltip="Should it set the block after the translation? (It will replace the display blocks with real blocks)"
             [matTooltipDisabled]="preferenceService.isDisableTooltips"
-            >Set block to end scale</mat-slide-toggle
+            >Set block after translation</mat-slide-toggle
           >
           }
         </div>
@@ -213,10 +213,27 @@
               <mat-option value="x">X</mat-option>
               <mat-option value="y">Y</mat-option>
               <mat-option value="z">Z</mat-option>
+              <mat-option value="fromBlock">From a block</mat-option>
               <mat-option value="random">Random</mat-option>
             </mat-select>
           </mat-form-field>
-          @if (properties.animationOrder.value !== 'random') {
+          @if(properties.animationOrder.value === 'fromBlock'){
+          <mat-form-field style="width: 100%">
+            <mat-label>Order from block</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="properties.orderFromBlock"
+              [matAutocomplete]="auto"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (block of getBlockList(properties); track block) {
+              <mat-option [value]="block">{{ block }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+          } @if (properties.animationOrder.value !== 'random' &&
+          properties.animationOrder.value !== 'fromBlock') {
           <mat-slide-toggle
             [formControl]="properties.isAscending"
             matTooltip="Should it Start from the smallest value and end with the highest value"
@@ -292,7 +309,7 @@
           !== 'destroy') {
           <mat-slide-toggle
             [formControl]="properties.shouldSetBlock"
-            matTooltip="Should it set the block to the end scale? (It will replace the display by real blocks)"
+            matTooltip="Should it set the block after the scaling animation? (It will replace the display blocks with real blocks)"
             [matTooltipDisabled]="preferenceService.isDisableTooltips"
             >Set block to end scale</mat-slide-toggle
           >
@@ -362,15 +379,11 @@
   <h2 mat-dialog-title>Add animation</h2>
   <mat-dialog-content>
     @if (!isAddTemplate) {
-    <div style="height: 100px">
+    <div style="height: 100px; display: grid">
       <button mat-flat-button mat-dialog-close (click)="addAnimation()">
         Add custom animation
       </button>
-      <button
-        style="margin-left: 10px"
-        mat-flat-button
-        (click)="isAddTemplate = true"
-      >
+      <button mat-flat-button (click)="isAddTemplate = true">
         Add from templates
       </button>
     </div>

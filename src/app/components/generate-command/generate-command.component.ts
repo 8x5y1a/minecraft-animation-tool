@@ -425,10 +425,14 @@ export class GenerateCommandComponent {
     );
     const randomMax = Math.max(maxAxis.x, maxAxis.y, maxAxis.z);
 
+    const animationOrder = properties.animationOrder.value;
+    if (animationOrder === 'fromBlock') {
+      //TODO:
+      return;
+    }
+
     const finalMaxAxis =
-      (properties.animationOrder.value !== 'random'
-        ? maxAxis[properties.animationOrder.value]
-        : randomMax) +
+      (animationOrder !== 'random' ? maxAxis[animationOrder] : randomMax) +
       properties.randomness.value +
       1;
 
@@ -478,6 +482,10 @@ export class GenerateCommandComponent {
 
     const coords = { x, y, z, random };
     const axis = properties.animationOrder.value;
+    if (axis === 'fromBlock') {
+      //TODO:
+      return 'TODO: line 487';
+    }
     const coordAxis = coords[axis];
 
     if (axis === 'random') {

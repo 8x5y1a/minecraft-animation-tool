@@ -79,7 +79,7 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   protected dataSourceIndex = 0;
 
   constructor(
-    private nbtDataService: NbtDataService,
+    protected nbtDataService: NbtDataService,
     protected preferenceService: PreferenceService,
     private cdr: ChangeDetectorRef
   ) {
@@ -135,15 +135,6 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
     this.dataSourceList[this.dataSourceIndex].filter = filterValue
       .trim()
       .toLowerCase();
-  }
-
-  protected formatMinecraftName(input: string): string {
-    if (!input) {
-      return '';
-    }
-    const key = input.includes(':') ? input.split(':').pop() : input;
-    const spaced = key?.replace(/_/g, ' ');
-    return spaced?.replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
   }
 
   @ViewChild('dialogRemove') dialogRemove!: TemplateRef<any>;

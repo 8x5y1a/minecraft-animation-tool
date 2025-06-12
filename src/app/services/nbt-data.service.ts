@@ -8,12 +8,12 @@ export class NbtDataService {
   private nbtStructureSubject = new BehaviorSubject<NBTStructure[]>([]);
   readonly nbtStructureObs: Observable<NBTStructure[]> =
     this.nbtStructureSubject.asObservable();
-  addNBTStructure(structure: NBTStructure) {
+  public addNBTStructure(structure: NBTStructure) {
     const currentList = this.nbtStructureSubject.getValue();
     const updatedList = [...currentList, structure];
     this.nbtStructureSubject.next(updatedList);
   }
-  overrideNBTStructure(structureList: NBTStructure[]) {
+  public overrideNBTStructure(structureList: NBTStructure[]) {
     this.nbtStructureSubject.next(structureList);
   }
 
@@ -51,5 +51,14 @@ export class NbtDataService {
     }
 
     return newName;
+  }
+
+  public formatMinecraftName(input: string): string {
+    if (!input) {
+      return '';
+    }
+    const key = input.includes(':') ? input.split(':').pop() : input;
+    const spaced = key?.replace(/_/g, ' ');
+    return spaced?.replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
   }
 }

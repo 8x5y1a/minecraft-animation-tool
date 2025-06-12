@@ -25,7 +25,7 @@ export type AnimationProperties = Position &
     nextAnimation: FC<undefined | AnimationProperties>;
     structureName: FC<string>;
     isTemplate: boolean;
-    templateName?: string
+    templateName?: string;
   };
 
 export type Position = {
@@ -53,7 +53,8 @@ export type Scaling = {
 export type Animation = {
   timing: FC<boolean>;
   speed: FC<number>;
-  animationOrder: FC<'x' | 'y' | 'z' | 'random'>;
+  animationOrder: FC<'x' | 'y' | 'z' | 'random' | 'fromBlock'>;
+  orderFromBlock: FC<string>;
   isAscending: FC<boolean>;
   randomness: FC<number>;
 };
@@ -81,6 +82,7 @@ export type NBTStructure = {
   name: string;
   blockData: BlockData[];
   blockCount: BlockCount[];
+  CoordinateAndBlock: string[];
   animationProperties: AnimationProperties[];
   maxAxis: Coordinates;
   structureSize: Coordinates;

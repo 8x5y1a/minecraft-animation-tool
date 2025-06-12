@@ -36,7 +36,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
   // Animation
   timing: FormControl<boolean>;
   speed: FormControl<number>;
-  animationOrder: FormControl<'x' | 'y' | 'z' | 'random'>;
+  animationOrder: FormControl<'x' | 'y' | 'z' | 'random' | 'fromBlock'>;
+  orderFromBlock: FormControl<string>;
   isAscending: FormControl<boolean>;
   randomness: FormControl<number>;
 
@@ -54,7 +55,8 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endZ: number;
       facing: 'north' | 'south' | 'east' | 'west';
       facingEnd: 'north' | 'south' | 'east' | 'west';
-      animationOrder: 'x' | 'y' | 'z' | 'random';
+      animationOrder: 'x' | 'y' | 'z' | 'random' | 'fromBlock';
+      orderFromBlock: string;
       isAscending: boolean;
       randomness: number;
       scaleOption: 'static' | 'gradual';
@@ -94,6 +96,9 @@ export class AnimationPropertiesModel implements AnimationProperties {
     });
 
     this.animationOrder = new FormControl(params.animationOrder, {
+      nonNullable: true,
+    });
+    this.orderFromBlock = new FormControl(params.orderFromBlock, {
       nonNullable: true,
     });
     this.isAscending = new FormControl(params.isAscending, {
@@ -142,6 +147,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endZ: 0,
       removeAnimation: undefined,
       animationOrder: 'y',
+      orderFromBlock: '',
       isAscending: true,
       randomness: 0,
       scaleOption: 'static',
@@ -171,6 +177,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endZ: from.endZ.value,
       removeAnimation: from,
       animationOrder: from.animationOrder.value,
+      orderFromBlock: from.orderFromBlock.value,
       isAscending: from.isAscending.value,
       randomness: from.randomness.value,
       scaleOption: from.scaleOption.value,

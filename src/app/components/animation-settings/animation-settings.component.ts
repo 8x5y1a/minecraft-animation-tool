@@ -37,6 +37,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TemplateListComponent } from './template-list/template-list.component';
 import { PreferenceService } from 'src/app/services/preference.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-animation-settings',
@@ -60,6 +61,7 @@ import { PreferenceService } from 'src/app/services/preference.service';
     MatButtonToggleModule,
     MatDialogModule,
     TemplateListComponent,
+    MatAutocompleteModule,
   ],
   templateUrl: './animation-settings.component.html',
   styleUrl: './animation-settings.component.css',
@@ -85,8 +87,6 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
         this.structureList = structureList;
       });
 
-    this.addAnimation();
-
     effect(() => {
       if (this.commandsSelected()) {
         this.nbtDataService.overrideNBTStructure(this.structureList);
@@ -95,6 +95,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.addAnimation();
     this.previousStructureSelected[
       this.structureList[0].animationProperties[0].id
     ] = this.structureList[0].name;
@@ -293,5 +294,15 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       return index;
     }
     return this.structureList.find((structure) => structure.name === name);
+  }
+
+  protected getBlockList(properties: AnimationProperties): string[] {
+    const structure = this.findStructureFromName(
+      properties.structureName.value
+    ) as NBTStructure | undefined;
+    if (!structure) {
+      return [];
+    }
+    return structure.CoordinateAndBlock;
   }
 }
