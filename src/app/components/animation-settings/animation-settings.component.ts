@@ -303,6 +303,8 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     if (!structure) {
       return [];
     }
+    properties.orderFromBlock.setValue(structure.CoordinateAndBlock[0]);
+
     return structure.CoordinateAndBlock;
   }
 }

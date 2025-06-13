@@ -426,15 +426,20 @@ export class GenerateCommandComponent {
     const randomMax = Math.max(maxAxis.x, maxAxis.y, maxAxis.z);
 
     const animationOrder = properties.animationOrder.value;
-    if (animationOrder === 'fromBlock') {
-      //TODO:
-      return;
-    }
 
-    const finalMaxAxis =
-      (animationOrder !== 'random' ? maxAxis[animationOrder] : randomMax) +
-      properties.randomness.value +
-      1;
+    let finalMaxAxis;
+    switch (animationOrder) {
+      case 'random':
+        finalMaxAxis = randomMax;
+        break;
+      case 'fromBlock':
+        finalMaxAxis = randomMax;
+        break;
+      default:
+        finalMaxAxis = maxAxis[animationOrder];
+        break;
+    }
+    finalMaxAxis += +properties.randomness.value + 1;
 
     commands.push(
       '# Timing Management',
@@ -479,12 +484,25 @@ export class GenerateCommandComponent {
     const maxAxisList = [maxAxis.x, maxAxis.y, maxAxis.z];
     const randomMaxAxis = maxAxisList[Math.floor(Math.random() * 3)];
     const random = Math.floor(Math.random() * randomMaxAxis) + 1;
+    const scale = properties.gradualScaleStart.value;
 
     const coords = { x, y, z, random };
     const axis = properties.animationOrder.value;
     if (axis === 'fromBlock') {
-      //TODO:
-      return 'TODO: line 487';
+      const [refX, refY, refZ] = properties.orderFromBlock.value
+        .split(':')[0]
+        .split(' ');
+
+      let dx = x - (parseFloat(refX) + properties.x.value) * scale;
+      let dy = y - (parseFloat(refY) + properties.y.value) * scale;
+      let dz = z - (parseFloat(refZ) + properties.z.value) * scale;
+      if (properties.command.value === 'display') {
+        dx = x - parseFloat(refX) * scale;
+        dy = y - parseFloat(refY) * scale;
+        dz = z - parseFloat(refZ) * scale;
+      }
+      const distance = Math.round(Math.sqrt(dx * dx + dy * dy + dz * dz));
+      return `execute if score $Dataman count matches ${distance} run`;
     }
     const coordAxis = coords[axis];
 
