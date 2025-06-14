@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, signal, ViewChild, OnDestroy, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  signal,
+  ViewChild,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
@@ -31,8 +39,8 @@ import { Subscription } from 'rxjs';
     MatExpansionModule,
     MatIconModule,
     MatFormFieldModule,
-    MatDivider
-],
+    MatDivider,
+  ],
   templateUrl: './steps.component.html',
   styleUrl: './steps.component.css',
   standalone: true,
@@ -56,6 +64,7 @@ export class StepsComponent implements AfterViewInit, OnDestroy {
     });
     if (this.preferenceService.skipBlockList) {
       this.step.set(1);
+      this.stepperComponent?.next();
     }
 
     this.stepSub = this.stepperComponent?.selectedIndexChange.subscribe(

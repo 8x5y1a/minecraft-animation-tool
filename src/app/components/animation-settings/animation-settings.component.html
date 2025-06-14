@@ -71,7 +71,10 @@
         <h3>Destroy</h3>
         <mat-form-field class="mb-1">
           <mat-label>Animation to destroy</mat-label>
-          <mat-select [formControl]="properties.removeAnimation">
+          <mat-select
+            [required]="true"
+            [formControl]="properties.removeAnimation"
+          >
             @for (animation of allAnimationProperties; track animation) { @if
             (animation.command.value !== 'destroy') {
             <mat-option [value]="animation">{{ animation.name }}</mat-option>

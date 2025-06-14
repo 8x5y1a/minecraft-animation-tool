@@ -40,13 +40,13 @@ export class NbtDataService {
 
     let index = 1;
     let newName = templateName
-      ? `${templateName}_${structureName}_${index}`
+      ? `${templateName}_${structureName}_${command}_${index}`
       : `${structureName}_${command}_${index}`;
 
     while (usedNames.has(newName)) {
       index++;
       newName = templateName
-        ? `${templateName}_${structureName}_${index}`
+        ? `${templateName}_${structureName}_${command}_${index}`
         : `${structureName}_${command}_${index}`;
     }
 

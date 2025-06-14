@@ -92,10 +92,25 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     effect(() => {
       if (this.commandsSelected()) {
         this.nbtDataService.overrideNBTStructure(this.structureList);
-        //TODO: verify if all properties have a order from block
-        // if (!properties.orderFromBlock.value) {
-        //   properties.orderFromBlock.setValue(structure.CoordinateAndBlock[0]);
-        // }
+
+        //TODO: This could be changed to an Form Error in the Stepper with ErrorMessage=""
+        this.allAnimationProperties.forEach((animation) => {
+          if (
+            animation.animationOrder.value !== 'fromBlock' ||
+            animation.orderFromBlock.value
+          ) {
+            return;
+          }
+
+          const structure = this.findStructureFromName(
+            animation.structureName.value
+          ) as NBTStructure;
+          if (!structure) {
+            return;
+          }
+
+          animation.orderFromBlock.setValue(structure.CoordinateAndBlock[0]);
+        });
       }
     });
   }
@@ -173,7 +188,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.tabIndex.set(this.allAnimationProperties.length - 1);
     this.updateAnimationName(
       newAnimation.structureName.value,
-      '',
+      properties.command.value,
       this.allAnimationProperties.length - 1,
       'destroy'
     );
