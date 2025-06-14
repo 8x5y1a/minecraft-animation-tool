@@ -45,11 +45,44 @@ export class NbtInputComponent {
 
   protected async onFileInput(event: Event): Promise<void> {
     this.isLoading.set(true);
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
+    const files = (event.target as HTMLInputElement).files;
+    if (!files) {
+      console.error('The files are undefined');
       return;
     }
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file) {
+        this.readNBTData(file);
+      }
+    }
+  }
 
+  private transformProperty(
+    propertyNbt: any
+  ): Record<string, string> | undefined {
+    if (!propertyNbt) {
+      return undefined;
+    }
+    const propertyTransformed: Record<string, string> = {};
+    Object.keys(propertyNbt.value).forEach((key) => {
+      propertyTransformed[key] = propertyNbt.value[key].value;
+    });
+
+    return propertyTransformed;
+  }
+
+  private cleanFunctionName(name: string): string {
+    return name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '_');
+  }
+
+  private async readNBTData(file: File) {
     // Reading file and parsing file
     const bufferArray = await file.arrayBuffer();
     const buffer = Buffer.from(bufferArray);
@@ -146,29 +179,5 @@ export class NbtInputComponent {
       structureSize: structureSizeCoor,
     };
     this.nbtDataService.addNBTStructure(structure);
-  }
-
-  private transformProperty(
-    propertyNbt: any
-  ): Record<string, string> | undefined {
-    if (!propertyNbt) {
-      return undefined;
-    }
-    const propertyTransformed: Record<string, string> = {};
-    Object.keys(propertyNbt.value).forEach((key) => {
-      propertyTransformed[key] = propertyNbt.value[key].value;
-    });
-
-    return propertyTransformed;
-  }
-
-  private cleanFunctionName(name: string): string {
-    return name
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9 ]/g, '')
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '_');
   }
 }
