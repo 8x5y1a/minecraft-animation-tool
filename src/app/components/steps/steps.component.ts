@@ -19,7 +19,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatDivider } from '@angular/material/divider';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 
 @Component({

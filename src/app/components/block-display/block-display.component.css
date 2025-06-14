@@ -26,3 +26,20 @@ mat-icon {
   align-items: center;
   gap: 1rem;
 }
+
+.block-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+}
+
+.block-icon.loaded {
+  opacity: 1;
+  background: none;
+}
+
+.mat-column-icon {
+  width: 128px;
+}
