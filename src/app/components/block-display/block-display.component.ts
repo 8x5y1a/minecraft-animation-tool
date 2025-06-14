@@ -61,6 +61,10 @@ import { MatOption, MatSelect } from '@angular/material/select';
   standalone: true,
 })
 export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
+  protected nbtDataService = inject(NbtDataService);
+  protected preferenceService = inject(PreferenceService);
+  private cdr = inject(ChangeDetectorRef);
+
   public blocListSelected = input(false);
   protected structureList: NBTStructure[] = [];
   protected structureCtrl: FormControl<NBTStructure> = new FormControl(
@@ -77,11 +81,7 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   protected dataSourceList: MatTableDataSource<BlockCount>[] = [];
   protected dataSourceIndex = 0;
 
-  constructor(
-    protected nbtDataService: NbtDataService,
-    protected preferenceService: PreferenceService,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
       .subscribe((structureList: NBTStructure[]) => {

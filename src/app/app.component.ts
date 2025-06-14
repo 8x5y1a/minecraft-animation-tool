@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { ThemeService } from './services/theme.service';
@@ -11,7 +11,7 @@ import { ThemeService } from './services/theme.service';
   standalone: true,
 })
 export class AppComponent {
-  title = 'minecraft-animation-tool';
+  private themeService = inject(ThemeService);
 
-  constructor(private themeService: ThemeService) {}
+  title = 'minecraft-animation-tool';
 }

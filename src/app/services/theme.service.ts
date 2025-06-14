@@ -1,14 +1,16 @@
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 export type Theme = 'light' | 'dark';
 const STORAGE_KEY = 'theme';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
+  private overlay = inject(OverlayContainer);
+
   private currentTheme: Theme;
 
-  constructor(private overlay: OverlayContainer) {
+  constructor() {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | undefined;
     this.currentTheme = stored === 'light' ? 'light' : 'dark';
     this.apply(this.currentTheme);

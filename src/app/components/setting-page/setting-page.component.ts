@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,10 +25,10 @@ export type SettingPage = 'theme' | 'preferences';
   styleUrl: './setting-page.component.css',
 })
 export class SettingPageComponent {
-  constructor(
-    private themeService: ThemeService,
-    protected preferenceService: PreferenceService
-  ) {
+  private themeService = inject(ThemeService);
+  protected preferenceService = inject(PreferenceService);
+
+  constructor() {
     this.isDarkModeControl.setValue(this.themeService.theme === 'dark');
     this.isTooltipDisabledControl.setValue(
       this.preferenceService.isDisableTooltips

@@ -1,14 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  effect,
-  input,
-  OnDestroy,
-  OnInit,
-  signal,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, effect, input, OnDestroy, OnInit, signal, TemplateRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -67,6 +57,11 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
   styleUrl: './animation-settings.component.css',
 })
 export class AnimationSettingsComponent implements OnInit, OnDestroy {
+  private nbtDataService = inject(NbtDataService);
+  private dialog = inject(MatDialog);
+  protected preferenceService = inject(PreferenceService);
+  private cdr = inject(ChangeDetectorRef);
+
   protected structureList: NBTStructure[] = [];
   protected tabIndex = signal(0);
   public commandsSelected = input(false);
@@ -75,12 +70,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
   protected isDefaultAnimation = true; // TODO:
   protected previousStructureSelected: Record<number, string | undefined> = {};
 
-  constructor(
-    private nbtDataService: NbtDataService,
-    private dialog: MatDialog,
-    protected preferenceService: PreferenceService,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
       .subscribe((structureList: NBTStructure[]) => {

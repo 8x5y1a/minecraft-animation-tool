@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild } from '@angular/core';
+import { Component, signal, ViewChild, inject } from '@angular/core';
 
 import {
   AnimationProperties,
@@ -27,13 +27,17 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ClipboardModule,
     MatIcon,
     MatTooltipModule,
-    MatProgressSpinnerModule
-],
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
   standalone: true,
 })
 export class GenerateCommandComponent {
+  private nbtDataService = inject(NbtDataService);
+  private zipService = inject(ZipService);
+  private commandHelper = inject(GenerateCommandHelperService);
+
   private structureList: NBTStructure[] = [];
   protected commandGeneratedList: CommandGenerated[] = [];
   @ViewChild('tooltip') copyTooltip?: MatTooltip;
@@ -42,11 +46,7 @@ export class GenerateCommandComponent {
   private maxLoop = 0;
   protected isLoading = signal(false);
 
-  constructor(
-    private nbtDataService: NbtDataService,
-    private zipService: ZipService,
-    private commandHelper: GenerateCommandHelperService
-  ) {
+  constructor() {
     this.nbtDataService.nbtStructureObs
       .pipe(takeUntilDestroyed())
       .subscribe((structureList) => {
@@ -104,9 +104,6 @@ export class GenerateCommandComponent {
         name: properties.name,
         command: commandResult,
       });
-      this.isLoading.set(
-        this.commandGeneratedList.length !== this.animationCount
-      );
     }
     return commandResult;
   }
@@ -655,6 +652,7 @@ export class GenerateCommandComponent {
 
     if (create === 'command') {
       this.createCommands();
+      setTimeout(() => this.isLoading.set(false));
       return;
     }
 

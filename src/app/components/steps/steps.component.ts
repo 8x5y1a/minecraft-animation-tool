@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  signal,
-  ViewChild,
-  OnDestroy,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, signal, ViewChild, OnDestroy, inject } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
@@ -45,6 +38,8 @@ import { Subscription } from 'rxjs';
   standalone: true,
 })
 export class StepsComponent implements AfterViewInit, OnDestroy {
+  protected preferenceService = inject(PreferenceService);
+
   @ViewChild('stepper', { read: ElementRef })
   private stepperElement?: ElementRef<HTMLElement>;
   @ViewChild('stepper')
@@ -52,8 +47,6 @@ export class StepsComponent implements AfterViewInit, OnDestroy {
 
   protected step = signal(0);
   private stepSub?: Subscription;
-
-  constructor(protected preferenceService: PreferenceService) {}
 
   ngAfterViewInit() {
     this.stepperElement?.nativeElement.scrollIntoView({

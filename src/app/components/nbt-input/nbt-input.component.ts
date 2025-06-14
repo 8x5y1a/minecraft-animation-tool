@@ -1,4 +1,4 @@
-import { Component, ElementRef, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, signal, ViewChild, inject } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,15 +28,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   standalone: true,
 })
 export class NbtInputComponent {
+  private nbtDataService = inject(NbtDataService);
+  protected preferenceService = inject(PreferenceService);
+
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
   protected nbtList: NBT[] = [];
   protected isLoading = signal(false);
-
-  constructor(
-    private nbtDataService: NbtDataService,
-    protected preferenceService: PreferenceService
-  ) {}
 
   protected async onFileInput(event: Event): Promise<void> {
     this.isLoading.set(true);
