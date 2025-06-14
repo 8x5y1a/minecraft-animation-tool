@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Template } from 'src/app/types/type';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PreferenceService } from 'src/app/services/preference.service';
@@ -7,7 +7,7 @@ import { TemplateService } from '../../../services/template.service';
 
 @Component({
   selector: 'app-template-list',
-  imports: [CommonModule, MatTooltip],
+  imports: [MatTooltip],
   templateUrl: './template-list.component.html',
   styleUrl: './template-list.component.css',
 })

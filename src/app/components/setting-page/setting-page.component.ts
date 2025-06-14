@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -14,14 +14,13 @@ export type SettingPage = 'theme' | 'preferences';
 @Component({
   selector: 'app-setting-page',
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatListModule,
     ReactiveFormsModule,
     MatIcon,
-    MatSlideToggle,
-  ],
+    MatSlideToggle
+],
   templateUrl: './setting-page.component.html',
   styleUrl: './setting-page.component.css',
 })

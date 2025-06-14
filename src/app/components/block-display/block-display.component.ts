@@ -11,7 +11,7 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatListModule } from '@angular/material/list';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -39,7 +39,6 @@ import { MatOption, MatSelect } from '@angular/material/select';
 @Component({
   selector: 'app-block-display',
   imports: [
-    CommonModule,
     MatListModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -55,8 +54,8 @@ import { MatOption, MatSelect } from '@angular/material/select';
     MatDialogContent,
     MatDialogTitle,
     MatSelect,
-    MatOption,
-  ],
+    MatOption
+],
   templateUrl: './block-display.component.html',
   styleUrl: './block-display.component.css',
   standalone: true,

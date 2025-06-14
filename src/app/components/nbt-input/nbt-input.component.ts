@@ -1,5 +1,5 @@
 import { Component, ElementRef, signal, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NBT, parse } from 'prismarine-nbt';
@@ -17,13 +17,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-nbt-input',
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     StepsComponent,
     MatTooltip,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
   standalone: true,

@@ -6,7 +6,7 @@ import {
   ViewChild,
   OnDestroy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { BlockDisplayComponent } from '../block-display/block-display.component';
@@ -30,7 +30,6 @@ import { Subscription } from 'rxjs';
     },
   ],
   imports: [
-    CommonModule,
     MatButtonModule,
     MatStepperModule,
     BlockDisplayComponent,
@@ -39,8 +38,8 @@ import { Subscription } from 'rxjs';
     MatExpansionModule,
     MatIconModule,
     MatFormFieldModule,
-    MatDivider,
-  ],
+    MatDivider
+],
   templateUrl: './steps.component.html',
   styleUrl: './steps.component.css',
   standalone: true,

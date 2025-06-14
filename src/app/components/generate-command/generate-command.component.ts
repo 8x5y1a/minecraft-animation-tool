@@ -1,5 +1,5 @@
 import { Component, signal, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   AnimationProperties,
   BlockData,
@@ -22,14 +22,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-generate-command',
   imports: [
-    CommonModule,
     MatButtonModule,
     MatTabsModule,
     ClipboardModule,
     MatIcon,
     MatTooltipModule,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   templateUrl: './generate-command.component.html',
   styleUrl: './generate-command.component.css',
   standalone: true,

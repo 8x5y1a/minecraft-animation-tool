@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ import { SettingPageComponent } from '../setting-page/setting-page.component';
 
 @Component({
   selector: 'app-nav-bar',
-  imports: [CommonModule, RouterLink, MatIcon],
+  imports: [RouterLink, MatIcon],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.css',
   standalone: true,
