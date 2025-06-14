@@ -4,13 +4,13 @@ export interface BlockData {
   block: string;
   property: Record<string, string> | undefined;
   position: Coordinates;
+  icon?: string;
 }
 
 export interface BlockCount {
   block: string;
   count: number;
-  //icon: string; //TODO: could add the image of the block?
-  //category: catergory; Could add a category for filtering?
+  icon: string;
 }
 
 type FC<T> = FormControl<T>;

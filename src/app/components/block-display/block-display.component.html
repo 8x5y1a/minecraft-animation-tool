@@ -37,6 +37,17 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="icon">
+      <th mat-header-cell *matHeaderCellDef>Icon</th>
+      <td mat-cell *matCellDef="let element">
+        <img
+          [src]="element.icon"
+          (error)="onImageNotFound($event)"
+          alt="Minecraft Block Icon"
+        />
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="count">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
       <td mat-cell *matCellDef="let element">{{ element.count }}</td>

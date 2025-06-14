@@ -54,8 +54,8 @@ import { MatOption, MatSelect } from '@angular/material/select';
     MatDialogContent,
     MatDialogTitle,
     MatSelect,
-    MatOption
-],
+    MatOption,
+  ],
   templateUrl: './block-display.component.html',
   styleUrl: './block-display.component.css',
   standalone: true,
@@ -73,7 +73,12 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
   );
 
   @ViewChild(MatSort) sort!: MatSort;
-  protected readonly displayedColumns: string[] = ['block', 'count', 'Remove'];
+  protected readonly displayedColumns: string[] = [
+    'icon',
+    'block',
+    'count',
+    'Remove',
+  ];
 
   protected airBlockFiltered = signal(false);
   private shouldUpdate: WritableSignal<boolean> = signal(false);
@@ -176,5 +181,15 @@ export class BlockDisplayComponent implements AfterViewInit, OnDestroy {
       this.airBlockFiltered = signal(false);
     }
     this.cdr.detectChanges();
+  }
+
+  protected onImageNotFound(event: Event) {
+    const target = event.target as HTMLImageElement;
+    if (!target.src.includes('side')) {
+      target.src = target.src.replace(/([^/]+)(\.png)$/, '$1_side$2');
+    } else {
+      target.src =
+        'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/test_block_fail.png';
+    }
   }
 }

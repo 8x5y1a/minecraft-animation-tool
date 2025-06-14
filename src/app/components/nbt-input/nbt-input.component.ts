@@ -1,4 +1,10 @@
-import { Component, ElementRef, signal, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  signal,
+  ViewChild,
+  inject,
+} from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +20,7 @@ import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @Component({
   selector: 'app-nbt-input',
   imports: [
@@ -21,8 +28,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     StepsComponent,
     MatTooltip,
-    MatProgressSpinnerModule
-],
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
   standalone: true,
@@ -90,7 +97,6 @@ export class NbtInputComponent {
       if (this.preferenceService.autoRemoveAir && block === 'minecraft:air') {
         return;
       }
-
       coordinateAndBlock.push(
         `${x} ${y} ${z}: ${this.nbtDataService.formatMinecraftName(block)}`
       );
@@ -100,6 +106,10 @@ export class NbtInputComponent {
           palette.value[data.state.value].Properties
         ),
         position: { x: x, y: y, z: z },
+        icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
+          'minecraft:',
+          ''
+        )}.png`,
       });
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
 
@@ -115,7 +125,14 @@ export class NbtInputComponent {
     };
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
-      ([block, count]) => ({ block, count })
+      ([block, count]) => ({
+        block,
+        count,
+        icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
+          'minecraft:',
+          ''
+        )}.png`,
+      })
     );
 
     const cleanName = this.cleanFunctionName(file.name.replace(/\.nbt$/, ''));
