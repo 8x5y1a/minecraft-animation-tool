@@ -127,27 +127,33 @@ export class GenerateCommandComponent {
       isSet,
       properties.facing.value
     );
-    const newX = this.commandHelper.transformCoordinates(
-      x,
-      properties.x.value,
-      scaleValue
+    const [newX, newY, newZ] = [x, y, z].map((coord, i) =>
+      this.commandHelper.transformCoordinates(
+        coord,
+        [properties.x.value, properties.y.value, properties.z.value][i],
+        scaleValue
+      )
     );
-    const newY = this.commandHelper.transformCoordinates(
-      y,
-      properties.y.value,
-      scaleValue
-    );
-    const newZ = this.commandHelper.transformCoordinates(
-      z,
-      properties.z.value,
-      scaleValue
+
+    const rotatedCoordinates = this.commandHelper.rotateBlockPos(
+      newX,
+      newY,
+      newZ,
+      properties.facing.value,
+      structure.structureSize
     );
 
     if (properties.command.value !== 'destroy') {
-      properties.coordinateList.push({ x: newX, y: newY, z: newZ });
+      properties.coordinateList.push(rotatedCoordinates);
     }
     let timing = isTiming
-      ? this.getTiming(newX, newY, newZ, properties, structure.maxAxis)
+      ? this.getTiming(
+          rotatedCoordinates.x,
+          rotatedCoordinates.y,
+          rotatedCoordinates.z,
+          properties,
+          structure.maxAxis
+        )
       : '';
 
     switch (properties.command.value) {
@@ -155,13 +161,11 @@ export class GenerateCommandComponent {
         return [
           this.buildSetCommand(
             timing,
-            newX,
-            newY,
-            newZ,
+            rotatedCoordinates.x,
+            rotatedCoordinates.y,
+            rotatedCoordinates.z,
             block,
-            propertiesString,
-            properties.facing.value,
-            structure.structureSize
+            propertiesString
           ),
         ];
       case 'display':
@@ -170,15 +174,14 @@ export class GenerateCommandComponent {
           : '';
         return this.buildDisplayCommands(
           timing,
-          newX,
-          newY,
-          newZ,
+          rotatedCoordinates.x,
+          rotatedCoordinates.y,
+          rotatedCoordinates.z,
           block,
           properties,
           propertiesString,
           isTiming,
-          blockData,
-          structure.structureSize
+          blockData
         );
       case 'destroy':
         return this.buildDestroyCommands(
@@ -203,12 +206,9 @@ export class GenerateCommandComponent {
     y: number,
     z: number,
     block: string,
-    propertiesString: string,
-    facing: string,
-    structureSize: Coordinates
+    propertiesString: string
   ): string {
-    const coordinates = this.rotateBlockPos(x, y, z, facing, structureSize);
-    return `${timing} setblock ${coordinates.x} ${coordinates.y} ${coordinates.z} ${block}${propertiesString} keep`;
+    return `${timing} setblock ${x} ${y} ${z} ${block}${propertiesString} keep`;
   }
 
   /**
@@ -224,27 +224,17 @@ export class GenerateCommandComponent {
     properties: AnimationProperties,
     propertiesString: string,
     isTiming: boolean,
-    blockData: BlockData,
-    structureSize: Coordinates
+    blockData: BlockData
   ): string[] {
     const startScale =
       properties.scaleOption.value === 'gradual'
         ? properties.gradualScaleStart.value
         : properties.staticScale.value;
-    const rotatedCoordinates = this.rotateBlockPos(
-      x,
-      y,
-      z,
-      properties.facing.value,
-      structureSize
-    );
+
     const coordinates = `${this.commandHelper.calculateScaleOffset(
-      rotatedCoordinates.x,
+      x,
       startScale
-    )} ${rotatedCoordinates.y} ${this.commandHelper.calculateScaleOffset(
-      rotatedCoordinates.z,
-      startScale
-    )}`;
+    )} ${y} ${this.commandHelper.calculateScaleOffset(z, startScale)}`;
     const transform = this.commandHelper.buildTransformation(
       [0, 0, 0],
       false,
@@ -252,11 +242,7 @@ export class GenerateCommandComponent {
       true
     );
 
-    const coordinateTag = this.commandHelper.getCoordinateTag(
-      rotatedCoordinates.x,
-      rotatedCoordinates.y,
-      rotatedCoordinates.z
-    );
+    const coordinateTag = this.commandHelper.getCoordinateTag(x, y, z);
     const tags = `,Tags:["${coordinateTag}", "${properties.name}"]`;
 
     const commands: string[] = [
@@ -293,11 +279,10 @@ export class GenerateCommandComponent {
         }
 
         commands.push(
-          `${this.commandHelper.addLatency(timing, latency)} setblock ${
-            rotatedCoordinates.x
-          } ${rotatedCoordinates.y} ${
-            rotatedCoordinates.z
-          } ${block}${setBlockProperties}`,
+          `${this.commandHelper.addLatency(
+            timing,
+            latency
+          )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
           `${this.commandHelper.addLatency(
             timing,
             latency
@@ -331,7 +316,7 @@ export class GenerateCommandComponent {
       coordinatesToDel.y,
       coordinatesToDel.z
     );
-
+    //TODO: apply facing to the destroy
     if (animToDel.command.value === 'set') {
       return [`${timing} setblock ${coordinatesString} minecraft:air`];
     }
@@ -618,27 +603,6 @@ export class GenerateCommandComponent {
       this.isCopyConfirm = false;
       this.copyTooltip?.hide();
     }, 2000);
-  }
-
-  private rotateBlockPos(
-    x: number,
-    y: number,
-    z: number,
-    rotation: string,
-    size: { x: number; y: number; z: number }
-  ): { x: number; y: number; z: number } {
-    switch (rotation) {
-      case 'north':
-        return { x, y, z };
-      case 'east':
-        return { x: z, y, z: size.x - 1 - x };
-      case 'south':
-        return { x: size.x - 1 - x, y, z: size.z - 1 - z };
-      case 'west':
-        return { x: size.z - 1 - z, y, z: x };
-      default:
-        return { x, y, z };
-    }
   }
 
   private animationCount = 0;

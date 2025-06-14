@@ -1,4 +1,16 @@
-import { ChangeDetectorRef, Component, effect, input, OnDestroy, OnInit, signal, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  input,
+  OnDestroy,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+  inject,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -22,7 +34,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDivider } from '@angular/material/divider';
-import { Subscription } from 'rxjs';
+import { map, Observable, startWith, Subscription } from 'rxjs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TemplateListComponent } from './template-list/template-list.component';
@@ -80,6 +92,10 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     effect(() => {
       if (this.commandsSelected()) {
         this.nbtDataService.overrideNBTStructure(this.structureList);
+        //TODO: verify if all properties have a order from block
+        // if (!properties.orderFromBlock.value) {
+        //   properties.orderFromBlock.setValue(structure.CoordinateAndBlock[0]);
+        // }
       }
     });
   }
@@ -286,6 +302,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     return this.structureList.find((structure) => structure.name === name);
   }
 
+  //TODO: Optimize this function
   protected getBlockList(properties: AnimationProperties): string[] {
     const structure = this.findStructureFromName(
       properties.structureName.value
@@ -293,8 +310,13 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     if (!structure) {
       return [];
     }
-    properties.orderFromBlock.setValue(structure.CoordinateAndBlock[0]);
 
-    return structure.CoordinateAndBlock;
+    const filtered = structure.CoordinateAndBlock.filter((option) =>
+      option
+        .toLocaleLowerCase()
+        .includes(properties.orderFromBlock.value.toLocaleLowerCase())
+    );
+
+    return filtered;
   }
 }

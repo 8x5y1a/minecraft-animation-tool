@@ -231,4 +231,28 @@ export class GenerateCommandHelperService {
   public getCoordinateTag(x: number, y: number, z: number): string {
     return `${x}-${y}-${z}`;
   }
+
+  /**
+   * Change the rotation of the building by changing the coordinates
+   */
+  public rotateBlockPos(
+    x: number,
+    y: number,
+    z: number,
+    rotation: string,
+    size: { x: number; y: number; z: number }
+  ): { x: number; y: number; z: number } {
+    switch (rotation) {
+      case 'north':
+        return { x, y, z };
+      case 'east':
+        return { x: z, y, z: size.x - 1 - x };
+      case 'south':
+        return { x: size.x - 1 - x, y, z: size.z - 1 - z };
+      case 'west':
+        return { x: size.z - 1 - z, y, z: x };
+      default:
+        return { x, y, z };
+    }
+  }
 }
