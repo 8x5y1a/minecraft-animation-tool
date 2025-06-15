@@ -420,7 +420,7 @@ export class GenerateCommandComponent {
         finalMaxAxis = maxAxis[animationOrder];
         break;
     }
-    finalMaxAxis += +properties.randomness.value + 1;
+    finalMaxAxis += properties.randomness.value + 2;
 
     commands.push(
       '# Timing Management',
