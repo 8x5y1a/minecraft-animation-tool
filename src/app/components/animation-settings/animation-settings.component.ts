@@ -6,10 +6,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  TemplateRef,
-  ViewChild,
   inject,
-  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -26,7 +23,7 @@ import { AnimationPropertiesModel } from 'src/app/types/AnimationPropertiesModel
 import { MatInput } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIcon } from '@angular/material/icon';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
@@ -34,9 +31,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDivider } from '@angular/material/divider';
-import { map, Observable, startWith, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TemplateListComponent } from './template-list/template-list.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -52,7 +48,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatInput,
     MatRadioModule,
     MatIcon,
-    MatButton,
+    MatButtonModule,
     MatTooltip,
     MatSlideToggleModule,
     MatSliderModule,
@@ -61,7 +57,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatChipsModule,
     MatDivider,
     MatButtonToggleModule,
-    MatDialogModule,
     TemplateListComponent,
     MatAutocompleteModule,
   ],
@@ -70,7 +65,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 })
 export class AnimationSettingsComponent implements OnInit, OnDestroy {
   private nbtDataService = inject(NbtDataService);
-  private dialog = inject(MatDialog);
   protected preferenceService = inject(PreferenceService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -113,6 +107,13 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
         });
       }
     });
+
+    effect(() => {
+      //if we set the tab to Add new Animation
+      if (this.tabIndex() === this.allAnimationProperties.length) {
+        this.isAddTemplate = false;
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -139,6 +140,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
       );
       newAnimation.structureName.setValue(this.structureList[0].name);
     }
+    //FIXME: This could be optimized if we change to Button toggle, but it doesnt look very good...?
     const commandSub = newAnimation.command.valueChanges.subscribe(
       (commandSelected) => {
         if (!commandSelected) {
@@ -148,16 +150,19 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     );
     this.subscriptionList.push(commandSub);
     this.structureList[0].animationProperties.push(newAnimation);
-    this.tabIndex.set(this.allAnimationProperties.length - 1);
+
     this.previousStructureSelected[
       this.structureList[0].animationProperties[0].id
     ] = this.structureList[0].name;
+
     this.updateAnimationName(
       newAnimation.structureName.value,
       newAnimation.command.value,
       this.allAnimationProperties.length - 1,
       newAnimation.templateName
     );
+
+    this.tabIndex.set(this.allAnimationProperties.length - 1);
   }
 
   protected removeAnimation(index: number, properties: AnimationProperties) {
@@ -194,19 +199,12 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  @ViewChild('dialogAdd') dialogAdd!: TemplateRef<any>;
-  protected openAddDialog() {
-    this.isAddTemplate = false;
-    this.dialog.open(this.dialogAdd, { maxWidth: '100%' }); //TODO: Dynamic width? or just not 100% of the screen
-  }
-
   protected addTemplate(template: Template) {
     template.animationList.forEach((animation) => {
       animation.structureName.setValue(this.structureList[0].name);
       animation.name += '_' + animation.structureName.value;
       this.addAnimation(animation);
     });
-    this.dialog.closeAll();
   }
 
   protected displayScaling(properties: AnimationProperties): boolean {
@@ -304,6 +302,7 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     this.previousStructureSelected[properties.id] = targetName;
   }
 
+  /** Finds structure from the name. Can choose to return StructureNBT object or the index */
   private findStructureFromName(
     name: string,
     getIndex = false

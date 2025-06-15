@@ -39,3 +39,9 @@
   grid-template-columns: auto auto;
   display: grid;
 }
+
+.button-center {
+  display: grid;
+  height: 100px;
+  justify-content: center;
+}

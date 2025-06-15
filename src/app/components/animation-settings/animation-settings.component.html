@@ -1,5 +1,10 @@
 <div class="animation-tabs-wrapper">
-  <mat-tab-group [selectedIndex]="tabIndex()">
+  <mat-tab-group
+    [selectedIndex]="tabIndex()"
+    (selectedIndexChange)="tabIndex.set($event)"
+    mat-stretch-tabs="false"
+    mat-align-tabs="start"
+  >
     @for (properties of allAnimationProperties; track properties; let index =
     $index) {
     <mat-tab [label]="properties.name">
@@ -363,41 +368,38 @@
       </div>
     </mat-tab>
     }
+    <mat-tab id="add">
+      <ng-template mat-tab-label>
+        <div style="text-align: center; width: 100%">
+          <button mat-button>
+            <mat-icon style="margin: 0">add</mat-icon>
+            Add new Animation
+          </button>
+        </div>
+      </ng-template>
+      <div class="my-1">
+        @if (!isAddTemplate) {
+        <div class="button-center">
+          <button mat-flat-button mat-dialog-close (click)="addAnimation()">
+            Custom Animation
+          </button>
+          <button
+            mat-flat-button
+            (click)="isAddTemplate = true"
+            matTooltip="Select an animation from existing Templates to not bother with configurations"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
+          >
+            Template Animation
+          </button>
+        </div>
+        } @else {
+        <app-template-list (templateEmit)="addTemplate($event)" />
+        <button mat-button (click)="isAddTemplate = false">Back</button>
+        }
+      </div>
+    </mat-tab>
   </mat-tab-group>
-
-  <!-- Add Animation Button -->
-  <button
-    mat-flat-button
-    matTooltip="Add another animation"
-    [matTooltipDisabled]="preferenceService.isDisableTooltips"
-    class="add-animation-btn"
-    (click)="openAddDialog()"
-  >
-    <mat-icon style="margin: 0">add</mat-icon>
-  </button>
 </div>
-
-<!-- Add Animation Dialog -->
-<ng-template #dialogAdd let-data>
-  <h2 mat-dialog-title>Add animation</h2>
-  <mat-dialog-content>
-    @if (!isAddTemplate) {
-    <div style="height: 100px; display: grid">
-      <button mat-flat-button mat-dialog-close (click)="addAnimation()">
-        Add custom animation
-      </button>
-      <button mat-flat-button (click)="isAddTemplate = true">
-        Add from templates
-      </button>
-    </div>
-    } @else {
-    <app-template-list (templateEmit)="addTemplate($event)" />
-    }
-  </mat-dialog-content>
-  <mat-dialog-actions>
-    <button mat-button mat-dialog-close>Cancel</button>
-  </mat-dialog-actions>
-</ng-template>
 
 <!-- Gradual Scale Template -->
 <ng-template #gradualScale let-properties="properties">
