@@ -149,7 +149,8 @@ export class GenerateCommandHelperService {
    */
   public calculateScaleOffset(x: number, scale: number): number {
     if (x < 0) {
-      return -1 * (x + 0.5 - scale / 2);
+      const offset = x + 0.5 - scale / 2;
+      return offset > 0 ? offset * -1 : offset;
     }
     return x + 0.5 - scale / 2;
   }
