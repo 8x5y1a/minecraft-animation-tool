@@ -1,18 +1,29 @@
 <h1 class="center-video">Animation Tool</h1>
 @if(!preferenceService.hideHowTo){
-<div
-  class="iframe-container"
-  matTooltip="Place holder video meanwhile someone makes one on how to use this tool"
-  matTooltipPosition="above"
->
+<div class="iframe-container">
+  @if(isFullGuideVideo.value){
   <iframe
-    src="https://www.youtube.com/embed/YbclYBh9n8I?si=YNQGZPd4XeuvNny4"
+    src="https://www.youtube.com/embed/YbclYBh9n8I?si=I1qUxY8sSjQ"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  ></iframe>
+  } @else {
+  <iframe
+    src="https://www.youtube.com/embed/I1qUxY8sSjQ"
     title="YouTube video player"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
   >
   </iframe>
+  }
+  <div class="toggle-button">
+    <mat-slide-toggle [formControl]="isFullGuideVideo">
+      Switch to full guide video
+    </mat-slide-toggle>
+  </div>
 </div>
 } @if(isLoading()){
 <div class="center">
@@ -23,7 +34,6 @@
 }
 
 <div class="center">
-  <!-- TODO: Import more than one NBT Structure -->
   <button mat-fab extended (click)="fileInputRef.nativeElement.click()">
     <mat-icon>upload_file</mat-icon>
     {{ nbtList.length ? 'Import another NBT file' : 'Import NBT file' }}

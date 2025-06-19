@@ -12,11 +12,11 @@ html.dark-theme {
         primary: mat.$violet-palette,
         tertiary: mat.$magenta-palette,
         use-system-variables: true,
-    system-variables-prefix: sys,
+        system-variables-prefix: sys,
       ),
       typography: (
         use-system-variables: true,
-    system-variables-prefix: sys,
+        system-variables-prefix: sys,
       ),
       density: 0,
     )
@@ -32,11 +32,11 @@ html.light-theme {
         primary: mat.$blue-palette,
         tertiary: mat.$azure-palette,
         use-system-variables: true,
-    system-variables-prefix: sys,
+        system-variables-prefix: sys,
       ),
       typography: (
         use-system-variables: true,
-    system-variables-prefix: sys,
+        system-variables-prefix: sys,
       ),
       density: 0,
     )
@@ -69,4 +69,13 @@ body {
 .my-1 {
   margin-bottom: 15px;
   margin-top: 15px;
+}
+
+// Overwriting Angular Materials, could move this to a separate file later
+.mat-horizontal-stepper-header-container {
+  background-color: var(--mat-sys-secondary-container);
+  border-radius: 50px;
+  margin-bottom: 10px;
+  width: 50%;
+  margin: auto;
 }

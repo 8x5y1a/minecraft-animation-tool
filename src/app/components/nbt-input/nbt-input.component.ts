@@ -20,6 +20,8 @@ import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-nbt-input',
@@ -29,6 +31,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     StepsComponent,
     MatTooltip,
     MatProgressSpinnerModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './nbt-input.component.html',
   styleUrl: './nbt-input.component.css',
@@ -42,6 +46,9 @@ export class NbtInputComponent {
   protected fileInputRef!: ElementRef<HTMLInputElement>;
   protected nbtList: NBT[] = [];
   protected isLoading = signal(false);
+  protected isFullGuideVideo: FormControl<boolean> = new FormControl(false, {
+    nonNullable: true,
+  });
 
   protected async onFileInput(event: Event): Promise<void> {
     this.isLoading.set(true);

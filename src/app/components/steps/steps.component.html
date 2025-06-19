@@ -2,7 +2,7 @@
 
 <mat-stepper #stepper>
   <mat-step state="blockList">
-    <ng-template matStepLabel>Block List</ng-template>
+    <ng-template matStepLabel>1 - Block List</ng-template>
     <app-block-display #appBlockDisplay [blocListSelected]="step() === 0" />
     <div class="my-1">
       <mat-divider class="mb-1 mt-1" />
@@ -13,7 +13,7 @@
   </mat-step>
 
   <mat-step state="animation">
-    <ng-template matStepLabel>Animations</ng-template>
+    <ng-template matStepLabel>2 - Animations</ng-template>
     <app-animation-settings [commandsSelected]="step() === 2" />
 
     <div class="my-1">
@@ -26,7 +26,7 @@
   </mat-step>
 
   <mat-step state="command">
-    <ng-template matStepLabel>Commands</ng-template>
+    <ng-template matStepLabel>3 - Commands</ng-template>
     <app-generate-command />
     <div class="my-1">
       <mat-divider class="mb-1 mt-1" />
