@@ -316,7 +316,6 @@ export class GenerateCommandComponent {
       coordinatesToDel.y,
       coordinatesToDel.z
     );
-    //TODO: apply facing to the destroy
     if (animToDel.command.value === 'set') {
       return [`${timing} setblock ${coordinatesString} minecraft:air`];
     }

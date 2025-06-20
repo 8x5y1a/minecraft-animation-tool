@@ -18,7 +18,6 @@ import {
 } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
-import { MatTooltip } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -29,7 +28,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatButtonModule,
     MatIconModule,
     StepsComponent,
-    MatTooltip,
     MatProgressSpinnerModule,
     ReactiveFormsModule,
     MatSlideToggleModule,
