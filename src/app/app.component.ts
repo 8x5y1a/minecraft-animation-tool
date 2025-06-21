@@ -11,7 +11,6 @@ import { ThemeService } from './services/theme.service';
   standalone: true,
 })
 export class AppComponent {
-  private themeService = inject(ThemeService);
-
-  title = 'minecraft-animation-tool';
+  protected themeService = inject(ThemeService);
+  protected title = 'minecraft-animation-tool';
 }

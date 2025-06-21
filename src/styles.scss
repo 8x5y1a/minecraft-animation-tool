@@ -49,10 +49,6 @@ body {
   margin: 0;
 }
 
-html,
-body {
-  height: 100%;
-}
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
@@ -79,4 +75,8 @@ body {
   width: 50%;
   margin: auto;
   margin-bottom: 15px;
+}
+
+.mat-step-header:hover {
+  border-radius: 50px !important;
 }

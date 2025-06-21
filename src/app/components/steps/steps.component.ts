@@ -20,6 +20,7 @@ import { PreferenceService } from 'src/app/services/preference.service';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatDivider } from '@angular/material/divider';
 import { Subscription } from 'rxjs';
+import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-steps',
@@ -41,12 +42,12 @@ import { Subscription } from 'rxjs';
     MatDivider,
   ],
   templateUrl: './steps.component.html',
-  styleUrl: './steps.component.css',
+  styleUrl: './steps.component.scss',
   standalone: true,
 })
 export class StepsComponent implements AfterViewInit, OnDestroy {
   protected preferenceService = inject(PreferenceService);
-
+  private focusMonitor = inject(FocusMonitor);
   @ViewChild('stepper', { read: ElementRef })
   private stepperElement?: ElementRef<HTMLElement>;
   @ViewChild('stepper')
@@ -71,6 +72,24 @@ export class StepsComponent implements AfterViewInit, OnDestroy {
         this.step.set(index);
       }
     );
+
+    this.handlingCss();
+  }
+
+  /* Adds gradiant background to the header of the stepper and removes all focused classes. */
+  private handlingCss() {
+    const headerContainer = this.stepperElement?.nativeElement.querySelector(
+      '.mat-horizontal-stepper-header-container'
+    );
+    if (headerContainer) {
+      headerContainer.classList.add('background-gradiant');
+    }
+    const headerElements = document.getElementsByClassName('mat-step-header');
+    if (headerElements.length) {
+      for (let index = 0; index < headerElements.length; index++) {
+        this.focusMonitor.stopMonitoring(headerElements[index] as HTMLElement);
+      }
+    }
   }
 
   ngOnDestroy() {

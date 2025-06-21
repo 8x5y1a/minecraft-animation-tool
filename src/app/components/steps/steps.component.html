@@ -1,6 +1,6 @@
 <div style="margin-top: 30px"></div>
 
-<mat-stepper #stepper>
+<mat-stepper class="stepper" #stepper>
   <mat-step state="blockList">
     <ng-template matStepLabel>1 - Block List</ng-template>
     <app-block-display #appBlockDisplay [blocListSelected]="step() === 0" />
