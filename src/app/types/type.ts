@@ -94,3 +94,8 @@ export type ParsedStructure = {
   palette: any[];
   origin: Coordinates;
 };
+
+export type ParsedBlockPosition = {
+  pos: [number, number, number];
+  state: number;
+};

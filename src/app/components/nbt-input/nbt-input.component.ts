@@ -15,6 +15,7 @@ import {
   BlockData,
   Coordinates,
   NBTStructure,
+  ParsedBlockPosition,
   ParsedStructure,
 } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
@@ -117,9 +118,13 @@ export class NbtInputComponent {
       };
     } else if (file.name.endsWith('.litematic')) {
       const structureName = simplifiedNbt.Metadata.Name;
-
+      const blockPos = this.decodeLitematicStructure(
+        simplifiedNbt.Regions[structureName],
+        simplifiedNbt.Regions[structureName].BlockStatePalette
+      );
+      console.log(blockPos);
       parsedStructure = {
-        blockPostition: simplifiedNbt.Regions[structureName].BlocksState, //TODO: decode
+        blockPostition: blockPos,
         size: simplifiedNbt.Regions[structureName].Size,
         palette: simplifiedNbt.Regions[structureName].BlockStatePalette,
         origin: simplifiedNbt.Position ?? { x: 0, y: 0, z: 0 },
@@ -153,9 +158,13 @@ export class NbtInputComponent {
       coordinateAndBlock.push(
         `${x} ${y} ${z}: ${this.nbtDataService.formatMinecraftName(block)}`
       );
+      if (!palette[data.state]) {
+        console.warn(`Block state ${data.state} not found in palette`);
+        return;
+      }
       blockDataList.push({
         block: block,
-        property: this.transformProperty(palette[data.state].Properties),
+        property: this.transformProperty(palette[data.state]?.Properties),
         position: { x: x, y: y, z: z },
         icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
           'minecraft:',
@@ -192,5 +201,72 @@ export class NbtInputComponent {
     };
     this.nbtDataService.addNBTStructure(structure);
     this.nbtList.push(nbtResult.parsed);
+  }
+
+  /* Helper Function used to decode litematic structures */
+  private readPackedBitsArray(
+    data: bigint[],
+    bitsPerBlock: number,
+    blockCount: number
+  ): number[] {
+    const result: number[] = new Array(blockCount);
+    const mask = (1n << BigInt(bitsPerBlock)) - 1n;
+
+    let bitIndex = 0;
+
+    for (let i = 0; i < blockCount; i++) {
+      const longIndex = Math.floor(bitIndex / 64);
+      const bitOffset = bitIndex % 64;
+
+      const current = data[longIndex];
+      const next = data[longIndex + 1] ?? 0n;
+
+      const combined = (next << 64n) | current;
+      const value = Number((combined >> BigInt(bitOffset)) & mask);
+
+      result[i] = value;
+      bitIndex += bitsPerBlock;
+    }
+
+    return result;
+  }
+
+  /* Function used to decode litematic structures */
+  private decodeLitematicStructure(
+    region: any,
+    palette: any
+  ): ParsedBlockPosition[] {
+    console.log(region.Size);
+    const [sizeX, sizeY, sizeZ] = [region.Size.x, region.Size.y, region.Size.z];
+    const [originX, originY, originZ] = [
+      region.Position.x,
+      region.Position.y,
+      region.Position.z,
+    ];
+    const totalBlocks = sizeX * sizeY * sizeZ;
+
+    const blockStatesRaw = region.BlockStates as bigint[];
+    const bitsPerBlock = Math.max(2, Math.ceil(Math.log2(palette.length)));
+
+    const stateArray = this.readPackedBitsArray(
+      blockStatesRaw,
+      bitsPerBlock,
+      totalBlocks
+    );
+
+    const result: ParsedBlockPosition[] = new Array(totalBlocks);
+
+    for (let i = 0; i < totalBlocks; i++) {
+      const x = i % sizeX;
+      const z = Math.floor(i / sizeX) % sizeZ;
+      const y = Math.floor(i / (sizeX * sizeZ));
+
+      result[i] = {
+        pos: [originX + x, originY + y, originZ + z],
+        state: stateArray[i],
+      };
+    }
+
+    return result;
   }
 }
