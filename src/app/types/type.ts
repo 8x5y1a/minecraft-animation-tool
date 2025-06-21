@@ -87,3 +87,10 @@ export type NBTStructure = {
   maxAxis: Coordinates;
   structureSize: Coordinates;
 };
+
+export type ParsedStructure = {
+  blockPostition: any;
+  size: Coordinates;
+  palette: any[];
+  origin: Coordinates;
+};

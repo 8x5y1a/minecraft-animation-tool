@@ -8,13 +8,14 @@ import {
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { NBT, parse } from 'prismarine-nbt';
+import { NBT, parse, simplify } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import {
   BlockCount,
   BlockData,
   Coordinates,
   NBTStructure,
+  ParsedStructure,
 } from 'src/app/types/type';
 import { StepsComponent } from '../steps/steps.component';
 import { PreferenceService } from 'src/app/services/preference.service';
@@ -70,8 +71,8 @@ export class NbtInputComponent {
       return undefined;
     }
     const propertyTransformed: Record<string, string> = {};
-    Object.keys(propertyNbt.value).forEach((key) => {
-      propertyTransformed[key] = propertyNbt.value[key].value;
+    Object.keys(propertyNbt).forEach((key) => {
+      propertyTransformed[key] = propertyNbt[key];
     });
 
     return propertyTransformed;
@@ -90,32 +91,47 @@ export class NbtInputComponent {
   private async readNBTData(file: File) {
     // Reading file and parsing file
     const bufferArray = await file.arrayBuffer();
-    const buffer = Buffer.from(bufferArray);
-    const nbtResult = await parse(buffer).finally(() => {
+    const nbtResult = await parse(Buffer.from(bufferArray)).finally(() => {
       this.isLoading.set(false);
     });
-
-    if (!nbtResult.parsed) {
+    console.log(nbtResult);
+    const simplifiedNbt = simplify(nbtResult.parsed);
+    console.log(simplifiedNbt);
+    if (!simplifiedNbt) {
+      console.error('nbt failed to parse');
       return;
     }
-    this.nbtList.push(nbtResult.parsed);
+    //TODO: here we can check if the nbt is already there (with equal(nbt1, nbt2))
 
-    const blockData = nbtResult.parsed.value['blocks'];
-    const structureSize: any = nbtResult.parsed.value['size']?.value;
-    const palette: any = nbtResult.parsed.value['palette']?.value;
-    const blockNameList: string[] = palette?.value.map(
-      (id: any) => id.Name.value
-    );
+    let parsedStructure: ParsedStructure | undefined = undefined;
+    if (file.name.endsWith('.nbt')) {
+      parsedStructure = {
+        blockPostition: simplifiedNbt.blocks,
+        size: {
+          x: simplifiedNbt.size[0],
+          y: simplifiedNbt.size[1],
+          z: simplifiedNbt.size[2],
+        },
+        palette: simplifiedNbt.palette,
+        origin: { x: 0, y: 0, z: 0 },
+      };
+    } else if (file.name.endsWith('.litematic')) {
+      const structureName = simplifiedNbt.Metadata.Name;
 
-    // Verifying data is correctly parsed // Valid nbt for
-    if (
-      !blockData ||
-      blockData.type !== 'list' ||
-      !blockData.value.value.length
-    ) {
-      console.error('The data wasnt parsed correctly');
+      parsedStructure = {
+        blockPostition: simplifiedNbt.Regions[structureName].BlocksState, //TODO: decode
+        size: simplifiedNbt.Regions[structureName].Size,
+        palette: simplifiedNbt.Regions[structureName].BlockStatePalette,
+        origin: simplifiedNbt.Position ?? { x: 0, y: 0, z: 0 },
+      };
+    }
+    if (!parsedStructure) {
       return;
     }
+
+    const { blockPostition, size, palette, origin } = parsedStructure;
+    const blockNameList: string[] = palette.map((block: any) => block.Name);
+    console.log(blockPostition);
 
     const maxAxis: Coordinates = {
       x: -200,
@@ -123,14 +139,13 @@ export class NbtInputComponent {
       z: -200,
     };
 
-    const nbtPosData = blockData.value.value;
     const blockCountDict: Record<string, number> = {};
     const blockDataList: BlockData[] = [];
     const coordinateAndBlock: string[] = [];
 
-    nbtPosData.forEach((data: any) => {
-      const block = blockNameList[data.state.value];
-      const [x, y, z] = data.pos.value.value;
+    blockPostition.forEach((data: any) => {
+      const block = blockNameList[data.state];
+      const [x, y, z] = data.pos;
 
       if (this.preferenceService.autoRemoveAir && block === 'minecraft:air') {
         return;
@@ -140,9 +155,7 @@ export class NbtInputComponent {
       );
       blockDataList.push({
         block: block,
-        property: this.transformProperty(
-          palette.value[data.state.value].Properties
-        ),
+        property: this.transformProperty(palette[data.state].Properties),
         position: { x: x, y: y, z: z },
         icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
           'minecraft:',
@@ -155,12 +168,6 @@ export class NbtInputComponent {
       maxAxis.y = Math.max(maxAxis.y, y);
       maxAxis.z = Math.max(maxAxis.z, z);
     });
-
-    const structureSizeCoor: Coordinates = {
-      x: structureSize.value[0],
-      y: structureSize.value[1],
-      z: structureSize.value[2],
-    };
 
     const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
       ([block, count]) => ({
@@ -181,8 +188,9 @@ export class NbtInputComponent {
       CoordinateAndBlock: coordinateAndBlock,
       animationProperties: [],
       maxAxis: maxAxis,
-      structureSize: structureSizeCoor,
+      structureSize: size,
     };
     this.nbtDataService.addNBTStructure(structure);
+    this.nbtList.push(nbtResult.parsed);
   }
 }
