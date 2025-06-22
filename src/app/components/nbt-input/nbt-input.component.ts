@@ -44,12 +44,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
  * It interacts with NbtDataService to store and manage parsed structures and supports user preferences.
  */
 export class NbtInputComponent {
-  private nbtDataService = inject(NbtDataService);
+  protected nbtDataService = inject(NbtDataService);
   protected preferenceService = inject(PreferenceService);
 
   @ViewChild('fileInput', { static: false })
   protected fileInputRef!: ElementRef<HTMLInputElement>;
-  protected nbtList: NBT[] = [];
   protected isLoading = signal(false);
   protected isFullGuideVideo: FormControl<boolean> = new FormControl(false, {
     nonNullable: true,
@@ -123,12 +122,12 @@ export class NbtInputComponent {
     if (!structure) return;
 
     this.nbtDataService.addNBTStructure(structure);
-    this.nbtList.push(parsedNBT);
+    this.nbtDataService.nbtList.push(parsedNBT);
     this.isLoading.set(false);
   }
 
   private isDuplicate(nbt: NBT): boolean {
-    return this.nbtList.some((existing) => equal(nbt, existing));
+    return this.nbtDataService.nbtList.some((existing) => equal(nbt, existing));
   }
 
   private buildStructure(file: File, parsedNBT: NBT): NBTStructure | undefined {

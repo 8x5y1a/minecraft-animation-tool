@@ -117,7 +117,9 @@ export class AnimationSettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.addAnimation();
+    if (this.allAnimationProperties.length === 0) {
+      this.addAnimation();
+    }
     this.previousStructureSelected[
       this.structureList[0].animationProperties[0].id
     ] = this.structureList[0].name;

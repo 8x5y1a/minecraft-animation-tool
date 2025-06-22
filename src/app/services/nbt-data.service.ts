@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { NBTStructure } from '../types/type';
+import { NBT } from 'prismarine-nbt';
 
 @Injectable({ providedIn: 'root' })
 export class NbtDataService {
@@ -61,4 +62,6 @@ export class NbtDataService {
     const spaced = key?.replace(/_/g, ' ');
     return spaced?.replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
   }
+
+  public nbtList: NBT[] = [];
 }
