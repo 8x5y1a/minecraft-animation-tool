@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
   inject,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -34,6 +35,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TemplateListComponent } from './template-list/template-list.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-animation-settings',
@@ -65,6 +67,7 @@ export class AnimationSettingsComponent implements OnInit {
   private nbtDataService = inject(NbtDataService);
   protected preferenceService = inject(PreferenceService);
   private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
 
   protected structureList: NBTStructure[] = [];
   protected tabIndex = signal(0);
@@ -133,6 +136,12 @@ export class AnimationSettingsComponent implements OnInit {
     }
     this.structureList[0].animationProperties.push(newAnimation);
 
+    //Work around for tabIndex not updating correctly
+    this.tabIndex.set(this.allAnimationProperties.length);
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      this.tabIndex.set(this.allAnimationProperties.length - 1);
+    });
+
     this.previousStructureSelected[
       this.structureList[0].animationProperties[0].id
     ] = this.structureList[0].name;
@@ -143,15 +152,23 @@ export class AnimationSettingsComponent implements OnInit {
       this.allAnimationProperties.length - 1,
       newAnimation.templateName
     );
-
-    this.tabIndex.set(this.allAnimationProperties.length - 1);
   }
 
   protected removeAnimation(index: number, properties: AnimationProperties) {
-    const structure = this.findStructureFromName(
-      properties.name.split('_')[0]
-    ) as NBTStructure | undefined;
-    if (!structure) return;
+    const structureName = this.structureList.find((structure) =>
+      properties.name.includes(structure.name)
+    )?.name;
+    const structure = this.findStructureFromName(structureName ?? '') as
+      | NBTStructure
+      | undefined;
+
+    if (!structure) {
+      console.warn(
+        'Structure not found for animation removal:',
+        properties.name
+      );
+      return;
+    }
 
     const idx = structure.animationProperties?.findIndex((prop) => {
       return prop.id === properties.id;
@@ -159,6 +176,7 @@ export class AnimationSettingsComponent implements OnInit {
     if (idx === -1) return;
 
     structure.animationProperties.splice(idx, 1);
+    this.tabIndex.set(this.allAnimationProperties.length - 1);
   }
 
   protected formatSpeedSlider(value: number): string {
@@ -173,6 +191,7 @@ export class AnimationSettingsComponent implements OnInit {
 
     structure?.animationProperties.push(newAnimation);
     this.tabIndex.set(this.allAnimationProperties.length - 1);
+
     this.updateAnimationName(
       newAnimation.structureName.value,
       properties.command.value,
