@@ -41,6 +41,7 @@
         class="mb-1"
       >
         <mat-chip-option
+          [selectable]="properties.command.value !== 'set'"
           matTooltip="Set the blocks at the specified coordinates like a normal building"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           value="set"
@@ -48,6 +49,7 @@
           >Set block</mat-chip-option
         >
         <mat-chip-option
+          [selectable]="properties.command.value !== 'display'"
           matTooltip="Display the blocks at the specified coordinates. The blocks will be visible but not interactable and will count as Entities"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           value="display"
@@ -55,6 +57,7 @@
         >
         @if(allAnimationProperties.length > 1){
         <mat-chip-option
+          [selectable]="properties.command.value !== 'destroy'"
           matTooltip="Destroy the blocks of the chosen animation"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           value="destroy"

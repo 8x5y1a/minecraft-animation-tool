@@ -3,7 +3,6 @@ import {
   Component,
   effect,
   input,
-  OnDestroy,
   OnInit,
   signal,
   inject,
@@ -23,7 +22,7 @@ import { AnimationPropertiesModel } from 'src/app/types/AnimationPropertiesModel
 import { MatInput } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIcon } from '@angular/material/icon';
-import { MatButton, MatButtonModule } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
@@ -31,7 +30,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDivider } from '@angular/material/divider';
-import { Subscription } from 'rxjs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TemplateListComponent } from './template-list/template-list.component';
 import { PreferenceService } from 'src/app/services/preference.service';
@@ -63,7 +61,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
   templateUrl: './animation-settings.component.html',
   styleUrl: './animation-settings.component.css',
 })
-export class AnimationSettingsComponent implements OnInit, OnDestroy {
+export class AnimationSettingsComponent implements OnInit {
   private nbtDataService = inject(NbtDataService);
   protected preferenceService = inject(PreferenceService);
   private cdr = inject(ChangeDetectorRef);
@@ -71,7 +69,6 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
   protected structureList: NBTStructure[] = [];
   protected tabIndex = signal(0);
   public commandsSelected = input(false);
-  private subscriptionList: Subscription[] = [];
   protected isAddTemplate = false;
   protected isDefaultAnimation = true; // TODO:
   protected previousStructureSelected: Record<number, string | undefined> = {};
@@ -123,32 +120,17 @@ export class AnimationSettingsComponent implements OnInit, OnDestroy {
     ] = this.structureList[0].name;
   }
 
-  ngOnDestroy(): void {
-    this.subscriptionList.forEach((sub) => {
-      sub.unsubscribe();
-    });
-  }
-
   protected addAnimation(newAnimation?: AnimationProperties) {
     if (!newAnimation) {
       newAnimation = AnimationPropertiesModel.createDefault(
         this.nbtDataService.getFunctionName(
           this.structureList[0].name,
-          'set',
+          '',
           this.structureList
         )
       );
       newAnimation.structureName.setValue(this.structureList[0].name);
     }
-    //FIXME: This could be optimized if we change to Button toggle, but it doesnt look very good...?
-    const commandSub = newAnimation.command.valueChanges.subscribe(
-      (commandSelected) => {
-        if (!commandSelected) {
-          newAnimation.command.setValue('set');
-        }
-      }
-    );
-    this.subscriptionList.push(commandSub);
     this.structureList[0].animationProperties.push(newAnimation);
 
     this.previousStructureSelected[
