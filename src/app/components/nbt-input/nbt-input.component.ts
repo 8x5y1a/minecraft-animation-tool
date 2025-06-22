@@ -8,7 +8,7 @@ import {
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { NBT, parse, simplify } from 'prismarine-nbt';
+import { equal, NBT, parse, simplify } from 'prismarine-nbt';
 import { NbtDataService } from 'src/app/services/nbt-data.service';
 import {
   BlockCount,
@@ -95,14 +95,15 @@ export class NbtInputComponent {
     const nbtResult = await parse(Buffer.from(bufferArray)).finally(() => {
       this.isLoading.set(false);
     });
-    console.log(nbtResult);
     const simplifiedNbt = simplify(nbtResult.parsed);
-    console.log(simplifiedNbt);
     if (!simplifiedNbt) {
       console.error('nbt failed to parse');
       return;
     }
-    //TODO: here we can check if the nbt is already there (with equal(nbt1, nbt2))
+    if (this.nbtList.some((nbt) => equal(nbtResult.parsed, nbt))) {
+      console.warn('NBT structure already exists');
+      return;
+    }
 
     let parsedStructure: ParsedStructure | undefined = undefined;
     if (file.name.endsWith('.nbt')) {
@@ -118,11 +119,11 @@ export class NbtInputComponent {
       };
     } else if (file.name.endsWith('.litematic')) {
       const structureName = simplifiedNbt.Metadata.Name;
+      //FIXME: Some of the blocks are no decoded correctly
       const blockPos = this.decodeLitematicStructure(
         simplifiedNbt.Regions[structureName],
         simplifiedNbt.Regions[structureName].BlockStatePalette
       );
-      console.log(blockPos);
       parsedStructure = {
         blockPostition: blockPos,
         size: simplifiedNbt.Regions[structureName].Size,
