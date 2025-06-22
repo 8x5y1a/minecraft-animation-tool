@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use 'dark-tertiary_theme-colors' as palettes;
 
 @include mat.elevation-classes();
 @include mat.app-background();
@@ -10,7 +11,7 @@ html.dark-theme {
       color: (
         theme-type: dark,
         primary: mat.$violet-palette,
-        tertiary: mat.$magenta-palette,
+        tertiary: palettes.$primary-palette,
         use-system-variables: true,
         system-variables-prefix: sys,
       ),
