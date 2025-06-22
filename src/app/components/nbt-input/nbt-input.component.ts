@@ -38,6 +38,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   styleUrl: './nbt-input.component.css',
   standalone: true,
 })
+/**
+ * NbtInputComponent handles the input, parsing, and processing of NBT and Litematic files,
+ * providing methods to read, validate, and transform Minecraft structure data for use in the application.
+ * It interacts with NbtDataService to store and manage parsed structures and supports user preferences.
+ */
 export class NbtInputComponent {
   private nbtDataService = inject(NbtDataService);
   protected preferenceService = inject(PreferenceService);
@@ -55,16 +60,18 @@ export class NbtInputComponent {
     const files = (event.target as HTMLInputElement).files;
     if (!files) {
       console.error('The files are undefined');
+      this.isLoading.set(false);
       return;
     }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file) {
-        this.readNBTData(file);
+        await this.readNBTData(file);
       }
     }
   }
 
+  /** Transform properties into readable and easily managable data  */
   private transformProperty(
     propertyNbt: any
   ): Record<string, string> | undefined {
@@ -89,25 +96,72 @@ export class NbtInputComponent {
       .replace(/\s+/g, '_');
   }
 
+  /**
+   * Reads and parses NBT data from a file, checking for duplicates and building a structure.
+   * If the structure is valid and not a duplicate, it adds it to the NBT data service.
+   * @param file The file containing NBT data.
+   */
   private async readNBTData(file: File) {
-    // Reading file and parsing file
-    const bufferArray = await file.arrayBuffer();
-    const nbtResult = await parse(Buffer.from(bufferArray)).finally(() => {
+    this.isLoading.set(true);
+    let parsedNBT: NBT | undefined = undefined;
+    try {
+      const buffer = await file.arrayBuffer();
+      parsedNBT = (await parse(Buffer.from(buffer))).parsed;
+    } catch (error) {
+      console.error('Failed to parse NBT file:', error);
       this.isLoading.set(false);
-    });
-    const simplifiedNbt = simplify(nbtResult.parsed);
-    if (!simplifiedNbt) {
-      console.error('nbt failed to parse');
-      return;
     }
-    if (this.nbtList.some((nbt) => equal(nbtResult.parsed, nbt))) {
+    if (!parsedNBT) return;
+
+    if (this.isDuplicate(parsedNBT)) {
       console.warn('NBT structure already exists');
+      this.isLoading.set(false);
       return;
     }
 
-    let parsedStructure: ParsedStructure | undefined = undefined;
-    if (file.name.endsWith('.nbt')) {
-      parsedStructure = {
+    const structure = this.buildStructure(file, parsedNBT);
+    if (!structure) return;
+
+    this.nbtDataService.addNBTStructure(structure);
+    this.nbtList.push(parsedNBT);
+    this.isLoading.set(false);
+  }
+
+  private isDuplicate(nbt: NBT): boolean {
+    return this.nbtList.some((existing) => equal(nbt, existing));
+  }
+
+  private buildStructure(file: File, parsedNBT: NBT): NBTStructure | undefined {
+    const simplifiedNbt = simplify(parsedNBT);
+    const parsed = this.parseStructureByType(file.name, simplifiedNbt);
+    if (!parsed) return;
+
+    const blockNameList = parsed.palette.map((block: any) => block.Name);
+    const { blockDataList, blockCountDict, coordinateAndBlock, maxAxis } =
+      this.processBlocks(parsed.blockPostition, blockNameList, parsed.palette);
+
+    const blockCountList = this.buildBlockCountList(blockCountDict);
+    const cleanName = this.cleanFunctionName(
+      file.name.replace(/\.(nbt|litematic)$/, '')
+    );
+
+    return {
+      name: cleanName,
+      blockData: blockDataList,
+      blockCount: blockCountList,
+      CoordinateAndBlock: coordinateAndBlock,
+      animationProperties: [],
+      maxAxis: maxAxis,
+      structureSize: parsed.size,
+    };
+  }
+
+  private parseStructureByType(
+    fileName: string,
+    simplifiedNbt: any
+  ): ParsedStructure | undefined {
+    if (fileName.endsWith('.nbt')) {
+      return {
         blockPostition: simplifiedNbt.blocks,
         size: {
           x: simplifiedNbt.size[0],
@@ -117,61 +171,60 @@ export class NbtInputComponent {
         palette: simplifiedNbt.palette,
         origin: { x: 0, y: 0, z: 0 },
       };
-    } else if (file.name.endsWith('.litematic')) {
-      const structureName = simplifiedNbt.Metadata.Name;
-      //FIXME: Some of the blocks are no decoded correctly
-      const blockPos = this.decodeLitematicStructure(
-        simplifiedNbt.Regions[structureName],
-        simplifiedNbt.Regions[structureName].BlockStatePalette
-      );
-      parsedStructure = {
-        blockPostition: blockPos,
-        size: simplifiedNbt.Regions[structureName].Size,
-        palette: simplifiedNbt.Regions[structureName].BlockStatePalette,
+    } else if (fileName.endsWith('.litematic')) {
+      const name = simplifiedNbt.Metadata?.Name;
+      if (!name || !simplifiedNbt.Regions?.[name]) return;
+      return {
+        blockPostition: this.decodeLitematicStructure(
+          simplifiedNbt.Regions[name],
+          simplifiedNbt.Regions[name].BlockStatePalette
+        ),
+        size: simplifiedNbt.Regions[name].Size,
+        palette: simplifiedNbt.Regions[name].BlockStatePalette,
         origin: simplifiedNbt.Position ?? { x: 0, y: 0, z: 0 },
       };
     }
-    if (!parsedStructure) {
-      return;
-    }
+    return;
+  }
 
-    const { blockPostition, size, palette, origin } = parsedStructure;
-    const blockNameList: string[] = palette.map((block: any) => block.Name);
-    console.log(blockPostition);
-
-    const maxAxis: Coordinates = {
-      x: -200,
-      y: -200,
-      z: -200,
-    };
-
-    const blockCountDict: Record<string, number> = {};
-    const blockDataList: BlockData[] = [];
+  /**
+   * Processes the blocks from the parsed structure, extracting block data,
+   * counting occurrences, and determining the maximum axis values.
+   */
+  private processBlocks(
+    positions: any[],
+    blockNameList: string[],
+    palette: any[]
+  ) {
     const coordinateAndBlock: string[] = [];
+    const blockDataList: BlockData[] = [];
+    const blockCountDict: Record<string, number> = {};
+    const maxAxis: Coordinates = { x: -Infinity, y: -Infinity, z: -Infinity };
 
-    blockPostition.forEach((data: any) => {
+    positions.forEach((data: any) => {
       const block = blockNameList[data.state];
       const [x, y, z] = data.pos;
 
       if (this.preferenceService.autoRemoveAir && block === 'minecraft:air') {
         return;
       }
+
       coordinateAndBlock.push(
         `${x} ${y} ${z}: ${this.nbtDataService.formatMinecraftName(block)}`
       );
+
       if (!palette[data.state]) {
         console.warn(`Block state ${data.state} not found in palette`);
         return;
       }
+
       blockDataList.push({
-        block: block,
+        block,
         property: this.transformProperty(palette[data.state]?.Properties),
-        position: { x: x, y: y, z: z },
-        icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
-          'minecraft:',
-          ''
-        )}.png`,
+        position: { x, y, z },
+        icon: this.getIconUrl(block),
       });
+
       blockCountDict[block] = (blockCountDict[block] ?? 0) + 1;
 
       maxAxis.x = Math.max(maxAxis.x, x);
@@ -179,31 +232,23 @@ export class NbtInputComponent {
       maxAxis.z = Math.max(maxAxis.z, z);
     });
 
-    const blockCountList: BlockCount[] = Object.entries(blockCountDict).map(
-      ([block, count]) => ({
-        block,
-        count,
-        icon: `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
-          'minecraft:',
-          ''
-        )}.png`,
-      })
-    );
-
-    const cleanName = this.cleanFunctionName(file.name.replace(/\.nbt$/, ''));
-    const structure: NBTStructure = {
-      name: cleanName,
-      blockData: blockDataList,
-      blockCount: blockCountList,
-      CoordinateAndBlock: coordinateAndBlock,
-      animationProperties: [],
-      maxAxis: maxAxis,
-      structureSize: size,
-    };
-    this.nbtDataService.addNBTStructure(structure);
-    this.nbtList.push(nbtResult.parsed);
+    return { blockDataList, blockCountDict, coordinateAndBlock, maxAxis };
   }
 
+  private buildBlockCountList(dict: Record<string, number>): BlockCount[] {
+    return Object.entries(dict).map(([block, count]) => ({
+      block,
+      count,
+      icon: this.getIconUrl(block),
+    }));
+  }
+
+  private getIconUrl(block: string): string {
+    return `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.5/assets/minecraft/textures/block/${block.replace(
+      'minecraft:',
+      ''
+    )}.png`;
+  }
   /* Helper Function used to decode litematic structures */
   private readPackedBitsArray(
     data: bigint[],
@@ -237,7 +282,6 @@ export class NbtInputComponent {
     region: any,
     palette: any
   ): ParsedBlockPosition[] {
-    console.log(region.Size);
     const [sizeX, sizeY, sizeZ] = [region.Size.x, region.Size.y, region.Size.z];
     const [originX, originY, originZ] = [
       region.Position.x,
