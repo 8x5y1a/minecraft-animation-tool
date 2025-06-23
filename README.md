@@ -9,6 +9,8 @@ https://youtu.be/I1qUxY8sSjQ
 ## Link to Application
 https://8x5y1a.github.io/minecraft-animation-tool/
 
+Currently Supports NBT & Litematic files.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
