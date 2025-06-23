@@ -201,6 +201,11 @@ export class NbtInputComponent {
     const maxAxis: Coordinates = { x: -Infinity, y: -Infinity, z: -Infinity };
 
     positions.forEach((data: any) => {
+      if (!palette[data.state]) {
+        console.warn(`Block state ${data.state} not found in palette`);
+        return;
+      }
+
       const block = blockNameList[data.state];
       const [x, y, z] = data.pos;
 
@@ -211,11 +216,6 @@ export class NbtInputComponent {
       coordinateAndBlock.push(
         `${x} ${y} ${z}: ${this.nbtDataService.formatMinecraftName(block)}`
       );
-
-      if (!palette[data.state]) {
-        console.warn(`Block state ${data.state} not found in palette`);
-        return;
-      }
 
       blockDataList.push({
         block,
@@ -254,17 +254,16 @@ export class NbtInputComponent {
     bitsPerBlock: number,
     blockCount: number
   ): number[] {
-    const result: number[] = new Array(blockCount);
+    const result = new Array<number>(blockCount);
     const mask = (1n << BigInt(bitsPerBlock)) - 1n;
-
     let bitIndex = 0;
 
     for (let i = 0; i < blockCount; i++) {
       const longIndex = Math.floor(bitIndex / 64);
       const bitOffset = bitIndex % 64;
 
-      const current = data[longIndex];
-      const next = data[longIndex + 1] ?? 0n;
+      const current = BigInt.asUintN(64, data[longIndex]);
+      const next = BigInt.asUintN(64, data[longIndex + 1] ?? 0n);
 
       const combined = (next << 64n) | current;
       const value = Number((combined >> BigInt(bitOffset)) & mask);
@@ -290,7 +289,7 @@ export class NbtInputComponent {
     const totalBlocks = sizeX * sizeY * sizeZ;
 
     const blockStatesRaw = region.BlockStates as bigint[];
-    const bitsPerBlock = Math.max(2, Math.ceil(Math.log2(palette.length)));
+    const bitsPerBlock = this.getLitematicaBitsPerBlock(palette.length);
 
     const stateArray = this.readPackedBitsArray(
       blockStatesRaw,
@@ -312,5 +311,13 @@ export class NbtInputComponent {
     }
 
     return result;
+  }
+
+  private getLitematicaBitsPerBlock(paletteLength: number): number {
+    let bitsPerBlock = 2;
+    while (paletteLength > 1 << bitsPerBlock) {
+      bitsPerBlock++;
+    }
+    return bitsPerBlock;
   }
 }
