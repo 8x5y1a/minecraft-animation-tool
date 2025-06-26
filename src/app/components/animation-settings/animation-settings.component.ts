@@ -156,7 +156,7 @@ export class AnimationSettingsComponent implements OnInit {
     );
   }
 
-  protected removeAnimation(index: number, properties: AnimationProperties) {
+  protected referenceAnimation(index: number, properties: AnimationProperties) {
     const structureName = this.structureList.find((structure) =>
       properties.name.includes(structure.name)
     )?.name;
@@ -213,8 +213,9 @@ export class AnimationSettingsComponent implements OnInit {
   protected displayScaling(properties: AnimationProperties): boolean {
     return (
       properties.command.value === 'display' ||
+      properties.command.value === 'translate' ||
       (properties.command.value === 'destroy' &&
-        properties.removeAnimation.value?.command.value === 'display')
+        properties.referenceAnimation.value?.command.value === 'display')
     );
   }
 

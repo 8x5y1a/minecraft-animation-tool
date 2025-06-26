@@ -20,8 +20,8 @@ export type AnimationProperties = Position &
   Animation & {
     id: number;
     name: string;
-    command: FC<'set' | 'display' | 'destroy'>;
-    removeAnimation: FC<undefined | AnimationProperties>;
+    command: FC<'set' | 'display' | 'destroy' | 'translate'>;
+    referenceAnimation: FC<undefined | AnimationProperties>;
     nextAnimation: FC<undefined | AnimationProperties>;
     structureName: FC<string>;
     isTemplate: boolean;

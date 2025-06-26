@@ -45,3 +45,7 @@
   height: 100px;
   justify-content: center;
 }
+
+.long-field {
+  width: 20rem;
+}

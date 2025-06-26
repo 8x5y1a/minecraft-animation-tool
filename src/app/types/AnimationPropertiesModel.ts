@@ -7,7 +7,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
 
   name: string;
   command: FormControl<'set' | 'display' | 'destroy'>;
-  removeAnimation: FormControl<undefined | AnimationProperties>;
+  referenceAnimation: FormControl<undefined | AnimationProperties>;
   nextAnimation: FormControl<undefined | AnimationProperties>;
   structureName: FormControl<string>;
   isTemplate: boolean;
@@ -64,7 +64,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       gradualScaleStart: number;
       gradualScaleEnd: number;
       coordinateOption: 'static' | 'gradual';
-      removeAnimation?: AnimationProperties;
+      referenceAnimation?: AnimationProperties;
       nextAnimation?: AnimationProperties;
       scaleSpeed: number;
       shouldSetBlock: boolean;
@@ -91,7 +91,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.facing = new FormControl(params.facing, { nonNullable: true });
     this.facingEnd = new FormControl(params.facing, { nonNullable: true });
 
-    this.removeAnimation = new FormControl(params.removeAnimation, {
+    this.referenceAnimation = new FormControl(params.referenceAnimation, {
       nonNullable: true,
     });
 
@@ -145,7 +145,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endX: 0,
       endY: 0,
       endZ: 0,
-      removeAnimation: undefined,
+      referenceAnimation: undefined, //TODO: Could automatically assign one?
       animationOrder: 'y',
       orderFromBlock: '',
       isAscending: true,
@@ -175,7 +175,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       endX: from.endX.value,
       endY: from.endY.value,
       endZ: from.endZ.value,
-      removeAnimation: from,
+      referenceAnimation: from,
       animationOrder: from.animationOrder.value,
       orderFromBlock: from.orderFromBlock.value,
       isAscending: from.isAscending.value,

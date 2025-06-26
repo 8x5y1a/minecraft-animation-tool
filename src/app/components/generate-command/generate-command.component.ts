@@ -306,7 +306,7 @@ export class GenerateCommandComponent {
     structure: NBTStructure
   ): string[] {
     const animToDel = structure.animationProperties.find(
-      (anim) => anim.name === properties.removeAnimation.value?.name
+      (anim) => anim.name === properties.referenceAnimation.value?.name
     );
     const coordinatesToDel = animToDel?.coordinateList[index];
     if (!animToDel || !coordinatesToDel) return [];
