@@ -57,6 +57,7 @@ export type Animation = {
   orderFromBlock: FC<string>;
   isAscending: FC<boolean>;
   randomness: FC<number>;
+  translationSpeed: FC<number>;
 };
 
 export type Coordinates = {

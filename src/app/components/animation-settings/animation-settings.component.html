@@ -96,36 +96,62 @@
         <!-- Translate animation -->
         @if(properties.command.value === 'translate'){
         <h3>Translate</h3>
-        <mat-form-field class="mb-1 long-field">
-          <mat-label>Animation to translate</mat-label>
-          <mat-select
-            [required]="true"
-            [formControl]="properties.referenceAnimation"
+        <div class="translate-container">
+          <div>
+            <mat-form-field class="mb-1 long-field">
+              <mat-label>Animation to translate</mat-label>
+              <mat-select
+                [required]="true"
+                [formControl]="properties.referenceAnimation"
+              >
+                @for (animation of allAnimationProperties; track animation) {
+                @if (animation.command.value !== 'destroy' &&
+                animation.command.value !== 'translate') {
+                <mat-option [value]="animation">{{
+                  animation.name
+                }}</mat-option>
+                } }
+              </mat-select>
+            </mat-form-field>
+            <button
+              [disabled]="!properties.referenceAnimation.value"
+              style="margin: 10px"
+              aria-label="refresh translation data"
+              matMiniFab
+              matTooltip="Refresh Initial Coordinates & Scale"
+              [matTooltipDisabled]="preferenceService.isDisableTooltips"
+              (click)="
+                properties.referenceAnimation.value !== undefined
+                  ? updateTranslateValues(
+                      properties,
+                      properties.referenceAnimation.value
+                    )
+                  : undefined
+              "
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          <div
+            matTooltip="Speed at which the building will translate"
+            [matTooltipDisabled]="preferenceService.isDisableTooltips"
           >
-            @for (animation of allAnimationProperties; track animation) { @if
-            (animation.command.value !== 'destroy' && animation.command.value
-            !== 'translate') {
-            <mat-option [value]="animation">{{ animation.name }}</mat-option>
-            } }
-          </mat-select>
-        </mat-form-field>
-        @if(properties.referenceAnimation.value){
-        <button
-          style="margin: 10px"
-          aria-label="refresh translation data"
-          matMiniFab
-          matTooltip="Refresh Initial Coordinates & Scale"
-          [matTooltipDisabled]="preferenceService.isDisableTooltips"
-          (click)="
-            updateTranslateValues(
-              properties,
-              properties.referenceAnimation.value
-            )
-          "
-        >
-          <mat-icon>refresh</mat-icon>
-        </button>
-        } <mat-divider />
+            <div class="randomness-label-container">
+              <label for="slider">Translation time: </label>
+              <label for="slider">
+                {{ properties.translationSpeed.value }}</label
+              >
+            </div>
+            <mat-slider [max]="100" [min]="1" [step]="1">
+              <input
+                [formControl]="properties.translationSpeed"
+                matSliderThumb
+                id="slider"
+              />
+            </mat-slider>
+          </div>
+        </div>
+        <mat-divider />
         }
 
         <!-- Coordinates Section -->
@@ -278,7 +304,6 @@
               />
             </mat-form-field>
           </mat-card-content>
-          @if(properties.command.value !== 'translate'){
           <mat-form-field
             matTooltip="From which axis the animation will start"
             [matTooltipDisabled]="preferenceService.isDisableTooltips"
@@ -332,7 +357,7 @@
               />
             </mat-slider>
           </div>
-          } }
+          }
         </div>
         }
 

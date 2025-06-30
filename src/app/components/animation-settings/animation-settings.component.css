@@ -54,3 +54,8 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.translate-container {
+  display: grid;
+  grid-template-columns: auto auto;
+}

@@ -40,6 +40,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
   orderFromBlock: FormControl<string>;
   isAscending: FormControl<boolean>;
   randomness: FormControl<number>;
+  translationSpeed: FormControl<number>;
 
   private constructor(
     name: string,
@@ -70,6 +71,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       shouldSetBlock: boolean;
       structureName: string;
       isTemplate: boolean;
+      translationSpeed: number;
     }
   ) {
     this.id = AnimationPropertiesModel.nextId++;
@@ -132,6 +134,9 @@ export class AnimationPropertiesModel implements AnimationProperties {
     this.shouldSetBlock = new FormControl(params.shouldSetBlock, {
       nonNullable: true,
     });
+    this.translationSpeed = new FormControl(params.translationSpeed, {
+      nonNullable: true,
+    });
   }
 
   static createDefault(name: string) {
@@ -161,6 +166,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       shouldSetBlock: true,
       structureName: '',
       isTemplate: false,
+      translationSpeed: 30,
     });
   }
 
@@ -191,6 +197,7 @@ export class AnimationPropertiesModel implements AnimationProperties {
       shouldSetBlock: from.shouldSetBlock.value,
       structureName: from.structureName.value,
       isTemplate: from.isTemplate,
+      translationSpeed: from.translationSpeed.value,
     });
   }
 }
