@@ -192,6 +192,18 @@ export class GenerateCommandComponent {
           propertiesString,
           structure
         );
+      case 'translate':
+        return this.buildTranslateCommands(
+          timing,
+          rotatedCoordinates.x,
+          rotatedCoordinates.y,
+          rotatedCoordinates.z,
+          block,
+          properties,
+          propertiesString,
+          isTiming,
+          blockData
+        );
       default:
         return [];
     }
@@ -388,6 +400,28 @@ export class GenerateCommandComponent {
     }
 
     return [`${timing} kill @e[tag=${tags}]`];
+  }
+
+  private buildTranslateCommands(
+    timing: string,
+    x: number,
+    y: number,
+    z: number,
+    block: string,
+    properties: AnimationProperties,
+    propertiesString: string,
+    isTiming: boolean,
+    blockData: BlockData
+  ): string[] {
+    // Options:
+    //  [From Set block] => Display From Order to new destination
+    //  [From Display] => Display From Order to new destination
+    //  [From another Translate] => Display from Order to a new destination
+    //  [Set Block at the end]
+    //  [Change scale]
+    //  [others]?
+
+    return [];
   }
 
   /**
