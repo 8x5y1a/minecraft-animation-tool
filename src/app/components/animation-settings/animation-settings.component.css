@@ -49,3 +49,8 @@
 .long-field {
   width: 20rem;
 }
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

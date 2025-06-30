@@ -61,7 +61,7 @@
           matTooltip="Destroy the blocks of the chosen animation"
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           value="destroy"
-          >Destroy block</mat-chip-option
+          >Destroy animation</mat-chip-option
         >
         } @if(hasDisplayAnimation()) {
         <mat-chip-option
@@ -69,7 +69,7 @@
           [matTooltipDisabled]="preferenceService.isDisableTooltips"
           [selectable]="properties.command.value !== 'translate'"
           value="translate"
-          >Translate Display</mat-chip-option
+          >Translate animation</mat-chip-option
         >}
       </mat-chip-listbox>
       <mat-divider />
@@ -109,7 +109,23 @@
             } }
           </mat-select>
         </mat-form-field>
-        <mat-divider />
+        @if(properties.referenceAnimation.value){
+        <button
+          style="margin: 10px"
+          aria-label="refresh translation data"
+          matMiniFab
+          matTooltip="Refresh Initial Coordinates & Scale"
+          [matTooltipDisabled]="preferenceService.isDisableTooltips"
+          (click)="
+            updateTranslateValues(
+              properties,
+              properties.referenceAnimation.value
+            )
+          "
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        } <mat-divider />
         }
 
         <!-- Coordinates Section -->
@@ -139,24 +155,49 @@
             matTooltip="Coordinates which the building will be built"
             [matTooltipDisabled]="preferenceService.isDisableTooltips"
           >
-            @if (properties.coordinateOption.value === 'gradual') {
+            @if (properties.coordinateOption.value === 'gradual' ||
+            properties.command.value === 'translate') {
             <b>Initial: </b>
             }
-            <mat-form-field>
+            <mat-form-field
+              [class.disabled]="properties.command.value === 'translate'"
+            >
               <mat-label>X</mat-label>
-              <input type="number" matInput [formControl]="properties.x" />
+              <input
+                type="number"
+                [readonly]="properties.command.value === 'translate'"
+                matInput
+                [formControl]="properties.x"
+              />
             </mat-form-field>
-            <mat-form-field>
+            <mat-form-field
+              [class.disabled]="properties.command.value === 'translate'"
+            >
               <mat-label>Y</mat-label>
-              <input type="number" matInput [formControl]="properties.y" />
+              <input
+                type="number"
+                [readonly]="properties.command.value === 'translate'"
+                matInput
+                [formControl]="properties.y"
+              />
             </mat-form-field>
-            <mat-form-field>
+            <mat-form-field
+              [class.disabled]="properties.command.value === 'translate'"
+            >
               <mat-label>Z</mat-label>
-              <input type="number" matInput [formControl]="properties.z" />
+              <input
+                type="number"
+                [readonly]="properties.command.value === 'translate'"
+                matInput
+                [formControl]="properties.z"
+              />
             </mat-form-field>
             <mat-form-field>
               <mat-label>Facing</mat-label>
-              <mat-select [formControl]="properties.facing">
+              <mat-select
+                [formControl]="properties.facing"
+                [disabled]="properties.command.value === 'translate'"
+              >
                 <mat-option value="north">North</mat-option>
                 <mat-option value="east">East</mat-option>
                 <mat-option value="south">South</mat-option>
@@ -164,8 +205,9 @@
               </mat-select>
             </mat-form-field>
           </div>
-          @if ( properties.coordinateOption.value === 'gradual' &&
-          properties.command.value === 'display' ) {
+          @if ( (properties.coordinateOption.value === 'gradual' &&
+          properties.command.value === 'display') || properties.command.value
+          ==='translate') {
           <div
             matTooltip="Coordinates which the building will be moved to"
             [matTooltipDisabled]="preferenceService.isDisableTooltips"
@@ -207,7 +249,7 @@
 
         <!-- Animation Timing -->
         <div class="center">
-          <h3 [className]="properties.timing.value ? 'disabled' : ''">
+          <h3 [className]="properties.timing.value ? 'readonly' : ''">
             Animation Timing
           </h3>
           <mat-slide-toggle
@@ -429,12 +471,13 @@
 <!-- Gradual Scale Template -->
 <ng-template #gradualScale let-properties="properties">
   <div class="center">
-    <mat-form-field>
+    <mat-form-field [class.disabled]="properties.command.value === 'translate'">
       <input
         matInput
         type="number"
         [formControl]="properties.gradualScaleStart"
         min="0"
+        [readonly]="properties.command.value === 'translate'"
       />
       <mat-label>Start Scale</mat-label>
     </mat-form-field>

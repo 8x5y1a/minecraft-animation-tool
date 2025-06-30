@@ -7,6 +7,7 @@ import {
   signal,
   inject,
   NgZone,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -35,7 +36,15 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TemplateListComponent } from './template-list/template-list.component';
 import { PreferenceService } from 'src/app/services/preference.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { take } from 'rxjs';
+import {
+  distinct,
+  distinctUntilChanged,
+  filter,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+} from 'rxjs';
 
 @Component({
   selector: 'app-animation-settings',
@@ -63,7 +72,7 @@ import { take } from 'rxjs';
   templateUrl: './animation-settings.component.html',
   styleUrl: './animation-settings.component.css',
 })
-export class AnimationSettingsComponent implements OnInit {
+export class AnimationSettingsComponent implements OnInit, OnDestroy {
   private nbtDataService = inject(NbtDataService);
   protected preferenceService = inject(PreferenceService);
   private cdr = inject(ChangeDetectorRef);
@@ -75,6 +84,8 @@ export class AnimationSettingsComponent implements OnInit {
   protected isAddTemplate = false;
   protected isDefaultAnimation = true; // TODO:
   protected previousStructureSelected: Record<number, string | undefined> = {};
+
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.nbtDataService.nbtStructureObs
@@ -125,6 +136,11 @@ export class AnimationSettingsComponent implements OnInit {
     ] = this.structureList[0].name;
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   protected addAnimation(newAnimation?: AnimationProperties) {
     if (!newAnimation) {
       newAnimation = AnimationPropertiesModel.createDefault(
@@ -136,6 +152,8 @@ export class AnimationSettingsComponent implements OnInit {
       );
       newAnimation.structureName.setValue(this.structureList[0].name);
     }
+    this.handleTranslationData(newAnimation);
+
     this.structureList[0].animationProperties.push(newAnimation);
 
     //Work around for tabIndex not updating correctly
@@ -223,7 +241,8 @@ export class AnimationSettingsComponent implements OnInit {
     return (
       this.allAnimationProperties.length > 1 &&
       this.allAnimationProperties.some(
-        (prop) => prop.command.value === 'display'
+        (prop) =>
+          prop.command.value === 'display' || prop.command.value === 'set'
       )
     );
   }
@@ -336,5 +355,38 @@ export class AnimationSettingsComponent implements OnInit {
     );
 
     return filtered;
+  }
+
+  protected handleTranslationData(animation: AnimationProperties) {
+    animation.command.valueChanges
+      .pipe(
+        filter((command) => command === 'translate'),
+        take(1),
+        takeUntil(this.destroy$),
+        switchMap(() =>
+          animation.referenceAnimation.valueChanges.pipe(
+            distinctUntilChanged(),
+            filter((ref): ref is AnimationProperties => ref !== undefined)
+          )
+        )
+      )
+      .subscribe((ref) => {
+        this.updateTranslateValues(animation, ref);
+      });
+  }
+
+  protected updateTranslateValues(
+    source: AnimationProperties,
+    ref: AnimationProperties
+  ) {
+    source.x.setValue(ref.x.value);
+    source.y.setValue(ref.y.value);
+    source.z.setValue(ref.z.value);
+    source.facing.setValue(ref.facing.value);
+    source.gradualScaleStart.setValue(
+      ref.scaleOption.value === 'static'
+        ? ref.staticScale.value
+        : ref.gradualScaleEnd.value
+    );
   }
 }
