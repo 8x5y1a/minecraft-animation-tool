@@ -414,14 +414,64 @@ export class GenerateCommandComponent {
     blockData: BlockData
   ): string[] {
     // Options:
-    //  [From Set block] => Display From Order to new destination
-    //  [From Display] => Display From Order to new destination
-    //  [From another Translate] => Display from Order to a new destination
+    //  [From Set block] => Display From Order to new destination DONE
+    //  [From Display] => Display From Order to new destination DONE
+    //  [From another Translate] => Display from Order to a new destination DONE
     //  [Set Block at the end]
-    //  [Change scale]
+    //  [Change scale] NOT SURE
     //  [others]?
 
-    return [];
+    const reference = properties.referenceAnimation.value;
+    if (!reference) {
+      return [];
+    }
+
+    const commandList: string[] = [];
+    let index = 0;
+
+    const startScale =
+      properties.scaleOption.value === 'gradual'
+        ? properties.gradualScaleEnd.value
+        : properties.staticScale.value;
+    const coordinateTag = this.commandHelper.getCoordinateTag(x, y, z);
+    const transform = this.commandHelper.buildTransformation(
+      [properties.endX.value, properties.endY.value, properties.endZ.value],
+      true,
+      startScale
+    );
+
+    if (
+      reference.command.value === 'set' ||
+      (reference.command.value === 'translate' &&
+        reference.shouldSetBlock.value)
+    ) {
+      index = 1;
+      const transformWithTranslation = this.commandHelper.addTranslation(
+        transform,
+        properties.gradualScaleEnd.value,
+        properties.gradualScaleStart.value,
+        properties
+      );
+      commandList.push(`${timing} setblock ${x} ${y} ${z} minecraft:air`);
+      commandList.push(
+        `${timing} summon block_display ${x} ${y} ${z} {block_state:{Name:"${block}"${propertiesString}}${transformWithTranslation},Tags:["${coordinateTag}"]}`
+      );
+    }
+
+    commandList.push(
+      `${this.commandHelper.addLatency(
+        timing,
+        index
+      )} execute as @e[tag=${coordinateTag}] run data merge entity @s {start_interpolation:-1,interpolation_duration:${
+        properties.translationSpeed.value
+      }${transform}}`
+    );
+
+    if (properties.shouldSetBlock.value) {
+      //TODO: find a way to set the block at the end of the translation... based on the speed
+    }
+
+    return commandList;
   }
 
   /**

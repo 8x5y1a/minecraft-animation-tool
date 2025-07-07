@@ -85,7 +85,8 @@
             [formControl]="properties.referenceAnimation"
           >
             @for (animation of allAnimationProperties; track animation) { @if
-            (animation.command.value !== 'destroy') {
+            (animation.command.value !== 'destroy' && animation.command.value
+            !== 'translate') {
             <mat-option [value]="animation">{{ animation.name }}</mat-option>
             } }
           </mat-select>
@@ -105,8 +106,7 @@
                 [formControl]="properties.referenceAnimation"
               >
                 @for (animation of allAnimationProperties; track animation) {
-                @if (animation.command.value !== 'destroy' &&
-                animation.command.value !== 'translate') {
+                @if (animation.command.value !== 'destroy') {
                 <mat-option [value]="animation">{{
                   animation.name
                 }}</mat-option>
