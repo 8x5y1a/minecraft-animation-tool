@@ -468,7 +468,27 @@ export class GenerateCommandComponent {
     );
 
     if (properties.shouldSetBlock.value) {
-      //TODO: find a way to set the block at the end of the translation... based on the speed
+      const setBlockProperties = this.commandHelper.buildPropertiesString(
+        blockData.property ?? {},
+        true,
+        properties.facing.value
+      );
+      //TODO: Calculate latency based on the translation speed
+      const latency = 3;
+      if (this.maxIncrement < latency) {
+        this.maxIncrement = latency;
+      }
+
+      commandList.push(
+        `${this.commandHelper.addLatency(
+          timing,
+          latency
+        )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
+        `${this.commandHelper.addLatency(
+          timing,
+          latency
+        )} kill @e[tag=${coordinateTag}]`
+      );
     }
 
     return commandList;
