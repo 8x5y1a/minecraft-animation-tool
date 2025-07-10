@@ -420,6 +420,9 @@ export class GenerateCommandComponent {
     //  [Set Block at the end]
     //  [Change scale] NOT SURE
     //  [others]?
+    //FACING DOESNT WORK
+    // Translate from translate doesnt have datamerge (or doesnt work)
+    // Maybe get rid of the offset when datamerging OR maybe just fix the offset.
 
     const reference = properties.referenceAnimation.value;
     if (!reference) {
@@ -434,27 +437,35 @@ export class GenerateCommandComponent {
         ? properties.gradualScaleEnd.value
         : properties.staticScale.value;
     const coordinateTag = this.commandHelper.getCoordinateTag(x, y, z);
+    const xTranslateValue = properties.x.value - properties.endX.value;
+    const yTranslateValue = properties.y.value - properties.endY.value;
+    const zTranslateValue = properties.z.value - properties.endZ.value;
     const transform = this.commandHelper.buildTransformation(
-      [properties.endX.value, properties.endY.value, properties.endZ.value],
+      [xTranslateValue, yTranslateValue, zTranslateValue],
       true,
       startScale
     );
-
     if (
       reference.command.value === 'set' ||
       (reference.command.value === 'translate' &&
         reference.shouldSetBlock.value)
     ) {
       index = 1;
-      const transformWithTranslation = this.commandHelper.addTranslation(
-        transform,
-        properties.gradualScaleEnd.value,
-        properties.gradualScaleStart.value,
-        properties
+      const translatedX = x + reference.endX.value;
+      const translatedY = y + reference.endY.value;
+      const translatedZ = z + reference.endZ.value;
+
+      const transformTranslated = this.commandHelper.buildTransformation(
+        [translatedX, translatedY, translatedZ],
+        false,
+        reference.gradualScaleEnd.value
       );
-      commandList.push(`${timing} setblock ${x} ${y} ${z} minecraft:air`);
+
       commandList.push(
-        `${timing} summon block_display ${x} ${y} ${z} {block_state:{Name:"${block}"${propertiesString}}${transformWithTranslation},Tags:["${coordinateTag}"]}`
+        `${timing} setblock ${translatedX} ${translatedY} ${translatedZ} minecraft:air`
+      );
+      commandList.push(
+        `${timing} summon block_display ${translatedX} ${translatedY} ${translatedZ} {block_state:{Name:"${block}"${propertiesString}}${transformTranslated},Tags:["${coordinateTag}"]}`
       );
     }
 
@@ -474,16 +485,17 @@ export class GenerateCommandComponent {
         properties.facing.value
       );
       //TODO: Calculate latency based on the translation speed
-      const latency = 3;
+      const latency = 15;
       if (this.maxIncrement < latency) {
         this.maxIncrement = latency;
       }
 
       commandList.push(
-        `${this.commandHelper.addLatency(
-          timing,
-          latency
-        )} setblock ${x} ${y} ${z} ${block}${setBlockProperties}`,
+        `${this.commandHelper.addLatency(timing, latency)} setblock ${
+          x + xTranslateValue
+        } ${y + yTranslateValue} ${
+          z + zTranslateValue
+        } ${block}${setBlockProperties}`,
         `${this.commandHelper.addLatency(
           timing,
           latency
